@@ -1,0 +1,17 @@
+
+.app {
+  display: flex;
+  width: 100%;
+}
+
+.app__controls {
+  width: 300px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.app__canvas {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
