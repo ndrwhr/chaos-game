@@ -14,7 +14,7 @@ const generateLookupTable = (points, exclusions) => {
 
 const createAttractor = (targets, historySize, targetGenerator) => Object.assign({
   getInitialPoint(){
-    return vec2.clone(_.sample(targets));
+    return vec2.fromValues(Math.random(), Math.random());
   },
 
   getNextTarget: (() => {
@@ -32,50 +32,22 @@ const createAttractor = (targets, historySize, targetGenerator) => Object.assign
 
 export default {
   createAttractor({points, exclusions, historySize}){
-    const getIntersection = (a, b) => new Set([...a].filter(x => b.has(x)));
+    const getIntersection = (a, b) => (new Set([...a].filter(x => b.has(x))));
 
-    const firstLevelLookup = generateLookupTable(points, exclusions);
-
-    const secondLevelLookup = new Map(points.map(ithPoint => {
-      const ithPointLookup = new Map(points.map(jthPoint => {
-        const jthPointLookup = getIntersection(
-          new Set(firstLevelLookup.get(ithPoint)),
-          new Set(firstLevelLookup.get(jthPoint))
-        );
-        return [jthPoint, jthPointLookup];
-      }));
-      return [ithPoint, ithPointLookup];
-    }));
-
-    const thirdLevelLookup = new Map(points.map(ithPoint => {
-      const ithPointLookup = new Map(points.map(jthPoint => {
-        const jthPointLookup = new Map(points.map(kthPoint => {
-          const kthPointLookup = getIntersection(getIntersection(
-            new Set(firstLevelLookup.get(ithPoint)),
-            new Set(firstLevelLookup.get(jthPoint))
-          ), new Set(firstLevelLookup.get(kthPoint)));
-          return [kthPoint, kthPointLookup];
-        }));
-        return [jthPoint, jthPointLookup];
-      }));
-      return [ithPoint, ithPointLookup];
-    }));
+    const possibleTargetLookup = generateLookupTable(points, exclusions);
 
     return createAttractor(points, historySize, previousTargets => {
-      const uniquePreviousTargets = Array.from(new Set(previousTargets));
-      let possibleTargets = points;
+      // If the previous target was undefined it means that there are no
+      // other choices.
+      if (previousTargets.length && !previousTargets[0]) return;
 
-      if (uniquePreviousTargets.length === 1){
-        possibleTargets = firstLevelLookup.get(uniquePreviousTargets[0]);
-      } else if (uniquePreviousTargets === 2){
-        possibleTargets = secondLevelLookup.get(uniquePreviousTargets[0])
-            .get(uniquePreviousTargets[1]);
-      } else if (uniquePreviousTargets === 3){
-        possibleTargets = thirdLevelLookup.get(uniquePreviousTargets[0])
-            .get(uniquePreviousTargets[1]).get(uniquePreviousTargets[2]);
-      }
+      const possibleTargets = previousTargets
+          .map(target => new Set(possibleTargetLookup.get(target)))
+          .reduce((intersection, possibleTargets) => {
+            return getIntersection(intersection, possibleTargets);
+          }, new Set(points));
 
-      return _.sample(possibleTargets);
+      return _.sample([...possibleTargets]);
     });
   },
 

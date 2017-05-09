@@ -9,8 +9,8 @@ const PASS_THROUGH_KEYS = [
   'points',
 ];
 
-const canvasWidth = 100;
-const canvasHeight = 100;
+const canvasWidth = 900;
+const canvasHeight = 900;
 
 class Canvas extends Component {
   constructor(props){
@@ -48,16 +48,12 @@ class Canvas extends Component {
 
   render() {
     return (
-      <div>
-        <canvas ref={canvas => {this._canvas = canvas;}}/>
-        <div>{JSON.stringify([...this.props.exclusions])}</div>
-      </div>
+      <canvas ref={canvas => {this._canvas = canvas;}}/>
     );
   }
 
   _start(){
     cancelAnimationFrame(this._animationId);
-
     const update = () => {
       for (let i = 0; i < this.props.speed; i++){
         this._draw();
@@ -72,6 +68,8 @@ class Canvas extends Component {
 
   _draw(){
     const target = this._attractor.getNextTarget();
+    if (!target) return;
+
     this._currentPoint = vec2.lerp(vec2.create(), this._currentPoint, target,
         0.5);
 

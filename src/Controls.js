@@ -159,8 +159,8 @@ export default Controls;
 
 export const CONTROL_DEFAULTS = {
   EXCLUSIONS: new Set(),
-  HISTORY_SIZE: 1,
+  HISTORY_SIZE: 2,
   IS_RUNNING: true,
-  NUM_POINTS: 3,
-  SPEED: SPEEDS[1],
+  NUM_POINTS: 4,
+  SPEED: SPEEDS[2],
 };

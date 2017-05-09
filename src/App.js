@@ -41,11 +41,13 @@ class App extends Component {
               onToggleIsRunning={this._toggleIsRunning}/>
         </div>
         <div className="app__canvas">
-          <Canvas exclusions={this.state.exclusions}
+          <Canvas
+              exclusions={this.state.exclusions}
               points={this.state.points}
               historySize={this.state.historySize}
               speed={this.state.speed}
-              isRunning={this.state.isRunning}/>
+              isRunning={this.state.isRunning}
+          />
         </div>
       </div>
     );
