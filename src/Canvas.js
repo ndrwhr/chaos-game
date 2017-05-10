@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import {vec2} from 'gl-matrix';
 
 import Game from './Game';
 
@@ -67,13 +66,10 @@ class Canvas extends Component {
   }
 
   _draw(){
-    const target = this._attractor.getNextTarget();
-    if (!target) return;
+    const point = this._attractor.getNextPoint();
+    if (!point) return;
 
-    this._currentPoint = vec2.lerp(vec2.create(), this._currentPoint, target,
-        0.5);
-
-    const [x, y] = this._currentPoint;
+    const [x, y] = point;
     const size = 1;
     this._context.fillRect(x * canvasWidth, y * canvasHeight, size, size);
   }
@@ -84,7 +80,6 @@ class Canvas extends Component {
       historySize,
       points,
     });
-    this._currentPoint = this._attractor.getInitialPoint();
   }
 }
 

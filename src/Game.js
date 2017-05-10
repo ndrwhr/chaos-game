@@ -13,11 +13,8 @@ const generateLookupTable = (points, exclusions) => {
 }
 
 const createAttractor = (targets, historySize, targetGenerator) => Object.assign({
-  getInitialPoint(){
-    return vec2.fromValues(Math.random(), Math.random());
-  },
-
-  getNextTarget: (() => {
+  getNextPoint: (() => {
+    let currentPoint = vec2.fromValues(Math.random(), Math.random());
     let previousTargets = [];
 
     return () => {
@@ -25,7 +22,9 @@ const createAttractor = (targets, historySize, targetGenerator) => Object.assign
 
       previousTargets = [newTarget, ...previousTargets].slice(0, historySize);
 
-      return newTarget;
+      currentPoint = vec2.lerp(vec2.create(), currentPoint, newTarget, 0.5);
+
+      return currentPoint;
     };
   })(),
 });
