@@ -13,6 +13,7 @@ class App extends Component {
       exclusions: CONTROL_DEFAULTS.EXCLUSIONS,
       historySize: CONTROL_DEFAULTS.HISTORY_SIZE,
       isRunning: CONTROL_DEFAULTS.IS_RUNNING,
+      offsets: CONTROL_DEFAULTS.OFFSETS,
       points: Game.setupNPoints(CONTROL_DEFAULTS.NUM_POINTS),
       speed: CONTROL_DEFAULTS.SPEED,
     };
@@ -20,6 +21,7 @@ class App extends Component {
     this._changeNumPoints = this._changeNumPoints.bind(this);
     this._changeExclusions = this._changeExclusions.bind(this);
     this._changeHistorySize = this._changeHistorySize.bind(this);
+    this._changeOffsets = this._changeOffsets.bind(this);
     this._changeSpeed = this._changeSpeed.bind(this);
     this._toggleIsRunning = this._toggleIsRunning.bind(this);
   }
@@ -35,6 +37,8 @@ class App extends Component {
               onExclusionsChange={this._changeExclusions}
               historySize={this.state.historySize}
               onHistorySizeChange={this._changeHistorySize}
+              offsets={this.state.offsets}
+              onOffsetsChange={this._changeOffsets}
               speed={this.state.speed}
               onSpeedChange={this._changeSpeed}
               isRunning={this.state.isRunning}
@@ -43,6 +47,7 @@ class App extends Component {
         <div className="app__canvas">
           <Canvas
               exclusions={this.state.exclusions}
+              offsets={this.state.offsets}
               points={this.state.points}
               historySize={this.state.historySize}
               speed={this.state.speed}
@@ -77,6 +82,13 @@ class App extends Component {
   _changeSpeed(speed){
     this.setState({
       speed,
+      isRunning: true,
+    });
+  }
+
+  _changeOffsets(offsets){
+    this.setState({
+      offsets,
       isRunning: true,
     });
   }

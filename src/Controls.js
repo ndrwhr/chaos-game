@@ -17,6 +17,18 @@ const SPEEDS = [
   1000,
 ];
 
+const OFFSETS = [
+  0.3,
+  0.35,
+  0.4,
+  0.45,
+  0.5,
+  0.55,
+  0.6,
+  0.65,
+  0.7,
+];
+
 const MAX_HISTORY_SIZE = 3;
 
 const renderShapeControl = (name, numPoints, isSelected, onChange) => {
@@ -82,6 +94,21 @@ const renderSpeedControl = (value, isSelected, onChange) => {
   );
 };
 
+const renderOffsetControl = (value, isSelected, onChange) => {
+  const classes = classNames('controls__offset', {
+    'controls__offset--selected': isSelected,
+  });
+
+  return (
+    <label key={value} className={classes}>
+      <input type="checkbox"
+          onChange={onChange}
+          checked={isSelected} />
+      {value}
+    </label>
+  );
+};
+
 const Controls = props => {
   const shapes = [
     ['Triangle', 3],
@@ -125,6 +152,24 @@ const Controls = props => {
     }];
   });
 
+  const offsets = OFFSETS.map(offset => {
+    return [offset, props.offsets.has(offset), () => {
+      const updatedOffests = new Set(props.offsets);
+
+      if (updatedOffests.has(offset)){
+        updatedOffests.delete(offset);
+      } else {
+        updatedOffests.add(offset);
+      }
+
+      if (updatedOffests.size === 0){
+        updatedOffests.add(OFFSETS[4]);
+      }
+
+      props.onOffsetsChange(updatedOffests);
+    }];
+  })
+
   const speeds = SPEEDS.map(speed => [speed * 60, speed === props.speed,
     () => props.onSpeedChange(speed)]);
 
@@ -140,6 +185,10 @@ const Controls = props => {
 
       <div className="controls__set">
         {historySizes.map(args => renderHistorySizeControl(...args))}
+      </div>
+
+      <div className="controls__set">
+        {offsets.map(args => renderOffsetControl(...args))}
       </div>
 
       <div className="controls__set">
@@ -162,5 +211,6 @@ export const CONTROL_DEFAULTS = {
   HISTORY_SIZE: 2,
   IS_RUNNING: true,
   NUM_POINTS: 4,
+  OFFSETS: new Set([OFFSETS[4]]),
   SPEED: SPEEDS[2],
 };

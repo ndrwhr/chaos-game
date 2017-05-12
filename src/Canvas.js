@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 import Game from './Game';
 
 const PASS_THROUGH_KEYS = [
+  'offsets',
   'exclusions',
   'historySize',
   'points',
@@ -74,9 +75,10 @@ class Canvas extends Component {
     this._context.fillRect(x * canvasWidth, y * canvasHeight, size, size);
   }
 
-  _setupGame({points, exclusions, historySize}){
+  _setupGame({points, offsets, exclusions, historySize}){
     this._attractor = Game.createAttractor({
       exclusions,
+      offsets,
       historySize,
       points,
     });

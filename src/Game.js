@@ -12,8 +12,9 @@ const generateLookupTable = (points, exclusions) => {
   }));
 }
 
-const createAttractor = (targets, historySize, targetGenerator) => Object.assign({
+const createAttractor = (targets, historySize, offsets, targetGenerator) => Object.assign({
   getNextPoint: (() => {
+    const offsetSize = [...offsets];
     let currentPoint = vec2.fromValues(Math.random(), Math.random());
     let previousTargets = [];
 
@@ -22,7 +23,8 @@ const createAttractor = (targets, historySize, targetGenerator) => Object.assign
 
       previousTargets = [newTarget, ...previousTargets].slice(0, historySize);
 
-      currentPoint = vec2.lerp(vec2.create(), currentPoint, newTarget, 0.5);
+      currentPoint = vec2.lerp(vec2.create(), currentPoint, newTarget,
+        _.sample(offsetSize));
 
       return currentPoint;
     };
@@ -30,12 +32,12 @@ const createAttractor = (targets, historySize, targetGenerator) => Object.assign
 });
 
 export default {
-  createAttractor({points, exclusions, historySize}){
+  createAttractor({points, offsets, exclusions, historySize}){
     const getIntersection = (a, b) => (new Set([...a].filter(x => b.has(x))));
 
     const possibleTargetLookup = generateLookupTable(points, exclusions);
 
-    return createAttractor(points, historySize, previousTargets => {
+    return createAttractor(points, historySize, offsets, previousTargets => {
       // If the previous target was undefined it means that there are no
       // other choices.
       if (previousTargets.length && !previousTargets[0]) return;
