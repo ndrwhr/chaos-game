@@ -1,56 +1,62 @@
 import React, {Component} from 'react';
 
 import Canvas from './Canvas';
-import Controls, {CONTROL_DEFAULTS} from './Controls';
+import Controls from './Controls';
 import Game from './Game';
+import Options from './Options';
+
 import './app.css';
 
 class App extends Component {
   constructor(props){
     super(props);
 
+    const controls = Object.keys(Options.defaultControls).reduce(
+        (acc, option) => {
+          acc[option] = Options.defaultControls[option].defaultValue;
+          return acc;
+        }, {});
+
+    const game = Game.games[controls.gameIndex];
+
+    Object.keys(game.controls).forEach(option => {
+      controls[option] = game.controls[option].defaultValue;
+    });
+
+    const numPoints =
+      Options.defaultControls.shapeIndex.values[controls.shapeIndex][0];
+    const points = Game.setupNPoints(numPoints);
+    const attractor = game.createAttractor(points, controls);
+
     this.state = {
-      exclusions: CONTROL_DEFAULTS.EXCLUSIONS,
-      historySize: CONTROL_DEFAULTS.HISTORY_SIZE,
-      isRunning: CONTROL_DEFAULTS.IS_RUNNING,
-      offsets: CONTROL_DEFAULTS.OFFSETS,
-      points: Game.setupNPoints(CONTROL_DEFAULTS.NUM_POINTS),
-      speed: CONTROL_DEFAULTS.SPEED,
+      attractor,
+      points,
+      controls,
+      isRunning: true,
     };
 
-    this._changeNumPoints = this._changeNumPoints.bind(this);
-    this._changeExclusions = this._changeExclusions.bind(this);
-    this._changeHistorySize = this._changeHistorySize.bind(this);
-    this._changeOffsets = this._changeOffsets.bind(this);
-    this._changeSpeed = this._changeSpeed.bind(this);
-    this._toggleIsRunning = this._toggleIsRunning.bind(this);
+    this.canvas = null;
+
+    this.onControlChange = this.onControlChange.bind(this);
   }
 
   render() {
+    const speedIndex = this.state.controls.speedIndex;
+    const speed = Options.defaultControls.speedIndex.values[speedIndex];
     return (
       <div className="app">
         <div className="app__controls">
           <Controls
-              numPoints={this.state.points.length}
-              onNumPointsChange={this._changeNumPoints}
-              exclusions={this.state.exclusions}
-              onExclusionsChange={this._changeExclusions}
-              historySize={this.state.historySize}
-              onHistorySizeChange={this._changeHistorySize}
-              offsets={this.state.offsets}
-              onOffsetsChange={this._changeOffsets}
-              speed={this.state.speed}
-              onSpeedChange={this._changeSpeed}
+              {...this.state.controls}
               isRunning={this.state.isRunning}
-              onToggleIsRunning={this._toggleIsRunning}/>
+              onChange={this.onControlChange}
+            />
         </div>
         <div className="app__canvas">
           <Canvas
-              exclusions={this.state.exclusions}
-              offsets={this.state.offsets}
-              points={this.state.points}
-              historySize={this.state.historySize}
-              speed={this.state.speed}
+              ref={canvas => {this.canvas = canvas;}}
+              attractor={this.state.attractor}
+              speed={speed}
               isRunning={this.state.isRunning}
           />
         </div>
@@ -58,45 +64,39 @@ class App extends Component {
     );
   }
 
-  _changeNumPoints(numPoints) {
-    this.setState({
-      points: Game.setupNPoints(numPoints),
-      isRunning: true,
-    });
-  }
+  onControlChange(option, newValue){
+    if (option === 'isRunning'){
+      this.setState({
+        isRunning: newValue,
+      });
+    } else {
+      this.canvas.clear();
 
-  _changeExclusions(exclusions) {
-    this.setState({
-      exclusions,
-      isRunning: true,
-    });
-  }
+      const controls = Object.assign({}, this.state.controls, {
+        [option]: newValue,
+      });
 
-  _changeHistorySize(historySize) {
-    this.setState({
-      historySize,
-      isRunning: true,
-    });
-  }
+      const numPoints =
+          Options.defaultControls.shapeIndex.values[controls.shapeIndex][0];
+      const points = option === 'shapeIndex' ?
+          Game.setupNPoints(numPoints) : this.state.points;
 
-  _changeSpeed(speed){
-    this.setState({
-      speed,
-      isRunning: true,
-    });
-  }
+      const game = Game.games[controls.gameIndex];
+      if (option === 'gameIndex'){
+        Object.keys(game.controls).forEach(gameOption => {
+          controls[gameOption] = game.controls[gameOption].defaultValue;
+        });
+      }
 
-  _changeOffsets(offsets){
-    this.setState({
-      offsets,
-      isRunning: true,
-    });
-  }
+      const attractor = game.createAttractor(points, controls);
 
-  _toggleIsRunning(){
-    this.setState({
-      isRunning: !this.state.isRunning,
-    })
+      this.setState({
+        attractor,
+        controls,
+        points,
+        isRunning: true,
+      });
+    }
   }
 }
 

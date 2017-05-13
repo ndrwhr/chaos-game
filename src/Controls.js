@@ -3,33 +3,26 @@ import classNames from 'classnames';
 import ordinal from 'ordinal-number-suffix';
 import React from 'react';
 
+import Options from './Options';
+
 import './controls.css';
 
-/**
- * How many dots should be added every frame.
- *
- * @type {Array}
- */
-const SPEEDS = [
-  10,
-  100,
-  500,
-  1000,
-];
+const renderGameControl = (name, isSelected, onChange) => {
+  const classes = classNames('controls__name', {
+    'controls__name--selected': isSelected,
+  });
 
-const OFFSETS = [
-  0.3,
-  0.35,
-  0.4,
-  0.45,
-  0.5,
-  0.55,
-  0.6,
-  0.65,
-  0.7,
-];
+  return (
+    <label key={name} title={name} className={classes}>
+      <input type="radio"
+          name="game"
+          onChange={onChange}
+          checked={isSelected} />
+      {name}
+    </label>
+  );
+};
 
-const MAX_HISTORY_SIZE = 3;
 
 const renderShapeControl = (name, numPoints, isSelected, onChange) => {
   const classes = classNames('controls__shape', `controls__shape--${name}`, {
@@ -110,20 +103,27 @@ const renderOffsetControl = (value, isSelected, onChange) => {
 };
 
 const Controls = props => {
-  const shapes = [
-    ['Triangle', 3],
-    ['Square', 4],
-    ['Pentagon', 5],
-    ['Hexagon', 6],
-    ['Heptagon', 7],
-    ['Octagon', 8],
-    ['Nonagon', 9],
-    ['Decagon', 10],
-  ].map(([name, numPoints]) =>
-      [name, props, numPoints === props.numPoints,
-          () => props.onNumPointsChange(numPoints)]);
+  const gameControls = Options.defaultControls.gameIndex.values
+      .map(({name}, index) => [
+        name,
+        index === props.gameIndex,
+        () => props.onChange('gameIndex', index),
+      ])
+      .map(args => renderGameControl(...args));
 
-  const exclusions = _.times(props.numPoints, index => {
+  const shapeIndexControls = Options.defaultControls.shapeIndex.values
+      .map(([numPoints, name], index) => [
+        name,
+        numPoints,
+        index === props.shapeIndex,
+        () => props.onChange('shapeIndex', index),
+      ])
+      .map(args => renderShapeControl(...args));
+
+  const numPoints =
+    Options.defaultControls.shapeIndex.values[props.shapeIndex][0];
+
+  const exclusionControls = _.times(numPoints, index => {
     let name;
     if (index === 0){
       name = 'Self';
@@ -133,84 +133,99 @@ const Controls = props => {
       name = `${ordinal(index)} Neighbor`;
     }
 
-    return [name, props.exclusions.has(index), () => {
-      const updatedExclusions = new Set(props.exclusions);
+    return [
+      name,
+      props.exclusions.has(index),
+      () => {
+        const updatedExclusions = new Set(props.exclusions);
 
-      if (updatedExclusions.has(index)){
-        updatedExclusions.delete(index);
-      } else {
-        updatedExclusions.add(index);
+        if (updatedExclusions.has(index)){
+          updatedExclusions.delete(index);
+        } else {
+          updatedExclusions.add(index);
+        }
+
+        props.onChange('exclusions', updatedExclusions);
+      },
+    ];
+  }).map(args => renderExclusionControl(...args));
+
+  const offsetControls = Options.defaultControls.offsetIndexes.values
+    .map((offset, index) => [
+      offset,
+      props.offsetIndexes.has(index),
+      () => {
+        const updatedOffests = new Set(props.offsetIndexes);
+
+        if (updatedOffests.has(index)){
+          updatedOffests.delete(index);
+        } else {
+          updatedOffests.add(index);
+        }
+
+        if (updatedOffests.size === 0){
+          [...Options.defaultControls.offsetIndexes.defaultValue].forEach(
+              index => updatedOffests.add(index));
+        }
+
+        props.onChange('offsetIndexes', updatedOffests);
       }
+    ])
+    .map(args => renderOffsetControl(...args));
 
-      props.onExclusionsChange(updatedExclusions);
-    }];
-  });
+  const game = Options.defaultControls.gameIndex.values[props.gameIndex];
+  let historyControls = null;
+  if (game.controls && game.controls.historyIndex &&
+      game.controls.historyIndex.values.length > 1){
 
-  const historySizes = _.times(MAX_HISTORY_SIZE + 1, historySize => {
-    return [historySize, historySize === props.historySize, () => {
-      props.onHistorySizeChange(historySize);
-    }];
-  });
+    historyControls = (
+      <div className="controls__set">
+        {
+          game.controls.historyIndex.values
+              .map((value, index) => [
+                value,
+                index === props.historyIndex,
+                () => props.onChange('historyIndex', index),
+              ])
+              .map(args => renderHistorySizeControl(...args))
+        }
+      </div>
+    );
+  }
 
-  const offsets = OFFSETS.map(offset => {
-    return [offset, props.offsets.has(offset), () => {
-      const updatedOffests = new Set(props.offsets);
-
-      if (updatedOffests.has(offset)){
-        updatedOffests.delete(offset);
-      } else {
-        updatedOffests.add(offset);
-      }
-
-      if (updatedOffests.size === 0){
-        updatedOffests.add(OFFSETS[4]);
-      }
-
-      props.onOffsetsChange(updatedOffests);
-    }];
-  })
-
-  const speeds = SPEEDS.map(speed => [speed * 60, speed === props.speed,
-    () => props.onSpeedChange(speed)]);
+  const speedControls = Options.defaultControls.speedIndex.values
+      .map((value, index) => [
+        value * 60,
+        index === props.speedIndex,
+        () => props.onChange('speedIndex', index),
+      ])
+      .map(args => renderSpeedControl(...args));
 
   return (
     <div className="controls">
       <div className="controls__set">
-        {shapes.map(args => renderShapeControl(...args))}
+        {gameControls}
       </div>
-
       <div className="controls__set">
-        {exclusions.map(args => renderExclusionControl(...args))}
+        {shapeIndexControls}
       </div>
-
       <div className="controls__set">
-        {historySizes.map(args => renderHistorySizeControl(...args))}
+        {exclusionControls}
       </div>
-
       <div className="controls__set">
-        {offsets.map(args => renderOffsetControl(...args))}
+        {offsetControls}
       </div>
-
+      {historyControls}
       <div className="controls__set">
-        {speeds.map(args => renderSpeedControl(...args))}
+        {speedControls}
       </div>
-
       <div className="controls__set">
-        <button onClick={props.onToggleIsRunning}>
-          {props.isRunning ? 'Pause' : 'Play'}
-        </button>
+         <button onClick={() => props.onChange('isRunning', !props.isRunning)}>
+           {props.isRunning ? 'Pause' : 'Play'}
+         </button>
       </div>
     </div>
   );
 };
 
 export default Controls;
-
-export const CONTROL_DEFAULTS = {
-  EXCLUSIONS: new Set(),
-  HISTORY_SIZE: 2,
-  IS_RUNNING: true,
-  NUM_POINTS: 4,
-  OFFSETS: new Set([OFFSETS[4]]),
-  SPEED: SPEEDS[2],
-};

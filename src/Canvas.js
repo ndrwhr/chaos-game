@@ -1,24 +1,9 @@
 import React, {Component} from 'react';
 
-import Game from './Game';
-
-const PASS_THROUGH_KEYS = [
-  'offsets',
-  'exclusions',
-  'historySize',
-  'points',
-];
-
 const canvasWidth = 900;
 const canvasHeight = 900;
 
 class Canvas extends Component {
-  constructor(props){
-    super(props);
-
-    this._setupGame(props);
-  }
-
   componentDidMount() {
     this._context = this._canvas.getContext('2d');
 
@@ -35,15 +20,14 @@ class Canvas extends Component {
     this._start();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.isRunning === true){
-      if (PASS_THROUGH_KEYS.some(key => nextProps[key] !== this.props[key])){
-        this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
-        this._setupGame(nextProps);
-      }
-
+  componentDidUpdate(prevProps) {
+    if (this.props.isRunning === true && !prevProps.isRunning){
       this._start();
     }
+  }
+
+  clear(){
+    this._context.clearRect(0, 0, canvasWidth, canvasHeight);
   }
 
   render() {
@@ -53,13 +37,17 @@ class Canvas extends Component {
   }
 
   _start(){
+    // clearTimeout(this._animationId);
     cancelAnimationFrame(this._animationId);
     const update = () => {
+      // console.time('update');
       for (let i = 0; i < this.props.speed; i++){
         this._draw();
       }
+      // console.timeEnd('update');
 
       if(this.props.isRunning){
+        // this._animationId = setTimeout(update, 1000);
         this._animationId = requestAnimationFrame(update);
       }
     };
@@ -67,21 +55,12 @@ class Canvas extends Component {
   }
 
   _draw(){
-    const point = this._attractor.getNextPoint();
+    const point = this.props.attractor.getNextPoint();
     if (!point) return;
 
     const [x, y] = point;
     const size = 1;
     this._context.fillRect(x * canvasWidth, y * canvasHeight, size, size);
-  }
-
-  _setupGame({points, offsets, exclusions, historySize}){
-    this._attractor = Game.createAttractor({
-      exclusions,
-      offsets,
-      historySize,
-      points,
-    });
   }
 }
 
