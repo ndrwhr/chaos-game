@@ -5,7 +5,7 @@ const Options = {
 
   defaultControls: {
     gameIndex: {
-      values: Game.games,
+      options: Game.games,
       defaultValue: 1,
     },
 
@@ -29,7 +29,7 @@ const Options = {
     },
 
     shapeIndex: {
-      values: [
+      options: [
         [3, 'Triangle'],
         [4, 'Square'],
         [5, 'Pentagon'],
@@ -43,7 +43,7 @@ const Options = {
     },
 
     speedIndex: {
-      values: [
+      options: [
         10,
         100,
         500,

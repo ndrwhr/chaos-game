@@ -24,7 +24,7 @@ class App extends Component {
     });
 
     const numPoints =
-      Options.defaultControls.shapeIndex.values[controls.shapeIndex][0];
+      Options.defaultControls.shapeIndex.options[controls.shapeIndex][0];
     const points = Game.setupNPoints(numPoints);
     const attractor = game.createAttractor(points, controls);
 
@@ -42,7 +42,7 @@ class App extends Component {
 
   render() {
     const speedIndex = this.state.controls.speedIndex;
-    const speed = Options.defaultControls.speedIndex.values[speedIndex];
+    const speed = Options.defaultControls.speedIndex.options[speedIndex];
     return (
       <div className="app">
         <div className="app__controls">
@@ -77,7 +77,7 @@ class App extends Component {
       });
 
       const numPoints =
-          Options.defaultControls.shapeIndex.values[controls.shapeIndex][0];
+          Options.defaultControls.shapeIndex.options[controls.shapeIndex][0];
       const points = option === 'shapeIndex' ?
           Game.setupNPoints(numPoints) : this.state.points;
 
