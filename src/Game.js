@@ -130,6 +130,15 @@ export default {
   games,
 
   setupNPoints(n){
+    if (n === 4){
+      return [
+        vec2.fromValues(0, 0),
+        vec2.fromValues(1, 0),
+        vec2.fromValues(1, 1),
+        vec2.fromValues(0, 1),
+      ];
+    }
+
     const lerp = 2 * Math.PI / n;
     return _.times(n, index => {
       const angle = lerp * (n - index - 1);
