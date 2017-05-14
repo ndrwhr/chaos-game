@@ -13,9 +13,7 @@ class Canvas extends Component {
     this._canvas.style.height = `${canvasHeight}px`;
     this._context.scale(2, 2);
 
-    this._context.fillStyle = 'rgba(0,0,0,0.5)';
-    this._context.fillStyle = 'rgba(255, 255, 255, 0.5)';
-    this._context.fillStyle = 'rgba(38, 50, 56, 0.66)';
+    this._context.fillStyle = 'rgba(38, 50, 56, 0.5)';
 
     this._start();
   }
@@ -59,7 +57,7 @@ class Canvas extends Component {
     if (!point) return;
 
     const [x, y] = point;
-    const size = 1;
+    const size = this.props.size;
     this._context.fillRect(x * canvasWidth, y * canvasHeight, size, size);
   }
 }

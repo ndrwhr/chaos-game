@@ -31,21 +31,6 @@ const renderExclusionControl = (name, isSelected, onChange) => {
   );
 };
 
-const renderOffsetControl = (value, isSelected, onChange) => {
-  const classes = classNames('controls__offset', {
-    'controls__offset--selected': isSelected,
-  });
-
-  return (
-    <label key={value} className={classes}>
-      <input type="checkbox"
-          onChange={onChange}
-          checked={isSelected} />
-      {value}
-    </label>
-  );
-};
-
 const Controls = props => {
   const gameOptions = Options.defaultControls.gameIndex.options
       .map(({name}, index) => ({
@@ -54,13 +39,13 @@ const Controls = props => {
       }));
 
   const shapeOptions = Options.defaultControls.shapeIndex.options
-      .map(([numPoints, name], index) => ({
+      .map(({name}, index) => ({
         name,
         value: index,
       }));
 
   const numPoints =
-    Options.defaultControls.shapeIndex.options[props.shapeIndex][0];
+    Options.defaultControls.shapeIndex.options[props.shapeIndex].value;
 
   const exclusionControls = _.times(numPoints, index => {
     let name;
@@ -89,29 +74,6 @@ const Controls = props => {
     ];
   }).map(args => renderExclusionControl(...args));
 
-  const offsetControls = Options.defaultControls.offsetIndexes.values
-    .map((offset, index) => [
-      offset,
-      props.offsetIndexes.has(index),
-      () => {
-        const updatedOffests = new Set(props.offsetIndexes);
-
-        if (updatedOffests.has(index)){
-          updatedOffests.delete(index);
-        } else {
-          updatedOffests.add(index);
-        }
-
-        if (updatedOffests.size === 0){
-          [...Options.defaultControls.offsetIndexes.defaultValue].forEach(
-              index => updatedOffests.add(index));
-        }
-
-        props.onChange('offsetIndexes', updatedOffests);
-      }
-    ])
-    .map(args => renderOffsetControl(...args));
-
   const game = Options.defaultControls.gameIndex.options[props.gameIndex];
   let historyControls = null;
   if (game.controls.historyIndex){
@@ -131,7 +93,13 @@ const Controls = props => {
 
   const speedOptions = Options.defaultControls.speedIndex.options
       .map((value, index) => ({
-        name: `${value * 60} dps`,
+        name: `~${value * 60} dps`,
+        value: index,
+      }));
+
+  const qualityOptions = Options.defaultControls.qualityIndex.options
+      .map(({name}, index) => ({
+        name,
         value: index,
       }));
 
@@ -148,13 +116,14 @@ const Controls = props => {
       <div className="controls__set">
         {exclusionControls}
       </div>
-      <div className="controls__set">
-        {offsetControls}
-      </div>
       {historyControls}
       <div className="controls__set">
         {renderSelectBox(props.speedIndex, speedOptions, index =>
             props.onChange('speedIndex', index))}
+      </div>
+      <div className="controls__set">
+        {renderSelectBox(props.qualityIndex, qualityOptions, index =>
+            props.onChange('qualityIndex', index))}
       </div>
       <div className="controls__set">
          <button onClick={() => props.onChange('isRunning', !props.isRunning)}>

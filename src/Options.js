@@ -10,34 +10,43 @@ const Options = {
     },
 
     exclusions: {
-      defaultValue: new Set(),
-    },
-
-    offsetIndexes: {
-      values: [
-        0.3,
-        0.35,
-        0.4,
-        0.45,
-        0.5,
-        0.55,
-        0.6,
-        0.65,
-        0.7,
-      ],
-      defaultValue: new Set([4]),
+      defaultValue: new Set([1, 4]),
     },
 
     shapeIndex: {
       options: [
-        [3, 'Triangle'],
-        [4, 'Square'],
-        [5, 'Pentagon'],
-        [6, 'Hexagon'],
-        [7, 'Heptagon'],
-        [8, 'Octagon'],
-        [9, 'Nonagon'],
-        [10, 'Decagon'],
+        {
+          "value": 3,
+          "name": "Triangle"
+        },
+        {
+          "value": 4,
+          "name": "Square"
+        },
+        {
+          "value": 5,
+          "name": "Pentagon"
+        },
+        {
+          "value": 6,
+          "name": "Hexagon"
+        },
+        {
+          "value": 7,
+          "name": "Heptagon"
+        },
+        {
+          "value": 8,
+          "name": "Octagon"
+        },
+        {
+          "value": 9,
+          "name": "Nonagon"
+        },
+        {
+          "value": 10,
+          "name": "Decagon"
+        }
       ],
       defaultValue: 2,
     },
@@ -51,6 +60,32 @@ const Options = {
       ],
       defaultValue: 2,
     },
+
+    qualityIndex: {
+      options: [
+        {
+          value: 2,
+          name: 'Rough',
+        },
+        {
+          value: 1,
+          name: 'Low',
+        },
+        {
+          value: 0.5,
+          name: 'Medium',
+        },
+        {
+          value: 0.2,
+          name: 'Fine',
+        },
+        {
+          value: 0.1,
+          name: 'Super Fine',
+        },
+      ],
+      defaultValue: 1,
+    }
   },
 };
 
