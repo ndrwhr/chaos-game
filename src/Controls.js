@@ -2,6 +2,7 @@ import _ from 'lodash';
 import classNames from 'classnames';
 import ordinal from 'ordinal-number-suffix';
 import React from 'react';
+import rgbHex from 'rgb-hex';
 
 import Options from './Options';
 
@@ -30,6 +31,62 @@ const renderExclusionControl = (name, isSelected, onChange) => {
     </label>
   );
 };
+
+class ColorPicker extends React.Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      isOpen: false,
+    };
+  }
+
+  rgbaToHex(rgba){
+    return '#' + rgbHex(rgba).slice(0, -2);
+  }
+
+  renderColor(rgba){
+    return (
+      <button
+          key={rgba}
+          className={classNames('color-picker__color', {
+            'color-picker__color--selected': rgba === this.props.color,
+          })}
+          style={{background: this.rgbaToHex(rgba)}}
+          onClick={() => {
+            this.props.onSelect(rgba);
+          }}
+      />
+    );
+  }
+
+  render(){
+    const props = this.props;
+
+    return (
+      <div
+          className={classNames('color-picker', {
+            'color-picker--open': this.state.isOpen,
+          })}>
+        <button
+            className="color-picker__selected-color"
+            style={{background: this.rgbaToHex(props.color)}}
+            onClick={() => {
+              this.setState({
+                isOpen: !this.state.isOpen,
+              });
+            }}
+        />
+        <div className="color-picker__color-list">
+          {Options.colors.map(colorGroup => (
+            <div key={colorGroup} className="color-picker__color-row">
+              {colorGroup.map(color => this.renderColor(color))}
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+}
 
 const Controls = props => {
   const gameOptions = Options.defaultControls.gameIndex.options
@@ -91,6 +148,54 @@ const Controls = props => {
     );
   }
 
+  const SCALE = 1000;
+
+  const onTransformUpdate = (index, type, newValue) => {
+    const updatedTransforms = props.transforms.slice();
+    updatedTransforms[index] = Object.assign({}, updatedTransforms[index], {
+      [type]: newValue,
+    });
+
+    props.onChange('transforms', updatedTransforms);
+  };
+
+  const transformControls = props.transforms.map((transform, index) => {
+    const options = Options.defaultControls.transforms.options.map(type => {
+      if (type === 'color'){
+        return (
+          <ColorPicker
+              key={type + index}
+              color={transform[type]}
+              onSelect={newValue => onTransformUpdate(index, type, newValue)}
+          />
+        );
+      }
+
+      const min = Options.defaultControls.transforms[type].minValue * SCALE;
+      const max = Options.defaultControls.transforms[type].maxValue * SCALE;
+      const value = transform[type] * SCALE;
+
+      return (
+        <input
+            title={type}
+            key={type + index}
+            type="range"
+            min={min}
+            max={max}
+            value={value}
+            onChange={(evt) =>
+                onTransformUpdate(index, type, evt.target.value / SCALE)}
+        />
+      );
+    });
+
+    return (
+      <div key={index}>
+        {options}
+      </div>
+    )
+  });
+
   const speedOptions = Options.defaultControls.speedIndex.options
       .map((value, index) => ({
         name: `~${value * 60} dps`,
@@ -117,6 +222,7 @@ const Controls = props => {
         {exclusionControls}
       </div>
       {historyControls}
+      {transformControls}
       <div className="controls__set">
         {renderSelectBox(props.speedIndex, speedOptions, index =>
             props.onChange('speedIndex', index))}

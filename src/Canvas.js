@@ -53,11 +53,12 @@ class Canvas extends Component {
   }
 
   _draw(){
-    const point = this.props.attractor.getNextPoint();
+    const {color, point} = this.props.attractor.getNextPoint();
     if (!point) return;
 
     const [x, y] = point;
     const size = this.props.size;
+    this._context.fillStyle = color;
     this._context.fillRect(x * canvasWidth, y * canvasHeight, size, size);
   }
 }

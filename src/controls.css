@@ -11,3 +11,49 @@ label {
   display: block;
   margin-bottom: 10px;
 }
+
+.color-picker__color-list {
+  height: 0;
+  overflow: hidden;
+  transition: height 200ms ease-out;
+  background: white;
+}
+
+.color-picker--open .color-picker__color-list {
+  height: 384px;
+}
+
+.color-picker__selected-color {
+  display: block;
+  width: 100%;
+  padding-top: 20%;
+  border: none;
+  outline: none;
+}
+
+.color-picker__color-row {
+  display: flex;
+}
+
+.color-picker__color {
+  flex: 1;
+  padding-top: 20%;
+  transition: transform 100ms ease-out,
+      box-shadow 100ms ease-out;
+  transform-origin: center center;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  z-index: 0;
+}
+
+.color-picker__color--selected {
+  transform: scale(1.1);
+  box-shadow: 0 0 3px rgba(255, 255, 255,0.5);
+}
+
+.color-picker__color:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 3px rgba(0,0,0,0.5);
+  z-index: 1;
+}

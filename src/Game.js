@@ -37,19 +37,43 @@ const generateLookupTable = (points, exclusions) => {
   }));
 }
 
-const createAttractor = ({historySize}, targetSelector) => {
+const createAttractor = ({historySize, transforms}, targetSelector) => {
   let currentPoint = vec2.fromValues(Math.random(), Math.random());
   let previousTargets = [];
 
-  const scaleMatrix = mat2.fromScaling(mat2.create(), vec2.fromValues(0.5, 0.5));
-  const rotationMatrix = mat2.fromRotation(mat2.create(), 0);
-  const transform = mat2.multiply(mat2.create(), scaleMatrix, rotationMatrix);
+
+  const colorMap = new Map();
+
+  const totalProbability = transforms.reduce(
+      (acc, {probability}) => acc + probability, 0);
+  const transformPool = transforms.reduce((pool, transform) => {
+    const scaleMatrix = mat2.fromScaling(mat2.create(),
+      vec2.fromValues(transform.compression, transform.compression));
+    const rotationMatrix = mat2.fromRotation(mat2.create(),
+        transform.rotation);
+    const transformMatrix = mat2.multiply(mat2.create(), scaleMatrix,
+        rotationMatrix);
+
+    colorMap.set(transformMatrix, transform.color);
+
+    _.times(Math.floor(100 * transform.probability / totalProbability), () => {
+      pool.push(transformMatrix);
+    });
+
+    return pool;
+  }, []);
 
   const moveCurrentPoint = target => {
+    const transformMatrix = _.sample(transformPool);
     const delta = vec2.subtract(vec2.create(), target, currentPoint);
-    const currentTemp = vec2.transformMat2(vec2.create(), delta, transform);
+    const currentTemp = vec2.transformMat2(vec2.create(), delta,
+        transformMatrix);
     currentPoint = vec2.add(vec2.create(), currentTemp, currentPoint);
-    return currentPoint;
+
+    return {
+      color: colorMap.get(transformMatrix),
+      point: currentPoint,
+    };
   };
 
   return {
@@ -58,7 +82,7 @@ const createAttractor = ({historySize}, targetSelector) => {
 
       previousTargets = [newTarget, ...previousTargets].slice(0, historySize);
 
-      return newTarget ? moveCurrentPoint(newTarget) : null;
+      return newTarget ? moveCurrentPoint(newTarget) : {};
     },
   };
 };
@@ -72,11 +96,11 @@ const games = [
     controls: {
       historyIndex: {
         values: [0, 1, 2, 3],
-        defaultValue: 1,
+        defaultValue: () => 1,
       },
     },
 
-    createAttractor(points, {exclusions, historyIndex}){
+    createAttractor(points, {exclusions, historyIndex, transforms}){
       const getIntersection = (a, b) => new Set([...a].filter(x => b.has(x)));
 
       const historySize = this.controls.historyIndex.values[historyIndex];
@@ -96,7 +120,7 @@ const games = [
         ];
       });
 
-      return createAttractor({historySize},
+      return createAttractor({historySize, transforms},
           previousTargets => _.sample(
               getPossibleTargets(previousTargets.length, ...previousTargets)));
     },
@@ -106,10 +130,10 @@ const games = [
 
     controls: {},
 
-    createAttractor(points, {exclusions}){
+    createAttractor(points, {exclusions, transforms}){
       const possibleTargetLookup = generateLookupTable(points, exclusions);
 
-      return createAttractor({historySize: 2},
+      return createAttractor({historySize: 2, transforms},
         previousTargets => {
           // If the previous target was undefined it means that there are no
           // other choices.
