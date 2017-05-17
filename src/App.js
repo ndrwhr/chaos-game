@@ -28,14 +28,20 @@ class App extends Component {
 
     this.state = {
       attractor,
-      points,
+      canvasSize: 0,
       controls,
       isRunning: true,
+      points,
     };
 
     this.canvas = null;
 
     this.onControlChange = this.onControlChange.bind(this);
+  }
+
+  componentDidMount(){
+    this.onResize();
+    window.addEventListener('resize', () => this.onResize());
   }
 
   render() {
@@ -54,13 +60,17 @@ class App extends Component {
               onChange={this.onControlChange}
             />
         </div>
-        <div className="app__canvas">
+        <div
+            className="app__canvas-container"
+            ref={canvasContainer => {this.canvasContainer = canvasContainer;}}
+        >
           <Canvas
-              ref={canvas => {this.canvas = canvas;}}
               attractor={this.state.attractor}
-              speed={speed}
-              size={quality.value}
               isRunning={this.state.isRunning}
+              quality={quality.value}
+              ref={canvas => {this.canvas = canvas;}}
+              size={this.state.canvasSize}
+              speed={speed}
           />
         </div>
       </div>
@@ -113,6 +123,13 @@ class App extends Component {
         isRunning: true,
       });
     }
+  }
+
+  onResize(){
+    const rect = this.canvasContainer.getBoundingClientRect();
+    this.setState({
+      canvasSize: Math.min(rect.width, rect.height),
+    });
   }
 }
 

@@ -9,9 +9,14 @@
   background: rgba(0, 0, 0, 0.2);
 }
 
-.app__canvas {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.app__canvas-container {
+  position: relative;
   flex: 1;
+}
+
+.app__canvas-container > * {
+  position: absolute;
+  top: 50%;
+  left:  50%;
+  transform: translate(-50%, -50%);
 }
