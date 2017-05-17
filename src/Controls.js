@@ -159,6 +159,18 @@ const Controls = props => {
     props.onChange('transforms', updatedTransforms);
   };
 
+  const onAddTransform = () => {
+    props.onChange('transforms', [
+      ...props.transforms,
+      Options.defaultControls.transforms.createTransform(),
+    ]);
+  };
+
+  const onRemoveTransform = (index) => {
+    props.onChange('transforms', props.transforms.filter((_, transformIndex) =>
+        transformIndex !== index));
+  };
+
   const transformControls = props.transforms.map((transform, index) => {
     const options = Options.defaultControls.transforms.options.map(type => {
       if (type === 'color'){
@@ -189,9 +201,16 @@ const Controls = props => {
       );
     });
 
+    const removeButton = props.transforms.length > 1 ? (
+      <button onClick={() => onRemoveTransform(index)}>
+        remove transform
+      </button>
+    ) : null;
+
     return (
       <div key={index}>
         {options}
+        {removeButton}
       </div>
     )
   });
@@ -222,14 +241,17 @@ const Controls = props => {
         {exclusionControls}
       </div>
       {historyControls}
-      {transformControls}
-      <div className="controls__set">
-        {renderSelectBox(props.speedIndex, speedOptions, index =>
-            props.onChange('speedIndex', index))}
+      <div classname="controls__set">
+        {transformControls}
+        <button onClick={onAddTransform}>Add Transform</button>
       </div>
       <div className="controls__set">
         {renderSelectBox(props.qualityIndex, qualityOptions, index =>
             props.onChange('qualityIndex', index))}
+      </div>
+      <div className="controls__set">
+        {renderSelectBox(props.speedIndex, speedOptions, index =>
+            props.onChange('speedIndex', index))}
       </div>
       <div className="controls__set">
          <button onClick={() => props.onChange('isRunning', !props.isRunning)}>

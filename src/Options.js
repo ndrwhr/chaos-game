@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import hexRgb from 'hex-rgb';
 
 import Game from './Game';
@@ -17,6 +18,15 @@ const colors = [
     ['#e6ee9c', '#d4e157', '#cddc39', '#c0ca33', '#9e9d24'],
 ].map(colorGroup => colorGroup.map(color =>
     `rgba(${hexRgb(color).join(',')}, 0.5)`));
+
+const createTransform = () => {
+  return {
+    compression: 0.5,
+    rotation: 0,
+    probability: 0.5,
+    color: _.sample(colors)[4],
+  };
+};
 
 const Options = {
 
@@ -74,7 +84,6 @@ const Options = {
 
     speedIndex: {
       options: [
-        10,
         100,
         500,
         1000,
@@ -105,13 +114,10 @@ const Options = {
         maxValue: 1,
       },
 
+      createTransform,
+
       defaultValue: () => ([
-        {
-          compression: 0.5,
-          rotation: 0,
-          probability: 0.9,
-          color: colors[0][4],
-        },
+        createTransform(),
       ]),
     },
 
