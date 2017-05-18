@@ -5,6 +5,7 @@
 }
 
 .app__controls {
+  position: relative;
   width: 200px;
   background: rgba(0, 0, 0, 0.2);
 }
