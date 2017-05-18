@@ -150,11 +150,10 @@ const Controls = props => {
 
   const SCALE = 1000;
 
-  const onTransformUpdate = (index, type, newValue) => {
+  const onTransformUpdate = (index, update) => {
     const updatedTransforms = props.transforms.slice();
-    updatedTransforms[index] = Object.assign({}, updatedTransforms[index], {
-      [type]: newValue,
-    });
+    updatedTransforms[index] = Object.assign({}, updatedTransforms[index],
+      update);
 
     props.onChange('transforms', updatedTransforms);
   };
@@ -178,7 +177,8 @@ const Controls = props => {
           <ColorPicker
               key={type + index}
               color={transform[type]}
-              onSelect={newValue => onTransformUpdate(index, type, newValue)}
+              onSelect={newValue =>
+                onTransformUpdate(index, {[type]: newValue})}
           />
         );
       }
@@ -196,14 +196,14 @@ const Controls = props => {
             max={max}
             value={value}
             onChange={(evt) =>
-                onTransformUpdate(index, type, evt.target.value / SCALE)}
+                onTransformUpdate(index, {[type]: evt.target.value / SCALE})}
         />
       );
     });
 
     const removeButton = props.transforms.length > 1 ? (
       <button onClick={() => onRemoveTransform(index)}>
-        remove transform
+        remove
       </button>
     ) : null;
 
@@ -211,6 +211,23 @@ const Controls = props => {
       <div key={index}>
         {options}
         {removeButton}
+        <button
+          onClick={() => {
+            const update = Options.defaultControls.transforms.options
+              .reduce((update, type) => {
+                if (type !== 'color'){
+                  update[type] = _.random(
+                    Options.defaultControls.transforms[type].minValue,
+                    Options.defaultControls.transforms[type].maxValue
+                  );
+                }
+                return update;
+              }, {});
+            onTransformUpdate(index, update);
+          }}
+        >
+          shuffle
+        </button>
       </div>
     )
   });
@@ -239,6 +256,15 @@ const Controls = props => {
       </div>
       <div className="controls__set">
         {exclusionControls}
+        <button
+          onClick={() => {
+            props.onChange('exclusions', new Set(
+              _.sampleSize(_.range(numPoints), _.random(1, numPoints - 2))
+            ));
+          }}
+        >
+          shuffle
+        </button>
       </div>
       {historyControls}
       <div className="controls__set">
