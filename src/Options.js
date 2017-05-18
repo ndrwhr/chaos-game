@@ -17,7 +17,7 @@ const colors = [
     ['#c5e1a5', '#9ccc65', '#8bc34a', '#7cb342', '#558b2f'],
     ['#e6ee9c', '#d4e157', '#cddc39', '#c0ca33', '#9e9d24'],
 ].map(colorGroup => colorGroup.map(color =>
-    `rgba(${hexRgb(color).join(',')}, 0.5)`));
+    `rgba(${hexRgb(color).join(',')}, 1)`));
 
 const createTransform = () => {
   return {
@@ -88,7 +88,7 @@ const Options = {
         500,
         1000,
       ],
-      defaultValue: () => 1,
+      defaultValue: () => 0,
     },
 
     transforms: {
