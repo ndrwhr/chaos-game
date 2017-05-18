@@ -4,6 +4,7 @@ import Canvas from './Canvas';
 import Controls from './Controls';
 import Game from './Game';
 import Options from './Options';
+import PointControl from './PointControl';
 
 import './app.css';
 
@@ -72,6 +73,11 @@ class App extends Component {
               size={this.state.canvasSize}
               speed={speed}
           />
+          <PointControl
+              onChange={(points) => this.onPointChange(points)}
+              points={this.state.points}
+              size={this.state.canvasSize}
+          />
         </div>
       </div>
     );
@@ -123,6 +129,19 @@ class App extends Component {
         isRunning: true,
       });
     }
+  }
+
+  onPointChange(points){
+    this.canvas.clear();
+
+    const game = Game.games[this.state.controls.gameIndex];
+    const attractor = game.createAttractor(points, this.state.controls);
+
+    this.setState({
+      attractor,
+      points,
+      isRunning: true,
+    });
   }
 
   onResize(){

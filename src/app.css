@@ -12,6 +12,7 @@
 .app__canvas-container {
   position: relative;
   flex: 1;
+  user-select: none;
 }
 
 .app__canvas-container > * {

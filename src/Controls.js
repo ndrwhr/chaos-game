@@ -241,7 +241,7 @@ const Controls = props => {
         {exclusionControls}
       </div>
       {historyControls}
-      <div classname="controls__set">
+      <div className="controls__set">
         {transformControls}
         <button onClick={onAddTransform}>Add Transform</button>
       </div>
