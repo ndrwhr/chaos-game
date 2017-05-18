@@ -14,7 +14,6 @@ export default class PointControl extends Component {
   }
 
   componentWillReceiveProps(nextProps){
-    console.log('here');
     this.setState({
       points: nextProps.points.slice().map(point => vec2.clone(point)),
       activePoint: null,
