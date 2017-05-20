@@ -161,13 +161,27 @@ const Controls = props => {
   const onAddTransform = () => {
     props.onChange('transforms', [
       ...props.transforms,
-      Options.defaultControls.transforms.createTransform(),
+      Options.defaultControls.transforms.createTransform(
+        props.transforms.map(transform => transform.color)),
     ]);
   };
 
   const onRemoveTransform = (index) => {
     props.onChange('transforms', props.transforms.filter((_, transformIndex) =>
         transformIndex !== index));
+  };
+
+  const randomTransform = () => {
+    return Options.defaultControls.transforms.options
+      .reduce((update, type) => {
+        if (type !== 'color'){
+          update[type] = _.random(
+            Options.defaultControls.transforms[type].minValue,
+            Options.defaultControls.transforms[type].maxValue
+          );
+        }
+        return update;
+      }, {});
   };
 
   const transformControls = props.transforms.map((transform, index) => {
@@ -213,17 +227,7 @@ const Controls = props => {
         {removeButton}
         <button
           onClick={() => {
-            const update = Options.defaultControls.transforms.options
-              .reduce((update, type) => {
-                if (type !== 'color'){
-                  update[type] = _.random(
-                    Options.defaultControls.transforms[type].minValue,
-                    Options.defaultControls.transforms[type].maxValue
-                  );
-                }
-                return update;
-              }, {});
-            onTransformUpdate(index, update);
+            onTransformUpdate(index, randomTransform());
           }}
         >
           shuffle
@@ -270,6 +274,32 @@ const Controls = props => {
       <div className="controls__set">
         {transformControls}
         <button onClick={onAddTransform}>Add Transform</button>
+        <button
+          onClick={() => {
+            const transforms = props.transforms.map((transform) => {
+              return {...transform, ...randomTransform()};
+            });
+            props.onChange('transforms', transforms);
+          }}
+        >
+          Shuffle Parameters
+        </button>
+        <button
+          onClick={() => {
+            const transforms = [];
+            props.transforms.reduce((colors, transform) => {
+              const color = Options.getNextColor(colors);
+              colors.push(color);
+              transforms.push({
+                ...transform, color,
+              });
+              return colors;
+            }, []);
+            props.onChange('transforms', transforms);
+          }}
+        >
+          Shuffle Colors
+        </button>
       </div>
       <div className="controls__set">
         {renderSelectBox(props.qualityIndex, qualityOptions, index =>

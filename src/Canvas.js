@@ -24,7 +24,8 @@ class Canvas extends Component {
   }
 
   clear(){
-    this._context.clearRect(0, 0, this.props.size, this.props.size);
+    this._context.fillStyle = 'white';
+    this._context.fillRect(0, 0, this.props.size, this.props.size);
   }
 
   resizeCanvas(newSize){

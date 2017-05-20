@@ -4,27 +4,69 @@ import hexRgb from 'hex-rgb';
 import Game from './Game';
 
 const colors = [
-    ['#ffe082', '#ffca28', '#ffc107', '#ffb300', '#ff8f00'],
-    ['#ffcc80', '#ffa726', '#ff9800', '#fb8c00', '#ef6c00'],
-    ['#ffab91', '#ff7043', '#ff5722', '#f4511e', '#d84315'],
-    ['#f48fb1', '#ec407a', '#e91e63', '#d81b60', '#ad1457'],
-    ['#ce93d8', '#ab47bc', '#9c27b0', '#8e24aa', '#6a1b9a'],
-    ['#b39ddb', '#7e57c2', '#673ab7', '#5e35b1', '#4527a0'],
-    ['#b0bec5', '#78909c', '#607d8b', '#546e7a', '#37474f'],
-    ['#90caf9', '#42a5f5', '#2196f3', '#1e88e5', '#1565c0'],
-    ['#80deea', '#26c6da', '#00bcd4', '#00acc1', '#00838f'],
-    ['#80cbc4', '#26a69a', '#009688', '#00897b', '#00695c'],
-    ['#c5e1a5', '#9ccc65', '#8bc34a', '#7cb342', '#558b2f'],
-    ['#e6ee9c', '#d4e157', '#cddc39', '#c0ca33', '#9e9d24'],
-].map(colorGroup => colorGroup.map(color =>
+  ['#ffee58', '#ffeb3b', '#fbc02d', '#f9a825', '#f57f17'],
+  ['#ffca28', '#ffc107', '#ffa000', '#ff8f00', '#ff6f00'],
+  ['#ffa726', '#ff9800', '#f57c00', '#ef6c00', '#e65100'],
+  ['#ff7043', '#ff5722', '#e64a19', '#d84315', '#bf360c'],
+  ['#ef5350', '#f44336', '#d32f2f', '#c62828', '#b71c1c'],
+  ['#ec407a', '#e91e63', '#c2185b', '#ad1457', '#880e4f'],
+  ['#ab47bc', '#9c27b0', '#7b1fa2', '#6a1b9a', '#4a148c'],
+  ['#7e57c2', '#673ab7', '#512da8', '#4527a0', '#311b92'],
+  ['#5c6bc0', '#3f51b5', '#303f9f', '#283593', '#1a237e'],
+  ['#42a5f5', '#2196f3', '#1976d2', '#1565c0', '#0d47a1'],
+  ['#29b6f6', '#03a9f4', '#0288d1', '#0277bd', '#01579b'],
+  ['#26c6da', '#00bcd4', '#0097a7', '#00838f', '#006064'],
+  ['#26a69a', '#009688', '#00796b', '#00695c', '#004d40'],
+  ['#66bb6a', '#4caf50', '#388e3c', '#2e7d32', '#1b5e20'],
+  ['#9ccc65', '#8bc34a', '#689f38', '#558b2f', '#33691e'],
+  ['#78909c', '#607d8b', '#455a64', '#37474f', '#263238'],
+]
+  .map(colorGroup => colorGroup.map(color =>
     `rgba(${hexRgb(color).join(',')}, 1)`));
 
-const createTransform = () => {
+const colorLookup = colors.reduce((lookup, set, setIndex) => {
+    set.forEach((color, colorIndex) =>
+      lookup.set(color, [setIndex, colorIndex]));
+    return lookup;
+}, new Map());
+
+function getNextColor(pastColors = []){
+    if (!pastColors.length) return _.sample(colors.map(set => set[2]));
+
+    const options = pastColors.reduce((options, pastColor) => {
+        const [setIndex, colorIndex] = colorLookup.get(pastColor);
+
+        const previousSet1 = colors[(setIndex - 1)];
+        const previousSet2 = colors[(setIndex - 2)];
+        const nextSet1 = colors[(setIndex + 1)];
+        const nextSet2 = colors[(setIndex + 2)];
+
+        if (previousSet1) options.add(previousSet1[colorIndex]);
+        if (previousSet2) options.add(previousSet2[colorIndex]);
+        if (nextSet1) options.add(nextSet1[colorIndex]);
+        if (nextSet2) options.add(nextSet2[colorIndex]);
+
+        if (colorIndex > 0){
+          options.add(colors[setIndex][colorIndex - 1]);
+        }
+        if (colorIndex < colors[0].length - 1){
+          options.add(colors[setIndex][colorIndex + 1]);
+        }
+
+        return options;
+    }, new Set());
+
+    return _.sample([...options].filter(option => !pastColors.includes(option)));
+}
+
+const createTransform = (pastColors) => {
   return {
-    compression: 0.5,
+    scale: 0.5,
     rotation: 0,
+    sheerX: 0,
+    sheerY: 0,
     probability: 0.5,
-    color: _.sample(colors)[4],
+    color: getNextColor(pastColors),
   };
 };
 
@@ -32,12 +74,14 @@ const Options = {
 
   colors,
 
+  getNextColor,
+
   defaultGame: 0,
 
   defaultControls: {
     gameIndex: {
       options: Game.games,
-      defaultValue: () => 1,
+      defaultValue: () => 0,
     },
 
     exclusions: {
@@ -93,20 +137,21 @@ const Options = {
 
     transforms: {
       options: [
-        'compression',
+        'scale',
         'rotation',
+
         'probability',
         'color',
       ],
 
-      compression: {
+      scale: {
         minValue: 0.1,
         maxValue: 0.9,
       },
 
       rotation: {
-        minValue: -Math.PI / 8,
-        maxValue: Math.PI / 8,
+        minValue: -Math.PI / 10,
+        maxValue: Math.PI / 10,
       },
 
       probability: {

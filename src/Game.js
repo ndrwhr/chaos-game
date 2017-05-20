@@ -48,11 +48,11 @@ const createAttractor = ({historySize, transforms}, targetSelector) => {
       (acc, {probability}) => acc + probability, 0);
   const transformPool = transforms.reduce((pool, transform) => {
     const scaleMatrix = mat2.fromScaling(mat2.create(),
-      vec2.fromValues(transform.compression, transform.compression));
+      vec2.fromValues(transform.scale, transform.scale));
     const rotationMatrix = mat2.fromRotation(mat2.create(),
-        transform.rotation);
-    const transformMatrix = mat2.multiply(mat2.create(), scaleMatrix,
-        rotationMatrix);
+        transform.rotation);;
+    const transformMatrix =
+        mat2.multiply(mat2.create(), scaleMatrix, rotationMatrix);
 
     colorMap.set(transformMatrix, transform.color);
 
@@ -76,14 +76,22 @@ const createAttractor = ({historySize, transforms}, targetSelector) => {
     };
   };
 
+  const getNextPoint = () => {
+    const newTarget = targetSelector(previousTargets);
+
+    previousTargets = [newTarget, ...previousTargets].slice(0, historySize);
+
+    return newTarget ? moveCurrentPoint(newTarget) : {};
+  };
+
+  // Prime the attractor so that we don't see any random points lingering
+  // around outside of the main fractal.
+  for (var i = 0; i < 100; i++){
+    getNextPoint();
+  }
+
   return {
-    getNextPoint(){
-      const newTarget = targetSelector(previousTargets);
-
-      previousTargets = [newTarget, ...previousTargets].slice(0, historySize);
-
-      return newTarget ? moveCurrentPoint(newTarget) : {};
-    },
+    getNextPoint,
   };
 };
 
@@ -126,7 +134,7 @@ const games = [
     },
   },
   {
-    name: 'Complex',
+    name: 'Last Two',
 
     controls: {},
 
@@ -157,10 +165,10 @@ export default {
   setupNPoints(n){
     if (n === 4){
       return [
-        vec2.fromValues(0, 0),
-        vec2.fromValues(1, 0),
-        vec2.fromValues(1, 1),
-        vec2.fromValues(0, 1),
+        vec2.fromValues(0.1, 0.1),
+        vec2.fromValues(0.9, 0.1),
+        vec2.fromValues(0.9, 0.9),
+        vec2.fromValues(0.1, 0.9),
       ];
     }
 
