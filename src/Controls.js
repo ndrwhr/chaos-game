@@ -4,6 +4,7 @@ import ordinal from 'ordinal-number-suffix';
 import React from 'react';
 import rgbHex from 'rgb-hex';
 
+import Game from './Game';
 import Options from './Options';
 
 import './controls.css';
@@ -89,7 +90,7 @@ class ColorPicker extends React.Component {
 }
 
 const Controls = props => {
-  const gameOptions = Options.defaultControls.gameIndex.options
+  const gameOptions = Game.games
       .map(({name}, index) => ({
         name,
         value: index,
@@ -131,10 +132,10 @@ const Controls = props => {
     ];
   }).map(args => renderExclusionControl(...args));
 
-  const game = Options.defaultControls.gameIndex.options[props.gameIndex];
+  const game = Game.games[props.gameIndex];
   let historyControls = null;
   if (game.controls.historyIndex){
-    const historyOptions = game.controls.historyIndex.values
+    const historyOptions = game.controls.historyIndex.options
         .map((value, index) => ({
           name: `${value} Point${value !== 1 ? 's' : ''}`,
           value: index,
@@ -161,7 +162,7 @@ const Controls = props => {
   const onAddTransform = () => {
     props.onChange('transforms', [
       ...props.transforms,
-      Options.defaultControls.transforms.createTransform(
+      game.controls.transforms.createTransform(
         props.transforms.map(transform => transform.color)),
     ]);
   };
@@ -172,12 +173,12 @@ const Controls = props => {
   };
 
   const randomTransform = () => {
-    return Options.defaultControls.transforms.options
+    return game.controls.transforms.options
       .reduce((update, type) => {
         if (type !== 'color'){
           update[type] = _.random(
-            Options.defaultControls.transforms[type].minValue,
-            Options.defaultControls.transforms[type].maxValue
+            game.controls.transforms[type].minValue,
+            game.controls.transforms[type].maxValue
           );
         }
         return update;
@@ -185,7 +186,7 @@ const Controls = props => {
   };
 
   const transformControls = props.transforms.map((transform, index) => {
-    const options = Options.defaultControls.transforms.options.map(type => {
+    const options = game.controls.transforms.options.map(type => {
       if (type === 'color'){
         return (
           <ColorPicker
@@ -197,8 +198,8 @@ const Controls = props => {
         );
       }
 
-      const min = Options.defaultControls.transforms[type].minValue * SCALE;
-      const max = Options.defaultControls.transforms[type].maxValue * SCALE;
+      const min = game.controls.transforms[type].minValue * SCALE;
+      const max = game.controls.transforms[type].maxValue * SCALE;
       const value = transform[type] * SCALE;
 
       return (

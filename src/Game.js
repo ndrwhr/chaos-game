@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import {vec2, mat2} from 'gl-matrix';
 
+import Options from './Options';
+
 const memoize = fn => {
   const createNewMap = () => new Map();
   const getOrCreate = (map, key, creator) => {
@@ -102,16 +104,14 @@ const games = [
     description: '',
 
     controls: {
-      historyIndex: {
-        values: [0, 1, 2, 3],
-        defaultValue: () => 1,
-      },
+      historyIndex: Options.optionalControlFactory.historyIndex(3),
+      transforms: Options.optionalControlFactory.transforms(),
     },
 
     createAttractor(points, {exclusions, historyIndex, transforms}){
       const getIntersection = (a, b) => new Set([...a].filter(x => b.has(x)));
 
-      const historySize = this.controls.historyIndex.values[historyIndex];
+      const historySize = this.controls.historyIndex.options[historyIndex];
       const possibleTargetLookup = generateLookupTable(points, exclusions);
 
       const getPossibleTargets = memoize((n, ...previousTargets) => {
@@ -136,7 +136,9 @@ const games = [
   {
     name: 'Last Two',
 
-    controls: {},
+    controls: {
+      transforms: Options.optionalControlFactory.transforms(),
+    },
 
     createAttractor(points, {exclusions, transforms}){
       const possibleTargetLookup = generateLookupTable(points, exclusions);

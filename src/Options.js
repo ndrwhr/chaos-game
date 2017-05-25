@@ -1,8 +1,6 @@
 import _ from 'lodash';
 import hexRgb from 'hex-rgb';
 
-import Game from './Game';
-
 const colors = [
   ['#ffee58', '#ffeb3b', '#fbc02d', '#f9a825', '#f57f17'],
   ['#ffca28', '#ffc107', '#ffa000', '#ff8f00', '#ff6f00'],
@@ -80,7 +78,6 @@ const Options = {
 
   defaultControls: {
     gameIndex: {
-      options: Game.games,
       defaultValue: () => 0,
     },
 
@@ -135,7 +132,40 @@ const Options = {
       defaultValue: () => 0,
     },
 
-    transforms: {
+    qualityIndex: {
+      options: [
+        {
+          value: 2,
+          name: 'Rough',
+        },
+        {
+          value: 1,
+          name: 'Low',
+        },
+        {
+          value: 0.5,
+          name: 'Medium',
+        },
+        {
+          value: 0.2,
+          name: 'Fine',
+        },
+        {
+          value: 0.1,
+          name: 'Super Fine',
+        },
+      ],
+      defaultValue: () => 0,
+    }
+  },
+
+  optionalControlFactory: {
+    historyIndex: (size) => ({
+      options: _.range(size + 1),
+      defaultValue: () => 1,
+    }),
+
+    transforms: () => ({
       options: [
         'scale',
         'rotation',
@@ -164,33 +194,7 @@ const Options = {
       defaultValue: () => ([
         createTransform(),
       ]),
-    },
-
-    qualityIndex: {
-      options: [
-        {
-          value: 2,
-          name: 'Rough',
-        },
-        {
-          value: 1,
-          name: 'Low',
-        },
-        {
-          value: 0.5,
-          name: 'Medium',
-        },
-        {
-          value: 0.2,
-          name: 'Fine',
-        },
-        {
-          value: 0.1,
-          name: 'Super Fine',
-        },
-      ],
-      defaultValue: () => 0,
-    }
+    }),
   },
 };
 
