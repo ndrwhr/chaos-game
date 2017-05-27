@@ -383,8 +383,8 @@ const Controls = props => {
   }
 
   const speedOptions = Options.defaultControls.speedIndex.options
-      .map((value, index) => ({
-        name: `~${value * 60} dps`,
+      .map(({name}, index) => ({
+        name,
         value: index,
       }));
 

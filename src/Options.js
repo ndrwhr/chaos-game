@@ -124,9 +124,18 @@ const defaultControls = {
 
   speedIndex: {
     options: [
-      100,
-      500,
-      1000,
+      {
+        name: 'Slow',
+        value: 5,
+      },
+      {
+        name: 'Medium',
+        value: 20,
+      },
+      {
+        name: 'Fast',
+        value: 40,
+      },
     ],
     defaultValue: () => 0,
   },

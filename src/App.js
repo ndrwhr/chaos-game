@@ -46,11 +46,11 @@ class App extends Component {
   }
 
   render() {
-    const speedIndex = this.state.controls.speedIndex;
-    const speed = Options.defaultControls.speedIndex.options[speedIndex];
-
     const qualityIndex = this.state.controls.qualityIndex;
     const quality = Options.defaultControls.qualityIndex.options[qualityIndex];
+
+    const speedIndex = this.state.controls.speedIndex;
+    const speed = Options.defaultControls.speedIndex.options[speedIndex].value;
 
     return (
       <div className="app">

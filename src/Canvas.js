@@ -47,7 +47,9 @@ class Canvas extends Component {
   start(){
     cancelAnimationFrame(this._animationId);
     const update = () => {
-      for (let i = 0; i < this.props.speed; i++){
+      // Draw as many points as possible in 50 milliseconds.
+      const start = performance.now();
+      while (performance.now() - start < this.props.speed){
         this.draw();
       }
 
