@@ -47,8 +47,15 @@ function getNextColor(pastColors = []){
         if (colorIndex > 0){
           options.add(colors[setIndex][colorIndex - 1]);
         }
+        if (colorIndex > 1){
+          options.add(colors[setIndex][colorIndex - 2]);
+        }
+
         if (colorIndex < colors[0].length - 1){
           options.add(colors[setIndex][colorIndex + 1]);
+        }
+        if (colorIndex < colors[0].length - 2){
+          options.add(colors[setIndex][colorIndex + 2]);
         }
 
         return options;
