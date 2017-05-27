@@ -68,134 +68,166 @@ const createTransform = (pastColors) => {
   };
 };
 
-const Options = {
-
-  colors,
-
-  getNextColor,
-
-  defaultGame: 0,
-
-  defaultControls: {
-    gameIndex: {
-      defaultValue: () => 0,
-    },
-
-    exclusions: {
-      defaultValue: () => new Set([1, 4]),
-    },
-
-    shapeIndex: {
-      options: [
-        {
-          "value": 3,
-          "name": "Triangle"
-        },
-        {
-          "value": 4,
-          "name": "Square"
-        },
-        {
-          "value": 5,
-          "name": "Pentagon"
-        },
-        {
-          "value": 6,
-          "name": "Hexagon"
-        },
-        {
-          "value": 7,
-          "name": "Heptagon"
-        },
-        {
-          "value": 8,
-          "name": "Octagon"
-        },
-        {
-          "value": 9,
-          "name": "Nonagon"
-        },
-        {
-          "value": 10,
-          "name": "Decagon"
-        }
-      ],
-      defaultValue: () => 2,
-    },
-
-    speedIndex: {
-      options: [
-        100,
-        500,
-        1000,
-      ],
-      defaultValue: () => 0,
-    },
-
-    qualityIndex: {
-      options: [
-        {
-          value: 2,
-          name: 'Rough',
-        },
-        {
-          value: 1,
-          name: 'Low',
-        },
-        {
-          value: 0.5,
-          name: 'Medium',
-        },
-        {
-          value: 0.2,
-          name: 'Fine',
-        },
-        {
-          value: 0.1,
-          name: 'Super Fine',
-        },
-      ],
-      defaultValue: () => 0,
-    }
+const defaultControls = {
+  gameIndex: {
+    defaultValue: () => 0,
   },
 
-  optionalControlFactory: {
-    historyIndex: (size) => ({
-      options: _.range(size + 1),
-      defaultValue: () => 1,
-    }),
+  exclusions: {
+    defaultValue: () => new Set([1, 4]),
+  },
 
-    transforms: () => ({
-      options: [
-        'scale',
-        'rotation',
-
-        'probability',
-        'color',
-      ],
-
-      scale: {
-        minValue: 0.1,
-        maxValue: 0.9,
+  shapeIndex: {
+    options: [
+      {
+        "value": 3,
+        "name": "Triangle"
       },
-
-      rotation: {
-        minValue: -Math.PI / 10,
-        maxValue: Math.PI / 10,
+      {
+        "value": 4,
+        "name": "Square"
       },
-
-      probability: {
-        minValue: 0.001,
-        maxValue: 1,
+      {
+        "value": 5,
+        "name": "Pentagon"
       },
+      {
+        "value": 6,
+        "name": "Hexagon"
+      },
+      {
+        "value": 7,
+        "name": "Heptagon"
+      },
+      {
+        "value": 8,
+        "name": "Octagon"
+      },
+      {
+        "value": 9,
+        "name": "Nonagon"
+      },
+      {
+        "value": 10,
+        "name": "Decagon"
+      }
+    ],
+    defaultValue: () => 2,
+  },
 
-      createTransform,
+  speedIndex: {
+    options: [
+      100,
+      500,
+      1000,
+    ],
+    defaultValue: () => 0,
+  },
 
-      defaultValue: () => ([
-        createTransform(),
-      ]),
-    }),
+  qualityIndex: {
+    options: [
+      {
+        value: 2,
+        name: 'Rough',
+      },
+      {
+        value: 1,
+        name: 'Low',
+      },
+      {
+        value: 0.5,
+        name: 'Medium',
+      },
+      {
+        value: 0.2,
+        name: 'Fine',
+      },
+      {
+        value: 0.1,
+        name: 'Super Fine',
+      },
+    ],
+    defaultValue: () => 0,
   },
 };
 
-export default Options;
+const optionalControlFactory = {
+  historyIndex: (size) => ({
+    options: _.range(size + 1),
+    defaultValue: () => 1,
+  }),
+
+  pointTransforms: () => ({
+    options: [
+      'scale',
+      'rotation',
+      'probability',
+      'color',
+    ],
+
+    scale: {
+      minValue: 0.1,
+      maxValue: 0.9,
+    },
+
+    rotation: {
+      minValue: -Math.PI / 10,
+      maxValue: Math.PI / 10,
+    },
+
+    probability: {
+      minValue: 0.001,
+      maxValue: 1,
+    },
+
+    createTransform,
+
+    defaultValue: (controls) => {
+      const numPoints =
+        defaultControls.shapeIndex.options[controls.shapeIndex].value;
+      return _.range(numPoints).reduce((transforms) => {
+        const pastColors = transforms.map(({color}) => color);
+        transforms.push(createTransform(pastColors));
+        return transforms;
+      }, []);
+    },
+  }),
+
+  transforms: () => ({
+    options: [
+      'scale',
+      'rotation',
+
+      'probability',
+      'color',
+    ],
+
+    scale: {
+      minValue: 0.1,
+      maxValue: 0.9,
+    },
+
+    rotation: {
+      minValue: -Math.PI / 10,
+      maxValue: Math.PI / 10,
+    },
+
+    probability: {
+      minValue: 0.001,
+      maxValue: 1,
+    },
+
+    createTransform,
+
+    defaultValue: () => ([
+      createTransform(),
+    ]),
+  }),
+};
+
+export default {
+  colors,
+  defaultControls,
+  getNextColor,
+  optionalControlFactory,
+};

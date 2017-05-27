@@ -151,12 +151,12 @@ const Controls = props => {
 
   const SCALE = 1000;
 
-  const onTransformUpdate = (index, update) => {
-    const updatedTransforms = props.transforms.slice();
+  const onTransformUpdate = (controlKey, index, update) => {
+    const updatedTransforms = props[controlKey].slice();
     updatedTransforms[index] = Object.assign({}, updatedTransforms[index],
       update);
 
-    props.onChange('transforms', updatedTransforms);
+    props.onChange(controlKey, updatedTransforms);
   };
 
   const onAddTransform = () => {
@@ -172,70 +172,209 @@ const Controls = props => {
         transformIndex !== index));
   };
 
-  const randomTransform = () => {
-    return game.controls.transforms.options
+  const randomTransform = (controlKey) => {
+    return game.controls[controlKey].options
       .reduce((update, type) => {
         if (type !== 'color'){
           update[type] = _.random(
-            game.controls.transforms[type].minValue,
-            game.controls.transforms[type].maxValue
+            game.controls[controlKey][type].minValue,
+            game.controls[controlKey][type].maxValue
           );
         }
         return update;
       }, {});
   };
 
-  const transformControls = props.transforms.map((transform, index) => {
-    const options = game.controls.transforms.options.map(type => {
-      if (type === 'color'){
+  let transformControls;
+  if (props.transforms){
+    const controls = props.transforms.map((transform, index) => {
+      const options = game.controls.transforms.options.map(type => {
+        if (type === 'color'){
+          return (
+            <ColorPicker
+                key={type + index}
+                color={transform[type]}
+                onSelect={newValue =>
+                  onTransformUpdate('transforms', index, {[type]: newValue})}
+            />
+          );
+        }
+
+        const min = game.controls.transforms[type].minValue * SCALE;
+        const max = game.controls.transforms[type].maxValue * SCALE;
+        const value = transform[type] * SCALE;
+
         return (
-          <ColorPicker
+          <input
+              title={type}
               key={type + index}
-              color={transform[type]}
-              onSelect={newValue =>
-                onTransformUpdate(index, {[type]: newValue})}
+              type="range"
+              min={min}
+              max={max}
+              value={value}
+              onChange={(evt) =>
+                onTransformUpdate(
+                  'transforms',
+                  index,
+                  {[type]: evt.target.value / SCALE}
+                )
+              }
           />
         );
-      }
+      });
 
-      const min = game.controls.transforms[type].minValue * SCALE;
-      const max = game.controls.transforms[type].maxValue * SCALE;
-      const value = transform[type] * SCALE;
+      const removeButton = props.transforms.length > 1 ? (
+        <button onClick={() => onRemoveTransform(index)}>
+          remove
+        </button>
+      ) : null;
 
       return (
-        <input
-            title={type}
-            key={type + index}
-            type="range"
-            min={min}
-            max={max}
-            value={value}
-            onChange={(evt) =>
-                onTransformUpdate(index, {[type]: evt.target.value / SCALE})}
-        />
-      );
+        <div key={index}>
+          {options}
+          {removeButton}
+          <button
+            onClick={() => {
+              onTransformUpdate(
+                'transforms',
+                index,
+                randomTransform('transforms')
+              );
+            }}
+          >
+            shuffle
+          </button>
+        </div>
+      )
     });
 
-    const removeButton = props.transforms.length > 1 ? (
-      <button onClick={() => onRemoveTransform(index)}>
-        remove
-      </button>
-    ) : null;
-
-    return (
-      <div key={index}>
-        {options}
-        {removeButton}
+    transformControls = (
+      <div className="controls__set">
+        {controls}
+        <button onClick={onAddTransform}>Add Transform</button>
         <button
           onClick={() => {
-            onTransformUpdate(index, randomTransform());
+            const transforms = props.transforms.map((transform) => {
+              return {...transform, ...randomTransform('transforms')};
+            });
+            props.onChange('transforms', transforms);
           }}
         >
-          shuffle
+          Shuffle Parameters
+        </button>
+        <button
+          onClick={() => {
+            const transforms = [];
+            props.transforms.reduce((colors, transform) => {
+              const color = Options.getNextColor(colors);
+              colors.push(color);
+              transforms.push({
+                ...transform, color,
+              });
+              return colors;
+            }, []);
+            props.onChange('transforms', transforms);
+          }}
+        >
+          Shuffle Colors
         </button>
       </div>
-    )
-  });
+    );
+  }
+
+  let pointTransformControls;
+  if (props.pointTransforms){
+    const controls = props.pointTransforms.map((transform, index) => {
+      const options = game.controls.pointTransforms.options.map(type => {
+        if (type === 'color'){
+          return (
+            <ColorPicker
+                key={type + index}
+                color={transform[type]}
+                onSelect={newValue =>
+                  onTransformUpdate(
+                    'pointTransforms',
+                    index,
+                    {[type]: newValue}
+                  )
+                }
+            />
+          );
+        }
+
+        const min = game.controls.pointTransforms[type].minValue * SCALE;
+        const max = game.controls.pointTransforms[type].maxValue * SCALE;
+        const value = transform[type] * SCALE;
+
+        return (
+          <input
+              title={type}
+              key={type + index}
+              type="range"
+              min={min}
+              max={max}
+              value={value}
+              onChange={(evt) =>
+                onTransformUpdate(
+                  'pointTransforms',
+                  index,
+                  {[type]: evt.target.value / SCALE}
+                )
+              }
+          />
+        );
+      });
+
+      return (
+        <div key={index}>
+          {options}
+          <button
+            onClick={() => {
+              onTransformUpdate(
+                'pointTransforms',
+                index,
+                randomTransform('pointTransforms')
+              );
+            }}
+          >
+            shuffle
+          </button>
+        </div>
+      )
+    });
+
+    pointTransformControls = (
+      <div className="controls__set">
+        {controls}
+        <button
+          onClick={() => {
+            const transforms = props.pointTransforms.map((transform) => {
+              return {...transform, ...randomTransform('pointTransforms')};
+            });
+            props.onChange('pointTransforms', transforms);
+          }}
+        >
+          Shuffle Parameters
+        </button>
+        <button
+          onClick={() => {
+            const transforms = [];
+            props.pointTransforms.reduce((colors, transform) => {
+              const color = Options.getNextColor(colors);
+              colors.push(color);
+              transforms.push({
+                ...transform, color,
+              });
+              return colors;
+            }, []);
+            props.onChange('pointTransforms', transforms);
+          }}
+        >
+          Shuffle Colors
+        </button>
+      </div>
+    );
+  }
 
   const speedOptions = Options.defaultControls.speedIndex.options
       .map((value, index) => ({
@@ -272,36 +411,8 @@ const Controls = props => {
         </button>
       </div>
       {historyControls}
-      <div className="controls__set">
-        {transformControls}
-        <button onClick={onAddTransform}>Add Transform</button>
-        <button
-          onClick={() => {
-            const transforms = props.transforms.map((transform) => {
-              return {...transform, ...randomTransform()};
-            });
-            props.onChange('transforms', transforms);
-          }}
-        >
-          Shuffle Parameters
-        </button>
-        <button
-          onClick={() => {
-            const transforms = [];
-            props.transforms.reduce((colors, transform) => {
-              const color = Options.getNextColor(colors);
-              colors.push(color);
-              transforms.push({
-                ...transform, color,
-              });
-              return colors;
-            }, []);
-            props.onChange('transforms', transforms);
-          }}
-        >
-          Shuffle Colors
-        </button>
-      </div>
+      {transformControls}
+      {pointTransformControls}
       <div className="controls__set">
         {renderSelectBox(props.qualityIndex, qualityOptions, index =>
             props.onChange('qualityIndex', index))}

@@ -21,7 +21,7 @@ class App extends Component {
     const game = Game.games[controls.gameIndex];
 
     Object.keys(game.controls).forEach(option => {
-      controls[option] = game.controls[option].defaultValue();
+      controls[option] = game.controls[option].defaultValue(controls);
     });
 
     const points = this.createPointControls(controls);
@@ -110,14 +110,25 @@ class App extends Component {
         [option]: newValue,
       });
 
-      const points = option === 'shapeIndex' ?
-          this.createPointControls(controls) : this.state.points;
-
       const game = Game.games[controls.gameIndex];
       if (option === 'gameIndex'){
+        Object.keys(Options.optionalControlFactory).forEach(key =>
+          delete controls[key]);
+
         Object.keys(game.controls).forEach(gameOption => {
-          controls[gameOption] = game.controls[gameOption].defaultValue();
+          controls[gameOption] =
+            game.controls[gameOption].defaultValue(controls);
         });
+      }
+
+      let points = this.state.points;
+      if (option === 'shapeIndex'){
+        points = this.createPointControls(controls);
+
+        if (game.controls.pointTransforms){
+          controls.pointTransforms =
+            game.controls.pointTransforms.defaultValue(controls);
+        }
       }
 
       const attractor = game.createAttractor(points, controls);
