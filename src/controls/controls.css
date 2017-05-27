@@ -1,3 +1,5 @@
+@import '../variables.css';
+
 .controls {
   position: absolute;
   top: 0;
@@ -10,6 +12,20 @@
 
 .controls__set {
   margin-bottom: 20px;
+}
+
+.controls__select-box {
+  background: white;
+  display: block;
+  width: 100%;
+  appearance: none;
+  outline: none;
+  padding: 5px 10px;
+}
+
+.controls__range-input {
+  display: block;
+  width: 100%;
 }
 
 label {

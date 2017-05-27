@@ -4,14 +4,18 @@ import ordinal from 'ordinal-number-suffix';
 import React from 'react';
 import rgbHex from 'rgb-hex';
 
-import Game from './Game';
-import Options from './Options';
+import Game from '../Game';
+import Options from '../Options';
 
 import './controls.css';
 
 const renderSelectBox = (selectedValue, options, onChange) => {
   return (
-    <select value={selectedValue} onChange={evt => onChange(evt.target.value)}>
+    <select
+      className="controls__select-box"
+      value={selectedValue}
+      onChange={evt => onChange(evt.target.value)}
+    >
       {options.map(({name, value}) =>
           <option key={value} value={value}>{name}</option>)}
     </select>
@@ -206,6 +210,7 @@ const Controls = props => {
 
         return (
           <input
+              className="controls__range-input"
               title={type}
               key={type + index}
               type="range"
@@ -308,6 +313,7 @@ const Controls = props => {
 
         return (
           <input
+              className="controls__range-input"
               title={type}
               key={type + index}
               type="range"

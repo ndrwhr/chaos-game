@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 
 import Canvas from './Canvas';
-import Controls from './Controls';
+import Controls from './controls/Controls';
 import Game from './Game';
 import Options from './Options';
 import PointControl from './PointControl';

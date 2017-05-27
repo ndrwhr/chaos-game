@@ -1,3 +1,4 @@
+@import './variables.css';
 
 .app {
   display: flex;
@@ -6,7 +7,7 @@
 
 .app__controls {
   position: relative;
-  width: 200px;
+  width: var(--controls-width--desktop);
   background: rgba(0, 0, 0, 0.2);
 }
 
