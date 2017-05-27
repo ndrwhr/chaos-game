@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 import Canvas from './Canvas';
 import Controls from './controls/Controls';
 import Game from './Game';
+import GameUtils from './game-utils';
 import Options from './Options';
 import PointControl from './PointControl';
 
@@ -54,13 +55,6 @@ class App extends Component {
 
     return (
       <div className="app">
-        <div className="app__controls">
-          <Controls
-              {...this.state.controls}
-              isRunning={this.state.isRunning}
-              onChange={this.onControlChange}
-            />
-        </div>
         <div
             className="app__canvas-container"
             ref={canvasContainer => {this.canvasContainer = canvasContainer;}}
@@ -79,6 +73,13 @@ class App extends Component {
               size={this.state.canvasSize}
           />
         </div>
+        <div className="app__controls">
+          <Controls
+              {...this.state.controls}
+              isRunning={this.state.isRunning}
+              onChange={this.onControlChange}
+            />
+        </div>
       </div>
     );
   }
@@ -86,7 +87,7 @@ class App extends Component {
   createPointControls(controls){
     const numPoints =
         Options.defaultControls.shapeIndex.options[controls.shapeIndex].value;
-    return Game.setupNPoints(numPoints);
+    return GameUtils.createPolygon(numPoints);
   }
 
   onControlChange(option, newValue){

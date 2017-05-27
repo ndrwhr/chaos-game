@@ -1,11 +1,11 @@
 import _ from 'lodash';
 import classNames from 'classnames';
-import ordinal from 'ordinal-number-suffix';
 import React from 'react';
 import rgbHex from 'rgb-hex';
 
 import Game from '../Game';
 import Options from '../Options';
+import ExclusionControl from './ExclusionControl';
 
 import './controls.css';
 
@@ -19,21 +19,6 @@ const renderSelectBox = (selectedValue, options, onChange) => {
       {options.map(({name, value}) =>
           <option key={value} value={value}>{name}</option>)}
     </select>
-  );
-};
-
-const renderExclusionControl = (name, isSelected, onChange) => {
-  const classes = classNames('controls__exclusion', {
-    'controls__exclusion--selected': isSelected,
-  });
-
-  return (
-    <label key={name} className={classes}>
-      <input type="checkbox"
-          onChange={onChange}
-          checked={isSelected} />
-      {name}
-    </label>
   );
 };
 
@@ -108,33 +93,6 @@ const Controls = props => {
 
   const numPoints =
     Options.defaultControls.shapeIndex.options[props.shapeIndex].value;
-
-  const exclusionControls = _.times(numPoints, index => {
-    let name;
-    if (index === 0){
-      name = 'Self';
-    } else if (index === 1){
-      name = 'Neighbor';
-    } else {
-      name = `${ordinal(index)} Neighbor`;
-    }
-
-    return [
-      name,
-      props.exclusions.has(index),
-      () => {
-        const updatedExclusions = new Set(props.exclusions);
-
-        if (updatedExclusions.has(index)){
-          updatedExclusions.delete(index);
-        } else {
-          updatedExclusions.add(index);
-        }
-
-        props.onChange('exclusions', updatedExclusions);
-      },
-    ];
-  }).map(args => renderExclusionControl(...args));
 
   const game = Game.games[props.gameIndex];
   let historyControls = null;
@@ -400,23 +358,18 @@ const Controls = props => {
         {renderSelectBox(props.gameIndex, gameOptions, index =>
             props.onChange('gameIndex', index))}
       </div>
+      {historyControls}
       <div className="controls__set">
         {renderSelectBox(props.shapeIndex, shapeOptions, index =>
             props.onChange('shapeIndex', index))}
       </div>
       <div className="controls__set">
-        {exclusionControls}
-        <button
-          onClick={() => {
-            props.onChange('exclusions', new Set(
-              _.sampleSize(_.range(numPoints), _.random(1, numPoints - 2))
-            ));
-          }}
-        >
-          shuffle
-        </button>
+        <ExclusionControl
+          numPoints={numPoints}
+          exclusions={props.exclusions}
+          onChange={(exclusions) => props.onChange('exclusions', exclusions)}
+        />
       </div>
-      {historyControls}
       {transformControls}
       {pointTransformControls}
       <div className="controls__set">

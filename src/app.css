@@ -8,7 +8,6 @@
 .app__controls {
   position: relative;
   width: var(--controls-width--desktop);
-  background: rgba(0, 0, 0, 0.2);
 }
 
 .app__canvas-container {

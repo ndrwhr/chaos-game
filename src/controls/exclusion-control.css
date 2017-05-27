@@ -1,0 +1,23 @@
+.exclusion-control {
+  width: 50%;
+  margin: 0 auto;
+}
+
+.exclusion-control__point {
+  fill: blue;
+  cursor: pointer;
+  transform-origin: center;
+}
+
+.exclusion-control__point:hover {
+  transform: scale(1.1);
+}
+
+.exclusion-control__point--excluded {
+  fill: red;
+}
+
+.exclusion-control__point--first {
+  stroke: white;
+  stroke-width: 0.02;
+}

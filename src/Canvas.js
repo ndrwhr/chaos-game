@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 
+import './canvas.css';
+
 class Canvas extends Component {
   componentDidMount() {
     this._context = this._canvas.getContext('2d');
@@ -40,7 +42,7 @@ class Canvas extends Component {
 
   render() {
     return (
-      <canvas ref={canvas => {this._canvas = canvas;}}/>
+      <canvas className="canvas" ref={canvas => {this._canvas = canvas;}} />
     );
   }
 

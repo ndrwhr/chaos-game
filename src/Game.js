@@ -258,24 +258,4 @@ const games = [
 
 export default {
   games,
-
-  setupNPoints(n){
-    if (n === 4){
-      return [
-        vec2.fromValues(0.1, 0.1),
-        vec2.fromValues(0.9, 0.1),
-        vec2.fromValues(0.9, 0.9),
-        vec2.fromValues(0.1, 0.9),
-      ];
-    }
-
-    const lerp = 2 * Math.PI / n;
-    return _.times(n, index => {
-      const angle = lerp * (n - index - 1);
-      const vector = vec2.fromValues(0, -0.5);
-      const rotationMatrix = mat2.fromRotation(mat2.create(), angle);
-
-      return vec2.transformMat2(vec2.create(), vector, rotationMatrix);
-    }).map(point => vec2.add(vec2.create(), point, vec2.fromValues(0.5, 0.5)));
-  },
 };

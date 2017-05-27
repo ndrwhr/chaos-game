@@ -77,7 +77,7 @@ const createTransform = (pastColors) => {
 
 const defaultControls = {
   gameIndex: {
-    defaultValue: () => 0,
+    defaultValue: () => 1,
   },
 
   exclusions: {
