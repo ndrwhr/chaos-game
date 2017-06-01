@@ -3,6 +3,13 @@
 .app {
   display: flex;
   width: 100%;
+  color: var(--color-black);
+  background: var(--color-white);
+}
+
+.app--dark {
+  background: var(--color-black);
+  color: var(--color-white);
 }
 
 .app__controls {
@@ -21,4 +28,46 @@
   top: 50%;
   left:  50%;
   transform: translate(-50%, -50%);
+}
+
+.btn {
+  font-family: inherit;
+  color: inherit;
+  outline: none;
+  margin-right: 10px;
+  border: none;
+  padding: 5px 10px;
+  padding-right: 8px;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  margin-bottom: 10px;
+  background: transparent;
+  border: 1px solid var(--color-black);
+  transition:
+    200ms background,
+    200ms border;
+}
+
+.app--dark .btn {
+  border-color: var(--color-white);
+}
+
+.btn:not(.btn--active):hover {
+  background: var(--color-black-a20);
+}
+
+.app--dark .btn:not(.btn--active):hover {
+  background: var(--color-white-a20);
+}
+
+.btn--active {
+  background: var(--color-black);
+  border-color: var(--color-black);
+  color: var(--color-white);
+}
+
+.app--dark .btn--active {
+  background: var(--color-white);
+  border-color: var(--color-white);
+  color: var(--color-black);
 }

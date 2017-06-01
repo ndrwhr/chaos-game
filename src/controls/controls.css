@@ -2,28 +2,24 @@
 
 .controls {
   padding: 10px;
-}
-
-.controls__set {
-  padding: 10px;
-  margin-bottom: 10px;
-  background: #FDF6E2;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
   border-radius: 5px;
 }
 
-.controls__select-box {
-  background: white;
-  display: block;
-  width: 100%;
-  appearance: none;
-  outline: none;
-  padding: 5px 10px;
+.controls__control {
+  margin-bottom: 10px;
 }
 
-.controls__range-input {
-  display: block;
-  width: 100%;
+.controls__control-title {
+  font-size: 15px;
+  font-weight: 300;
+  margin-bottom: 10px;
+  letter-spacing: 0.3em;
+  padding: 5px 10px;
+  border-left: 1px solid var(--color-black);
+}
+
+.app--dark .controls__control-title {
+  border-color: var(--color-white);
 }
 
 label {

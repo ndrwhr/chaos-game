@@ -76,6 +76,19 @@ const createTransform = (pastColors) => {
 };
 
 const defaultControls = {
+  colorIndex: {
+    options: [
+      {
+        name: 'Color Via Transforms',
+        value: 0,
+      },
+      {
+        name: 'Color Via Targets',
+        value: 1,
+      },
+    ],
+    defaultValue: () => 0,
+  },
   gameIndex: {
     defaultValue: () => 1,
   },
@@ -87,36 +100,36 @@ const defaultControls = {
   shapeIndex: {
     options: [
       {
-        "value": 3,
-        "name": "Triangle"
+        value: 3,
+        name: 3,
       },
       {
-        "value": 4,
-        "name": "Square"
+        value: 4,
+        name: 4,
       },
       {
-        "value": 5,
-        "name": "Pentagon"
+        value: 5,
+        name: 5,
       },
       {
-        "value": 6,
-        "name": "Hexagon"
+        value: 6,
+        name: 6,
       },
       {
-        "value": 7,
-        "name": "Heptagon"
+        value: 7,
+        name: 7,
       },
       {
-        "value": 8,
-        "name": "Octagon"
+        value: 8,
+        name: 8,
       },
       {
-        "value": 9,
-        "name": "Nonagon"
+        value: 9,
+        name: 9,
       },
       {
-        "value": 10,
-        "name": "Decagon"
+        value: 10,
+        name: 10,
       }
     ],
     defaultValue: () => 2,
@@ -143,24 +156,20 @@ const defaultControls = {
   qualityIndex: {
     options: [
       {
-        value: 2,
+        value: 1,
         name: 'Rough',
       },
       {
-        value: 1,
+        value: 0.5,
         name: 'Low',
       },
       {
-        value: 0.5,
+        value: 0.2,
         name: 'Medium',
       },
       {
-        value: 0.2,
-        name: 'Fine',
-      },
-      {
         value: 0.1,
-        name: 'Super Fine',
+        name: 'Fine',
       },
     ],
     defaultValue: () => 0,

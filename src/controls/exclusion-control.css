@@ -1,23 +1,28 @@
+@import '../variables.css';
+
 .exclusion-control {
   width: 50%;
   margin: 0 auto;
 }
 
 .exclusion-control__point {
-  fill: blue;
+  fill: var(--color-white);
+  stroke: var(--color-black);
+  stroke-width: 0.005;
   cursor: pointer;
   transform-origin: center;
+  transition: fill 200ms;
 }
 
-.exclusion-control__point:hover {
-  transform: scale(1.1);
+.exclusion-control__point:not(.exclusion-control__point--excluded):hover {
+  fill: var(--color-black-a20);
 }
 
 .exclusion-control__point--excluded {
-  fill: red;
+  fill: var(--color-black);
 }
 
-.exclusion-control__point--first {
-  stroke: white;
-  stroke-width: 0.02;
+.exclusion-control__loop {
+  stroke: var(--color-black);
+  stroke-width: 0.005;
 }

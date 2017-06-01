@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import {vec2} from 'gl-matrix';
 import React, {Component} from 'react';
 
@@ -65,10 +66,15 @@ export default class PointControl extends Component {
       top: ((top * scale) + offset) * this.props.size,
       left: ((left * scale) + offset) * this.props.size,
     };
+
+    const classes = classNames('point-control__point', {
+      'point-control__point--active': index === this.state.activePoint,
+    });
+
     return (
       <div
-          className="point-control__point"
-          key={point}
+          className={classes}
+          key={`${index},${left},${top}`}
           onMouseDown={() => this.onPointMouseDown(index)}
           style={style}
       />

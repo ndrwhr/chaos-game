@@ -32,7 +32,7 @@ class App extends Component {
       attractor,
       canvasSize: 0,
       controls,
-      isRunning: true,
+      isRunning: false,
       points,
     };
 

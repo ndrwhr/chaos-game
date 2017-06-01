@@ -1,82 +1,22 @@
 import _ from 'lodash';
-import classNames from 'classnames';
 import React from 'react';
-import rgbHex from 'rgb-hex';
 
 import Game from '../Game';
 import Options from '../Options';
+import ColorPicker from './ColorPicker';
 import ExclusionControl from './ExclusionControl';
+import RadioControl from './RadioControl';
 
 import './controls.css';
 
-const renderSelectBox = (selectedValue, options, onChange) => {
-  return (
-    <select
-      className="controls__select-box"
-      value={selectedValue}
-      onChange={evt => onChange(evt.target.value)}
-    >
-      {options.map(({name, value}) =>
-          <option key={value} value={value}>{name}</option>)}
-    </select>
-  );
-};
-
-class ColorPicker extends React.Component {
-  constructor(props){
-    super(props);
-    this.state = {
-      isOpen: false,
-    };
-  }
-
-  rgbaToHex(rgba){
-    return '#' + rgbHex(rgba).slice(0, -2);
-  }
-
-  renderColor(rgba){
-    return (
-      <button
-          key={rgba}
-          className={classNames('color-picker__color', {
-            'color-picker__color--selected': rgba === this.props.color,
-          })}
-          style={{background: this.rgbaToHex(rgba)}}
-          onClick={() => {
-            this.props.onSelect(rgba);
-          }}
-      />
-    );
-  }
-
-  render(){
-    const props = this.props;
-
-    return (
-      <div
-          className={classNames('color-picker', {
-            'color-picker--open': this.state.isOpen,
-          })}>
-        <button
-            className="color-picker__selected-color"
-            style={{background: this.rgbaToHex(props.color)}}
-            onClick={() => {
-              this.setState({
-                isOpen: !this.state.isOpen,
-              });
-            }}
-        />
-        <div className="color-picker__color-list">
-          {Options.colors.map(colorGroup => (
-            <div key={colorGroup} className="color-picker__color-row">
-              {colorGroup.map(color => this.renderColor(color))}
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
-}
+const Control = ({title, children}) => (
+  <div className="controls__control">
+    <h3 className="controls__control-title">{title}</h3>
+    <div className="controls__control-children">
+      {children}
+    </div>
+  </div>
+);
 
 const Controls = props => {
   const gameOptions = Game.games
@@ -98,16 +38,21 @@ const Controls = props => {
   let historyControls = null;
   if (game.controls.historyIndex){
     const historyOptions = game.controls.historyIndex.options
-        .map((value, index) => ({
-          name: `${value} Point${value !== 1 ? 's' : ''}`,
+        .map((name, index) => ({
+          name,
           value: index,
         }));
 
     historyControls = (
-      <div className="controls__set">
-        {renderSelectBox(props.historyIndex, historyOptions, index =>
-            props.onChange('historyIndex', index))}
-      </div>
+      <Control
+        title="Point History"
+      >
+        <RadioControl
+          selectedValue={props.historyIndex}
+          options={historyOptions}
+          onChange={index => props.onChange('historyIndex', index)}
+        />
+      </Control>
     );
   }
 
@@ -168,7 +113,7 @@ const Controls = props => {
 
         return (
           <input
-              className="controls__range-input"
+              className="range"
               title={type}
               key={type + index}
               type="range"
@@ -212,7 +157,7 @@ const Controls = props => {
     });
 
     transformControls = (
-      <div className="controls__set">
+      <Control title="Shared Transformations">
         {controls}
         <button onClick={onAddTransform}>Add Transform</button>
         <button
@@ -241,7 +186,7 @@ const Controls = props => {
         >
           Shuffle Colors
         </button>
-      </div>
+      </Control>
     );
   }
 
@@ -271,7 +216,7 @@ const Controls = props => {
 
         return (
           <input
-              className="controls__range-input"
+              className="range"
               title={type}
               key={type + index}
               type="range"
@@ -308,7 +253,7 @@ const Controls = props => {
     });
 
     pointTransformControls = (
-      <div className="controls__set">
+      <Control title="Point Transformations">
         {controls}
         <button
           onClick={() => {
@@ -336,7 +281,7 @@ const Controls = props => {
         >
           Shuffle Colors
         </button>
-      </div>
+      </Control>
     );
   }
 
@@ -354,37 +299,65 @@ const Controls = props => {
 
   return (
     <div className="controls">
-      <div className="controls__set">
-        {renderSelectBox(props.gameIndex, gameOptions, index =>
-            props.onChange('gameIndex', index))}
-      </div>
+      <Control title="Variation">
+        <RadioControl
+          selectedValue={props.gameIndex}
+          options={gameOptions}
+          onChange={index => props.onChange('gameIndex', index)}
+        />
+      </Control>
+
       {historyControls}
-      <div className="controls__set">
-        {renderSelectBox(props.shapeIndex, shapeOptions, index =>
-            props.onChange('shapeIndex', index))}
-      </div>
-      <div className="controls__set">
+
+      <Control title="Number of Points">
+        <RadioControl
+          selectedValue={props.shapeIndex}
+          options={shapeOptions}
+          onChange={index => props.onChange('shapeIndex', index)}
+        />
+      </Control>
+
+      <Control title="Exclusions">
         <ExclusionControl
           numPoints={numPoints}
           exclusions={props.exclusions}
           onChange={(exclusions) => props.onChange('exclusions', exclusions)}
         />
-      </div>
+      </Control>
+
+      <Control title="Colors">
+        <RadioControl
+          selectedValue={props.colorIndex}
+          options={Options.defaultControls.colorIndex.options}
+          onChange={index => props.onChange('colorIndex', index)}
+        />
+      </Control>
+
       {transformControls}
+
       {pointTransformControls}
-      <div className="controls__set">
-        {renderSelectBox(props.qualityIndex, qualityOptions, index =>
-            props.onChange('qualityIndex', index))}
-      </div>
-      <div className="controls__set">
-        {renderSelectBox(props.speedIndex, speedOptions, index =>
-            props.onChange('speedIndex', index))}
-      </div>
-      <div className="controls__set">
-         <button onClick={() => props.onChange('isRunning', !props.isRunning)}>
+
+      <Control title="Rendering Quality">
+        <RadioControl
+          selectedValue={props.qualityIndex}
+          options={qualityOptions}
+          onChange={index => props.onChange('qualityIndex', index)}
+        />
+      </Control>
+
+      <Control title="Rendering Speed">
+        <RadioControl
+          selectedValue={props.speedIndex}
+          options={speedOptions}
+          onChange={index => props.onChange('speedIndex', index)}
+        />
+      </Control>
+
+      <Control title="">
+        <button onClick={() => props.onChange('isRunning', !props.isRunning)}>
            {props.isRunning ? 'Pause' : 'Play'}
          </button>
-      </div>
+      </Control>
     </div>
   );
 };

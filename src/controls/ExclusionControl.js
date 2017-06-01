@@ -43,19 +43,18 @@ export default ({exclusions, numPoints, onChange}) => {
                 key={`mask-${point[0]}-${point[1]}`}
                 cx={point[0]}
                 cy={point[1]}
-                r="0.1"
+                r="0.13"
                 fill="black"
               />
             ))}
           </mask>
         </defs>
         <circle
+          className="exclusion-control__loop"
           cx="0.5"
           cy="0.5"
           r="0.5"
           fill="none"
-          stroke="black"
-          strokeWidth="0.01"
           mask="url(#points)"
         />
         {points.map((point, index) => (
@@ -70,7 +69,7 @@ export default ({exclusions, numPoints, onChange}) => {
             key={point}
             cx={point[0]}
             cy={point[1]}
-            r="0.06"
+            r="0.09"
           />
         ))}
       </svg>

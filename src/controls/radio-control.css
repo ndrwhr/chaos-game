@@ -1,0 +1,7 @@
+.radio-control {
+  padding: 10px;
+}
+
+.radio-control__options {
+  display: flex;
+}
