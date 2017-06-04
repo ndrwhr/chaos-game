@@ -25,10 +25,18 @@ export default ({exclusions, numPoints, onChange}) => {
     _.sampleSize(_.range(numPoints), _.random(1, numPoints - 2))
   ));
 
+  const angleLerp = 360 / numPoints;
+  let triangleAngles = _.times(numPoints - 1,
+    index => ((angleLerp * (index + 1)) - 18));
+
+  if (numPoints === 4){
+    triangleAngles = triangleAngles.map(angle => angle - 45);
+  }
+
   return (
     <div className="exclusion-control">
       <svg className="exclusion-control__points"
-        viewBox="-0.1 -0.1 1.2 1.2"
+        viewBox="-0.15 -0.15 1.25 1.25"
       >
         <defs>
           <mask id="points">
@@ -49,28 +57,51 @@ export default ({exclusions, numPoints, onChange}) => {
             ))}
           </mask>
         </defs>
-        <circle
+        <path
           className="exclusion-control__loop"
-          cx="0.5"
-          cy="0.5"
-          r="0.5"
-          fill="none"
           mask="url(#points)"
+          d={`M${points[points.length - 1][0]} ${points[points.length - 1][1]} A 0.5 0.5 1 1 ${points[0][0]} ${points[0][1]}`}
         />
         {points.map((point, index) => (
-          <circle
+          <g
             className={
               classNames('exclusion-control__point', {
                 'exclusion-control__point--excluded': exclusions.has(index),
                 'exclusion-control__point--first': index === 0,
               })
             }
-            onClick={() => onToggle(index)}
             key={point}
-            cx={point[0]}
-            cy={point[1]}
-            r="0.09"
-          />
+            transform={`translate(${point[0]}, ${point[1]})`}
+            onClick={() => onToggle(index)}
+          >
+            <circle
+              className="exclusion-control__point-background"
+              cx="0"
+              cy="0"
+              r="0.09"
+            />
+            <g
+              className="exclusion-control__point-cross"
+              transform="rotate(45)"
+            >
+              <rect x="-0.06" y="-0.01" width="0.12" height="0.02"/>
+              <rect x="-0.01" y="-0.06" width="0.02" height="0.12"/>
+            </g>
+          </g>
+        ))}
+
+        {triangleAngles.map(angle => (
+          <g
+            key={angle}
+            transform={`translate(0, -0.5) rotate(${angle} 0.5 1)`}
+          >
+            <g transform="translate(0.5, 0.5)">
+              <polygon
+                transform="translate(0, -0.0225)"
+                points="0,0 0.045,0.0225 0,0.045"
+              />
+            </g>
+          </g>
         ))}
       </svg>
       <button onClick={onShuffle}>

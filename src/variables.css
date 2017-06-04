@@ -12,6 +12,7 @@
   --color-white-a00: rgba(255, 255, 255, 0);
 
   --color-black: rgba(38, 50, 56, 1);
+  --color-black-a90: rgba(38, 50, 56, 0.9);
   --color-black-a50: rgba(38, 50, 56, 0.5);
   --color-black-a20: rgba(38, 50, 56, 0.2);
 }
