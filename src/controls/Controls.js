@@ -9,9 +9,11 @@ import RadioControl from './RadioControl';
 
 import './controls.css';
 
-const Control = ({title, children}) => (
+const Control = ({title, description, children}) => (
   <div className="controls__control">
     <h3 className="controls__control-title">{title}</h3>
+    {description &&
+      <p className="controls__control-description">{description}</p>}
     <div className="controls__control-children">
       {children}
     </div>
@@ -46,8 +48,10 @@ const Controls = props => {
     historyControls = (
       <Control
         title="Point History"
+        description="The number of points to remember."
       >
         <RadioControl
+          buttonStyle={true}
           selectedValue={props.historyIndex}
           options={historyOptions}
           onChange={index => props.onChange('historyIndex', index)}
@@ -309,15 +313,22 @@ const Controls = props => {
 
       {historyControls}
 
-      <Control title="Number of Points">
+      <Control
+        title="Number of Points"
+        description="You can also move the points around by hovering over (or tapping) the generated fractal."
+      >
         <RadioControl
+          buttonStyle={true}
           selectedValue={props.shapeIndex}
           options={shapeOptions}
           onChange={index => props.onChange('shapeIndex', index)}
         />
       </Control>
 
-      <Control title="Exclusions">
+      <Control
+        title="Exclusions"
+        description="When choosing the next target point, you can optionally tell the chaos game to not let it select a particular neighbor based on the previously selected point(s)."
+      >
         <ExclusionControl
           numPoints={numPoints}
           exclusions={props.exclusions}
@@ -337,7 +348,10 @@ const Controls = props => {
 
       {pointTransformControls}
 
-      <Control title="Rendering Quality">
+      <Control
+        title="Rendering Quality"
+        description="Adjusts the size of the point drawn on every iteration."
+      >
         <RadioControl
           selectedValue={props.qualityIndex}
           options={qualityOptions}
@@ -345,7 +359,10 @@ const Controls = props => {
         />
       </Control>
 
-      <Control title="Rendering Speed">
+      <Control
+        title="Rendering Speed"
+        description="Adjusts the number of points drawn. Faster speeds require more CPU usage."
+      >
         <RadioControl
           selectedValue={props.speedIndex}
           options={speedOptions}

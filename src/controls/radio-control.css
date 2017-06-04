@@ -1,7 +1,46 @@
+@import "../variables.css";
+
 .radio-control {
   padding: 10px;
+  list-style: none;
 }
 
 .radio-control__options {
   display: flex;
+}
+
+.radio-control__item {
+  margin-bottom: 5px;
+}
+
+.radio-control__item-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.radio-control__radio-input {
+  display: none;
+}
+
+.radio-control__item-name {
+  flex: 1;
+}
+
+.radio-control__fake-radio {
+  display: inline-block;
+  content: '';
+  height: 20px;
+  width: 20px;
+  border: 1px solid var(--color-black);
+  margin-right: 10px;
+  transition: background 200ms;
+}
+
+.radio-control__item-label:hover .radio-control__fake-radio {
+  background: var(--color-black-a20);
+}
+
+.radio-control__radio-input:checked + .radio-control__fake-radio {
+  background: var(--color-black);
 }
