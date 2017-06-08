@@ -1,61 +1,74 @@
+import _ from 'lodash';
 import classNames from 'classnames';
 import React from 'react';
-import rgbHex from 'rgb-hex';
 
 import Options from '../Options';
 
-export default class ColorPicker extends React.Component {
-  constructor(props){
-    super(props);
-    this.state = {
-      isOpen: false,
-    };
-  }
+import './color-picker.css';
 
-  rgbaToHex(rgba){
-    return '#' + rgbHex(rgba).slice(0, -2);
-  }
+export default (props) => {
+  const hueIndex = 4;
 
-  renderColor(rgba){
-    return (
-      <button
-          key={rgba}
-          className={classNames('color-picker__color', {
-            'color-picker__color--selected': rgba === this.props.color,
-          })}
-          style={{background: this.rgbaToHex(rgba)}}
-          onClick={() => {
-            this.props.onSelect(rgba);
-          }}
-      />
-    );
-  }
+  const shades = Options.colors.find(colorList =>
+    colorList.includes(props.color));
+  const shadeIndex = shades.indexOf(props.color);
 
-  render(){
-    const props = this.props;
+  const hues = Options.colors.map(colorList => colorList[hueIndex]);
+  const selectedHue = shades[hueIndex];
 
-    return (
-      <div
-          className={classNames('color-picker', {
-            'color-picker--open': this.state.isOpen,
-          })}>
-        <button
-            className="color-picker__selected-color"
-            style={{background: this.rgbaToHex(props.color)}}
-            onClick={() => {
-              this.setState({
-                isOpen: !this.state.isOpen,
-              });
-            }}
-        />
-        <div className="color-picker__color-list">
-          {Options.colors.map(colorGroup => (
-            <div key={colorGroup} className="color-picker__color-row">
-              {colorGroup.map(color => this.renderColor(color))}
-            </div>
+  const selectRandomColor = () => {
+    const shiftedShadeIndex = shadeIndex + _.sample(_.range(-2, 2));
+    const newShadeIndex = _.clamp(shiftedShadeIndex, 0, shades.length);
+    const newColor = _.sample(Options.colors)[newShadeIndex];
+    props.onChange(newColor);
+  };
+
+  return (
+    <div className="color-picker">
+      <div className="color-picker__lists">
+        <div className="color-picker__list color-picker__list--hues">
+          {hues.map(hue => (
+            <button
+              key={`hue-${hue}`}
+              className={
+                classNames('color-picker__button color-picker__button--hue', {
+                  'color-picker__button--dark-text':
+                    Options.lightColorLookup.has(hue),
+                  'color-picker__button--selected': hue === selectedHue,
+                })
+              }
+              style={{background: hue}}
+              onClick={() => props.onChange(hue)}
+            />
+          ))}
+        </div>
+
+        <div className="color-picker__list color-picker__list--shades">
+          {shades.map((shade, index) => (
+            <button
+              key={`shade-${index}`}
+              className={
+                classNames('color-picker__button color-picker__button--shade', {
+                  'color-picker__button--dark-text':
+                    Options.lightColorLookup.has(shade),
+                  'color-picker__button--selected': shade === props.color,
+                })
+              }
+              style={{background: shade}}
+              onClick={() => props.onChange(shade)}
+            />
           ))}
         </div>
       </div>
-    )
-  }
-}
+      <div className="color-picker__controls">
+        <button
+          className="btn btn--inline"
+          onClick={selectRandomColor}
+        >
+          select random
+        </button>
+        <button className="btn btn--inline">close</button>
+      </div>
+    </div>
+  )
+};

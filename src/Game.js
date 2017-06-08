@@ -65,7 +65,30 @@ const createSharedTransformSelector = (transforms) => {
   return () => _.sample(transformPool);
 };
 
+const createColorSelector = ({points, transforms, colors, colorModeIndex = null} = {}) => {
+  let selector;
+
+  if (colorModeIndex === null || colorModeIndex === Options.COLOR_MODES.BY_TRANSFORM){
+    const colorLookup = transforms.reduce((map, transform, index) => {
+        map.set(transform, colors[index]);
+        return map;
+      }, new Map());
+    selector = (point, transform) => colorLookup.get(transform);
+  } else if (colorModeIndex === Options.COLOR_MODES.RANDOM){
+    selector = () => _.sample(colors);
+  } else {
+    const colorLookup = points.reduce((map, point, index) => {
+        map.set(point, colors[index]);
+        return map;
+      }, new Map());
+    selector = point => colorLookup.get(point);
+  }
+
+  return selector;
+};
+
 const createAttractor = ({
+      colorSelector,
       targetSelector,
       transforms,
       transformSelector,
@@ -104,10 +127,11 @@ const createAttractor = ({
 
     const transform = transformSelector(target);
     const transformMatrix = transformMatrixLookup.get(transform);
+    const color = colorSelector(target, transform);
 
     return {
       point: moveCurrentPoint(target, transformMatrix),
-      color: transform.color,
+      color,
     };
   };
 
@@ -126,14 +150,16 @@ const games = [
   {
     name: 'Target Transforms',
 
+    numTransforms: ({shapeIndex}) =>
+      Options.defaultControls.shapeIndex.options[shapeIndex].value,
+
     controls: {
       historyIndex: Options.optionalControlFactory.historyIndex(3),
-      pointTransforms: Options.optionalControlFactory.pointTransforms(),
     },
 
-    createAttractor(points, {exclusions, historyIndex, pointTransforms}){
+    createAttractor(points, {colors, exclusions, historyIndex, transforms}){
       const transformMap = points.reduce((map, point, index) => {
-        map.set(point, pointTransforms[index]);
+        map.set(point, transforms[index]);
         return map;
       }, new Map());
 
@@ -168,8 +194,9 @@ const games = [
       };
 
       return createAttractor({
+        colorSelector: createColorSelector({transforms, colors}),
         targetSelector,
-        transforms: pointTransforms,
+        transforms,
         transformSelector,
       });
     },
@@ -180,11 +207,11 @@ const games = [
     description: '',
 
     controls: {
+      colorModeIndex: Options.optionalControlFactory.colorModeIndex(),
       historyIndex: Options.optionalControlFactory.historyIndex(3),
-      transforms: Options.optionalControlFactory.transforms(),
     },
 
-    createAttractor(points, {exclusions, historyIndex, transforms}){
+    createAttractor(points, {colorModeIndex, colors, exclusions, historyIndex, transforms}){
       const getIntersection = (a, b) => new Set([...a].filter(x => b.has(x)));
 
       const historySize = this.controls.historyIndex.options[historyIndex];
@@ -214,6 +241,7 @@ const games = [
       const transformSelector = createSharedTransformSelector(transforms);
 
       return createAttractor({
+        colorSelector: createColorSelector({points, transforms, colors, colorModeIndex}),
         targetSelector,
         transforms,
         transformSelector,
@@ -224,10 +252,10 @@ const games = [
     name: 'Last Two',
 
     controls: {
-      transforms: Options.optionalControlFactory.transforms(),
+      colorModeIndex: Options.optionalControlFactory.colorModeIndex(),
     },
 
-    createAttractor(points, {exclusions, transforms}){
+    createAttractor(points, {colorModeIndex, colors, exclusions, transforms}){
       const possibleTargetLookup = generateExclusionTargetLookup(points, exclusions);
 
       const targetSelector = createTargetSelectorWithHistory(2,
@@ -248,6 +276,7 @@ const games = [
       const transformSelector = createSharedTransformSelector(transforms);
 
       return createAttractor({
+        colorSelector: createColorSelector({points, transforms, colors, colorModeIndex}),
         targetSelector,
         transforms,
         transformSelector,

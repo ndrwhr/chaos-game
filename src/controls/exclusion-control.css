@@ -8,10 +8,15 @@
 .exclusion-control__point {
   fill: var(--color-white);
   stroke: var(--color-black);
-  stroke-width: 0.005;
+  stroke-width: 0.01;
   cursor: pointer;
   transform-origin: center;
   transition: fill 200ms;
+}
+
+.app--dark .exclusion-control__point {
+  fill: var(--color-black);
+  stroke: var(--color-white);
 }
 
 .exclusion-control__point--first {
@@ -23,16 +28,40 @@
   stroke-width: 0;
 }
 
+.app--dark .exclusion-control__point-cross {
+  fill: var(--color-black);
+}
+
 .exclusion-control__point:not(.exclusion-control__point--excluded):hover {
   fill: var(--color-black-a20);
+}
+
+.app--dark .exclusion-control__point:not(.exclusion-control__point--excluded):hover {
+  fill: var(--color-white-a20);
 }
 
 .exclusion-control__point--excluded {
   fill: var(--color-black);
 }
 
+.app--dark .exclusion-control__point--excluded {
+  fill: var(--color-white);
+}
+
 .exclusion-control__loop {
   fill: none;
   stroke: var(--color-black);
-  stroke-width: 0.007;
+  stroke-width: 0.01;
+}
+
+.app--dark .exclusion-control__loop {
+  stroke: var(--color-white);
+}
+
+.exclusion-control__loop-triangle {
+  fill: var(--color-black);
+}
+
+.app--dark .exclusion-control__loop-triangle {
+  fill: var(--color-white);
 }

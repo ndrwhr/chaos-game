@@ -34,13 +34,11 @@
   font-family: inherit;
   color: inherit;
   outline: none;
-  margin-right: 10px;
   border: none;
   padding: 5px 10px;
   padding-right: 8px;
   letter-spacing: 0.2em;
   cursor: pointer;
-  margin-bottom: 10px;
   background: transparent;
   border: 1px solid var(--color-black);
   transition:
@@ -70,4 +68,13 @@
   background: var(--color-white);
   border-color: var(--color-white);
   color: var(--color-black);
+}
+
+.btn--inline {
+  margin-right: 10px;
+}
+
+.btn--shuffle {
+  display: block;
+  margin: 0 auto;
 }

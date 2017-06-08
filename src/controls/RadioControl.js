@@ -9,7 +9,7 @@ const renderButtonStyle = (props) => (
       <button
         key={value}
         className={
-          classNames('btn', {
+          classNames('btn btn--inline', {
             'btn--active': props.selectedValue === value,
           })
         }

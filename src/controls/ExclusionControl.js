@@ -36,7 +36,7 @@ export default ({exclusions, numPoints, onChange}) => {
   return (
     <div className="exclusion-control">
       <svg className="exclusion-control__points"
-        viewBox="-0.15 -0.15 1.25 1.25"
+        viewBox="-0.15 -0.15 1.3 1.3"
       >
         <defs>
           <mask id="points">
@@ -60,7 +60,8 @@ export default ({exclusions, numPoints, onChange}) => {
         <path
           className="exclusion-control__loop"
           mask="url(#points)"
-          d={`M${points[points.length - 1][0]} ${points[points.length - 1][1]} A 0.5 0.5 1 1 ${points[0][0]} ${points[0][1]}`}
+          d={`M${points[points.length - 1][0]} ${points[points.length - 1][1]}
+            A 0.5 0.5 1 1 ${points[0][0]} ${points[0][1]}`}
         />
         {points.map((point, index) => (
           <g
@@ -97,6 +98,7 @@ export default ({exclusions, numPoints, onChange}) => {
           >
             <g transform="translate(0.5, 0.5)">
               <polygon
+                className="exclusion-control__loop-triangle"
                 transform="translate(0, -0.0225)"
                 points="0,0 0.045,0.0225 0,0.045"
               />
@@ -104,8 +106,8 @@ export default ({exclusions, numPoints, onChange}) => {
           </g>
         ))}
       </svg>
-      <button onClick={onShuffle}>
-        shuffle
+      <button className="btn btn--shuffle" onClick={onShuffle}>
+        randomize exclusions
       </button>
     </div>
   );

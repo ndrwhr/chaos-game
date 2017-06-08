@@ -1,0 +1,106 @@
+@import '../variables.css';
+
+:root {
+  --hue-button-width: 50px;
+  --shade-button-width: 200px;
+}
+
+.color-picker {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 540px;
+  background: var(--color-white);
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  box-shadow: 0 1px 25px 5px rgba(0, 0, 0, 0.3);
+}
+
+.app--dark .color-picker {
+  background: var(--color-black);
+  box-shadow: 0 1px 25px 5px rgba(0, 0, 0, 0.9);
+}
+
+.color-picker__lists {
+  display: flex;
+  flex: 1;
+}
+
+.color-picker__list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.color-picker__list--hues {
+  margin-right: 10px;
+}
+
+.color-picker__list--shades {
+  width: 200px;
+}
+
+.color-picker__button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  flex: 1;
+  cursor: pointer;
+  outline: none;
+  transition: background 300ms;
+}
+
+.color-picker__button--hue:not(:last-child) {
+  margin-bottom: 5px;
+}
+
+.color-picker__button::after {
+  display: block;
+  content: '';
+  height: 30px;
+  width: 30px;
+  background-position: center center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-image: url('./check-mark-white.svg');
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.1);
+  transition:
+    opacity 200ms,
+    transform 200ms;
+}
+
+.color-picker__button--dark-text::after {
+  background-image: url('./check-mark-black.svg');
+}
+
+.color-picker__button:not(.color-picker__button--selected):hover::after {
+  opacity: 0.5;
+  transform: scale(1);
+}
+
+.color-picker__button--selected::after {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.color-picker__button--hue {
+  width: 50px;
+}
+
+.color-picker__button--shade {
+  width: 200px;
+}
+
+.color-picker__shade-button--selected::after {
+  opacity: 1;
+}
+
+.color-picker__controls {
+  padding-top: 10px;
+  text-align: center;
+}

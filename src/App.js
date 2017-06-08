@@ -9,23 +9,61 @@ import PointControl from './PointControl';
 
 import './app.css';
 
+const getControlValues = (existingControls = {}) => {
+  const controls = [
+    'gameIndex',
+    'exclusions',
+    'qualityIndex',
+    'shapeIndex',
+    'speedIndex',
+  ].reduce((acc, control) => {
+    const previousValue = existingControls[control];
+    acc[control] = previousValue !== null && previousValue !== undefined ?
+      previousValue : Options.defaultControls[control].defaultValue();
+    return acc;
+  }, {});
+
+  const numPoints = Options.defaultControls.shapeIndex.options[controls.shapeIndex].value;
+  const game = Game.games[controls.gameIndex];
+
+  Object.keys(game.controls).forEach(control => {
+    const previousValue = existingControls[control];
+    controls[control] = previousValue !== null && previousValue !== undefined ?
+      previousValue : game.controls[control].defaultValue();
+  });
+
+  if (game.numTransforms){
+    const numTransforms = game.numTransforms(controls);
+    controls.transforms = (existingControls.transforms || []).slice(0, numTransforms);
+    while (controls.transforms.length < numTransforms){
+      controls.transforms.push(Options.defaultControls.transforms.createTransform());
+    }
+  } else {
+    controls.transforms = existingControls.transforms ||
+      Options.defaultControls.transforms.defaultValue();
+  }
+
+  let numColors = !controls.colorModeIndex ||
+    controls.colorModeIndex === Options.COLOR_MODES.BY_TRANSFORM ?
+    controls.transforms.length : numPoints;
+
+  // Set up the color controls based on the previously set color options.
+  controls.colors = Options.defaultControls.colors
+    .defaultValue(existingControls.colors, numColors);
+
+  return controls;
+};
+
+const getPoints = ({shapeIndex}) =>
+  GameUtils.createPolygon(Options.defaultControls.shapeIndex.options[shapeIndex].value);
+
 class App extends Component {
   constructor(props){
     super(props);
 
-    const controls = Object.keys(Options.defaultControls).reduce(
-        (acc, option) => {
-          acc[option] = Options.defaultControls[option].defaultValue();
-          return acc;
-        }, {});
-
+    const controls = getControlValues();
+    const points = getPoints(controls);
     const game = Game.games[controls.gameIndex];
-
-    Object.keys(game.controls).forEach(option => {
-      controls[option] = game.controls[option].defaultValue(controls);
-    });
-
-    const points = this.createPointControls(controls);
     const attractor = game.createAttractor(points, controls);
 
     this.state = {
@@ -47,6 +85,8 @@ class App extends Component {
   }
 
   render() {
+    const game = Game.games[this.state.controls.gameIndex];
+
     const qualityIndex = this.state.controls.qualityIndex;
     const quality = Options.defaultControls.qualityIndex.options[qualityIndex];
 
@@ -78,6 +118,7 @@ class App extends Component {
               {...this.state.controls}
               isRunning={this.state.isRunning}
               onChange={this.onControlChange}
+              fixedNumTransforms={!!game.numTransforms}
             />
         </div>
       </div>
@@ -107,31 +148,12 @@ class App extends Component {
     } else {
       this.canvas.clear();
 
-      const controls = Object.assign({}, this.state.controls, {
+      const controls = getControlValues({
+        ...this.state.controls,
         [option]: newValue,
       });
-
       const game = Game.games[controls.gameIndex];
-      if (option === 'gameIndex'){
-        Object.keys(Options.optionalControlFactory).forEach(key =>
-          delete controls[key]);
-
-        Object.keys(game.controls).forEach(gameOption => {
-          controls[gameOption] =
-            game.controls[gameOption].defaultValue(controls);
-        });
-      }
-
-      let points = this.state.points;
-      if (option === 'shapeIndex'){
-        points = this.createPointControls(controls);
-
-        if (game.controls.pointTransforms){
-          controls.pointTransforms =
-            game.controls.pointTransforms.defaultValue(controls);
-        }
-      }
-
+      const points = option === 'shapeIndex' ? getPoints(controls) : this.state.points;
       const attractor = game.createAttractor(points, controls);
 
       this.setState({

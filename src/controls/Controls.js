@@ -6,12 +6,15 @@ import Options from '../Options';
 import ColorPicker from './ColorPicker';
 import ExclusionControl from './ExclusionControl';
 import RadioControl from './RadioControl';
+import TransformControls from './TransformControls';
 
 import './controls.css';
 
 const Control = ({title, description, children}) => (
   <div className="controls__control">
-    <h3 className="controls__control-title">{title}</h3>
+    <h3 className="controls__control-title">
+      {title}
+    </h3>
     {description &&
       <p className="controls__control-description">{description}</p>}
     <div className="controls__control-children">
@@ -60,232 +63,14 @@ const Controls = props => {
     );
   }
 
-  const SCALE = 1000;
-
-  const onTransformUpdate = (controlKey, index, update) => {
-    const updatedTransforms = props[controlKey].slice();
-    updatedTransforms[index] = Object.assign({}, updatedTransforms[index],
-      update);
-
-    props.onChange(controlKey, updatedTransforms);
-  };
-
-  const onAddTransform = () => {
-    props.onChange('transforms', [
-      ...props.transforms,
-      game.controls.transforms.createTransform(
-        props.transforms.map(transform => transform.color)),
-    ]);
-  };
-
-  const onRemoveTransform = (index) => {
-    props.onChange('transforms', props.transforms.filter((_, transformIndex) =>
-        transformIndex !== index));
-  };
-
-  const randomTransform = (controlKey) => {
-    return game.controls[controlKey].options
-      .reduce((update, type) => {
-        if (type !== 'color'){
-          update[type] = _.random(
-            game.controls[controlKey][type].minValue,
-            game.controls[controlKey][type].maxValue
-          );
-        }
-        return update;
-      }, {});
-  };
-
-  let transformControls;
-  if (props.transforms){
-    const controls = props.transforms.map((transform, index) => {
-      const options = game.controls.transforms.options.map(type => {
-        if (type === 'color'){
-          return (
-            <ColorPicker
-                key={type + index}
-                color={transform[type]}
-                onSelect={newValue =>
-                  onTransformUpdate('transforms', index, {[type]: newValue})}
-            />
-          );
-        }
-
-        const min = game.controls.transforms[type].minValue * SCALE;
-        const max = game.controls.transforms[type].maxValue * SCALE;
-        const value = transform[type] * SCALE;
-
-        return (
-          <input
-              className="range"
-              title={type}
-              key={type + index}
-              type="range"
-              min={min}
-              max={max}
-              value={value}
-              onChange={(evt) =>
-                onTransformUpdate(
-                  'transforms',
-                  index,
-                  {[type]: evt.target.value / SCALE}
-                )
-              }
-          />
-        );
-      });
-
-      const removeButton = props.transforms.length > 1 ? (
-        <button onClick={() => onRemoveTransform(index)}>
-          remove
-        </button>
-      ) : null;
-
-      return (
-        <div key={index}>
-          {options}
-          {removeButton}
-          <button
-            onClick={() => {
-              onTransformUpdate(
-                'transforms',
-                index,
-                randomTransform('transforms')
-              );
-            }}
-          >
-            shuffle
-          </button>
-        </div>
-      )
-    });
-
-    transformControls = (
-      <Control title="Shared Transformations">
-        {controls}
-        <button onClick={onAddTransform}>Add Transform</button>
-        <button
-          onClick={() => {
-            const transforms = props.transforms.map((transform) => {
-              return {...transform, ...randomTransform('transforms')};
-            });
-            props.onChange('transforms', transforms);
-          }}
-        >
-          Shuffle Parameters
-        </button>
-        <button
-          onClick={() => {
-            const transforms = [];
-            props.transforms.reduce((colors, transform) => {
-              const color = Options.getNextColor(colors);
-              colors.push(color);
-              transforms.push({
-                ...transform, color,
-              });
-              return colors;
-            }, []);
-            props.onChange('transforms', transforms);
-          }}
-        >
-          Shuffle Colors
-        </button>
-      </Control>
-    );
-  }
-
-  let pointTransformControls;
-  if (props.pointTransforms){
-    const controls = props.pointTransforms.map((transform, index) => {
-      const options = game.controls.pointTransforms.options.map(type => {
-        if (type === 'color'){
-          return (
-            <ColorPicker
-                key={type + index}
-                color={transform[type]}
-                onSelect={newValue =>
-                  onTransformUpdate(
-                    'pointTransforms',
-                    index,
-                    {[type]: newValue}
-                  )
-                }
-            />
-          );
-        }
-
-        const min = game.controls.pointTransforms[type].minValue * SCALE;
-        const max = game.controls.pointTransforms[type].maxValue * SCALE;
-        const value = transform[type] * SCALE;
-
-        return (
-          <input
-              className="range"
-              title={type}
-              key={type + index}
-              type="range"
-              min={min}
-              max={max}
-              value={value}
-              onChange={(evt) =>
-                onTransformUpdate(
-                  'pointTransforms',
-                  index,
-                  {[type]: evt.target.value / SCALE}
-                )
-              }
-          />
-        );
-      });
-
-      return (
-        <div key={index}>
-          {options}
-          <button
-            onClick={() => {
-              onTransformUpdate(
-                'pointTransforms',
-                index,
-                randomTransform('pointTransforms')
-              );
-            }}
-          >
-            shuffle
-          </button>
-        </div>
-      )
-    });
-
-    pointTransformControls = (
-      <Control title="Point Transformations">
-        {controls}
-        <button
-          onClick={() => {
-            const transforms = props.pointTransforms.map((transform) => {
-              return {...transform, ...randomTransform('pointTransforms')};
-            });
-            props.onChange('pointTransforms', transforms);
-          }}
-        >
-          Shuffle Parameters
-        </button>
-        <button
-          onClick={() => {
-            const transforms = [];
-            props.pointTransforms.reduce((colors, transform) => {
-              const color = Options.getNextColor(colors);
-              colors.push(color);
-              transforms.push({
-                ...transform, color,
-              });
-              return colors;
-            }, []);
-            props.onChange('pointTransforms', transforms);
-          }}
-        >
-          Shuffle Colors
-        </button>
-      </Control>
+  let colorModeControls;
+  if (game.controls.colorModeIndex){
+    colorModeControls = (
+      <RadioControl
+        selectedValue={props.colorModeIndex}
+        options={game.controls.colorModeIndex.options}
+        onChange={index => props.onChange('colorModeIndex', index)}
+      />
     );
   }
 
@@ -327,7 +112,7 @@ const Controls = props => {
 
       <Control
         title="Exclusions"
-        description="When choosing the next target point, you can optionally tell the chaos game to not let it select a particular neighbor based on the previously selected point(s)."
+        description="When choosing the next target point, you can optionally tell the chaos game to not select a particular neighbor based on the previously selected target(s)."
       >
         <ExclusionControl
           numPoints={numPoints}
@@ -336,23 +121,29 @@ const Controls = props => {
         />
       </Control>
 
+      <TransformControls
+        fixedNumTransforms={props.fixedNumTransforms}
+        onChange={transforms => props.onChange('transforms', transforms)}
+        transforms={props.transforms}
+      />
+
       <Control title="Colors">
-        <RadioControl
-          selectedValue={props.colorIndex}
-          options={Options.defaultControls.colorIndex.options}
-          onChange={index => props.onChange('colorIndex', index)}
-        />
+        {colorModeControls}
+        <button
+          className="btn btn--shuffle"
+          onClick={() => props.onChange('colors',
+            Options.defaultControls.colors.defaultValue([], props.colors.length))}
+        >
+          randomize colors
+        </button>
       </Control>
-
-      {transformControls}
-
-      {pointTransformControls}
 
       <Control
         title="Rendering Quality"
         description="Adjusts the size of the point drawn on every iteration."
       >
         <RadioControl
+          buttonStyle
           selectedValue={props.qualityIndex}
           options={qualityOptions}
           onChange={index => props.onChange('qualityIndex', index)}
@@ -364,6 +155,7 @@ const Controls = props => {
         description="Adjusts the number of points drawn. Faster speeds require more CPU usage."
       >
         <RadioControl
+          buttonStyle
           selectedValue={props.speedIndex}
           options={speedOptions}
           onChange={index => props.onChange('speedIndex', index)}
