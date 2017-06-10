@@ -5,7 +5,6 @@ import Controls from './controls/Controls';
 import Game from './Game';
 import GameUtils from './game-utils';
 import Options from './Options';
-import PointControl from './PointControl';
 
 import './app.css';
 
@@ -106,11 +105,6 @@ class App extends Component {
               ref={canvas => {this.canvas = canvas;}}
               size={this.state.canvasSize}
               speed={speed}
-          />
-          <PointControl
-              onChange={(points) => this.onPointChange(points)}
-              points={this.state.points}
-              size={this.state.canvasSize}
           />
         </div>
         <div className="app__controls">
