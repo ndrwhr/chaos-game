@@ -2,12 +2,12 @@ import classNames from 'classnames';
 import _ from 'lodash';
 import React, { Component } from 'react';
 
-import Options from '../Options';
+import { DEFAULT_CONTROLS, LIGHT_COLOR_LOOKUP } from '../Options';
 import ColorPicker from './ColorPicker';
 
 import './transform-controls.css';
 
-const TRANSFORM_OPTIONS = Options.defaultControls.transforms.options;
+const TRANSFORM_OPTIONS = DEFAULT_CONTROLS.transforms.options;
 
 const createRandomTransform = () => TRANSFORM_OPTIONS.reduce((update, option) => {
   update[option.name] = _.random(option.minValue, option.maxValue);
@@ -55,7 +55,7 @@ class TransformControl extends Component {
     const colorEl = color && (
       <div
         className={classNames('transform-controls__transform-color', {
-          'transform-controls__transform-color--light': Options.lightColorLookup.has(color),
+          'transform-controls__transform-color--light': LIGHT_COLOR_LOOKUP.has(color),
         })}
         style={{background: color}}
         onClick={() => this.setState({isColorPickerOpen: true})}
@@ -147,7 +147,7 @@ export default ({colors, onColorChange, fixedNumTransforms, onChange, transforms
           className="btn btn--inline"
           onClick={() => {
             onChange(transforms.map(() =>
-              Options.defaultControls.transforms.createTransform()));
+              DEFAULT_CONTROLS.transforms.createTransform()));
           }}
         >
           reset transforms
@@ -175,7 +175,7 @@ export default ({colors, onColorChange, fixedNumTransforms, onChange, transforms
         <button
           className="btn btn--block-center"
           onClick={() =>
-            onChange([...transforms, Options.defaultControls.transforms.createTransform()])}
+            onChange([...transforms, DEFAULT_CONTROLS.transforms.createTransform()])}
         >
           add transform
         </button>

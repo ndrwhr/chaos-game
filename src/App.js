@@ -4,7 +4,7 @@ import Canvas from './Canvas';
 import Controls from './controls/Controls';
 import Game from './Game';
 import GameUtils from './game-utils';
-import Options from './Options';
+import { COLOR_MODES, DEFAULT_CONTROLS } from './Options';
 
 import './app.css';
 
@@ -18,11 +18,11 @@ const getControlValues = (existingControls = {}) => {
   ].reduce((acc, control) => {
     const previousValue = existingControls[control];
     acc[control] = previousValue !== null && previousValue !== undefined ?
-      previousValue : Options.defaultControls[control].defaultValue();
+      previousValue : DEFAULT_CONTROLS[control].defaultValue();
     return acc;
   }, {});
 
-  const numPoints = Options.defaultControls.shapeIndex.options[controls.shapeIndex].value;
+  const numPoints = DEFAULT_CONTROLS.shapeIndex.options[controls.shapeIndex].value;
   const game = Game.games[controls.gameIndex];
 
   Object.keys(game.controls).forEach(control => {
@@ -35,26 +35,26 @@ const getControlValues = (existingControls = {}) => {
     const numTransforms = game.numTransforms(controls);
     controls.transforms = (existingControls.transforms || []).slice(0, numTransforms);
     while (controls.transforms.length < numTransforms){
-      controls.transforms.push(Options.defaultControls.transforms.createTransform());
+      controls.transforms.push(DEFAULT_CONTROLS.transforms.createTransform());
     }
   } else {
     controls.transforms = existingControls.transforms ||
-      Options.defaultControls.transforms.defaultValue();
+      DEFAULT_CONTROLS.transforms.defaultValue();
   }
 
   let numColors = !controls.colorModeIndex ||
-    controls.colorModeIndex === Options.COLOR_MODES.BY_TRANSFORM ?
+    controls.colorModeIndex === COLOR_MODES.BY_TRANSFORM ?
     controls.transforms.length : numPoints;
 
   // Set up the color controls based on the previously set color options.
-  controls.colors = Options.defaultControls.colors
+  controls.colors = DEFAULT_CONTROLS.colors
     .defaultValue(existingControls.colors, numColors);
 
   return controls;
 };
 
 const getPoints = ({shapeIndex}) =>
-  GameUtils.createPolygon(Options.defaultControls.shapeIndex.options[shapeIndex].value);
+  GameUtils.createPolygon(DEFAULT_CONTROLS.shapeIndex.options[shapeIndex].value);
 
 class App extends Component {
   constructor(props){
@@ -87,10 +87,10 @@ class App extends Component {
     const game = Game.games[this.state.controls.gameIndex];
 
     const qualityIndex = this.state.controls.qualityIndex;
-    const quality = Options.defaultControls.qualityIndex.options[qualityIndex];
+    const quality = DEFAULT_CONTROLS.qualityIndex.options[qualityIndex];
 
     const speedIndex = this.state.controls.speedIndex;
-    const speed = Options.defaultControls.speedIndex.options[speedIndex].value;
+    const speed = DEFAULT_CONTROLS.speedIndex.options[speedIndex].value;
 
     return (
       <div className="app">
@@ -121,7 +121,7 @@ class App extends Component {
 
   createPointControls(controls){
     const numPoints =
-        Options.defaultControls.shapeIndex.options[controls.shapeIndex].value;
+        DEFAULT_CONTROLS.shapeIndex.options[controls.shapeIndex].value;
     return GameUtils.createPolygon(numPoints);
   }
 

@@ -2,24 +2,24 @@ import _ from 'lodash';
 import classNames from 'classnames';
 import React from 'react';
 
-import Options from '../Options';
+import { COLORS, LIGHT_COLOR_LOOKUP } from '../Options';
 
 import './color-picker.css';
 
 export default (props) => {
   const hueIndex = 4;
 
-  const shades = Options.colors.find(colorList =>
+  const shades = COLORS.find(colorList =>
     colorList.includes(props.color));
   const shadeIndex = shades.indexOf(props.color);
 
-  const hues = Options.colors.map(colorList => colorList[hueIndex]);
+  const hues = COLORS.map(colorList => colorList[hueIndex]);
   const selectedHue = shades[hueIndex];
 
   const selectRandomColor = () => {
     const shiftedShadeIndex = shadeIndex + _.sample(_.range(-2, 2));
     const newShadeIndex = _.clamp(shiftedShadeIndex, 0, shades.length);
-    const newColor = _.sample(Options.colors)[newShadeIndex];
+    const newColor = _.sample(COLORS)[newShadeIndex];
     props.onChange(newColor);
   };
 
@@ -36,8 +36,7 @@ export default (props) => {
               key={`hue-${hue}`}
               className={
                 classNames('color-picker__button color-picker__button--hue', {
-                  'color-picker__button--dark-text':
-                    Options.lightColorLookup.has(hue),
+                  'color-picker__button--dark-text': LIGHT_COLOR_LOOKUP.has(hue),
                   'color-picker__button--selected': hue === selectedHue,
                 })
               }
@@ -53,8 +52,7 @@ export default (props) => {
               key={`shade-${index}`}
               className={
                 classNames('color-picker__button color-picker__button--shade', {
-                  'color-picker__button--dark-text':
-                    Options.lightColorLookup.has(shade),
+                  'color-picker__button--dark-text': LIGHT_COLOR_LOOKUP.has(shade),
                   'color-picker__button--selected': shade === props.color,
                 })
               }

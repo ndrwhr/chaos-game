@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {vec2, mat2} from 'gl-matrix';
 
-import Options from './Options';
+import { COLOR_MODES, DEFAULT_CONTROLS, OPTIONAL_CONTROL_FACTORY } from './Options';
 
 const memoize = fn => {
   const createNewMap = () => new Map();
@@ -68,13 +68,13 @@ const createSharedTransformSelector = (transforms) => {
 const createColorSelector = ({points, transforms, colors, colorModeIndex = null} = {}) => {
   let selector;
 
-  if (colorModeIndex === null || colorModeIndex === Options.COLOR_MODES.BY_TRANSFORM){
+  if (colorModeIndex === null || colorModeIndex === COLOR_MODES.BY_TRANSFORM){
     const colorLookup = transforms.reduce((map, transform, index) => {
         map.set(transform, colors[index]);
         return map;
       }, new Map());
     selector = (point, transform) => colorLookup.get(transform);
-  } else if (colorModeIndex === Options.COLOR_MODES.RANDOM){
+  } else if (colorModeIndex === COLOR_MODES.RANDOM){
     selector = () => _.sample(colors);
   } else {
     const colorLookup = points.reduce((map, point, index) => {
@@ -151,10 +151,10 @@ const games = [
     name: 'Target Transforms',
 
     numTransforms: ({shapeIndex}) =>
-      Options.defaultControls.shapeIndex.options[shapeIndex].value,
+      DEFAULT_CONTROLS.shapeIndex.options[shapeIndex].value,
 
     controls: {
-      historyIndex: Options.optionalControlFactory.historyIndex(3),
+      historyIndex: OPTIONAL_CONTROL_FACTORY.historyIndex(3),
     },
 
     createAttractor(points, {colors, exclusions, historyIndex, transforms}){
@@ -207,8 +207,8 @@ const games = [
     description: '',
 
     controls: {
-      colorModeIndex: Options.optionalControlFactory.colorModeIndex(),
-      historyIndex: Options.optionalControlFactory.historyIndex(3),
+      colorModeIndex: OPTIONAL_CONTROL_FACTORY.colorModeIndex(),
+      historyIndex: OPTIONAL_CONTROL_FACTORY.historyIndex(3),
     },
 
     createAttractor(points, {colorModeIndex, colors, exclusions, historyIndex, transforms}){
@@ -252,7 +252,7 @@ const games = [
     name: 'Last Two',
 
     controls: {
-      colorModeIndex: Options.optionalControlFactory.colorModeIndex(),
+      colorModeIndex: OPTIONAL_CONTROL_FACTORY.colorModeIndex(),
     },
 
     createAttractor(points, {colorModeIndex, colors, exclusions, transforms}){

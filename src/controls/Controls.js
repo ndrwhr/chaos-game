@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 
 import Game from '../Game';
-import Options from '../Options';
+import { DEFAULT_CONTROLS } from '../Options';
 import ColorControls from './ColorControls';
 import ExclusionControl from './ExclusionControl';
 import RadioControl from './RadioControl';
@@ -30,14 +30,14 @@ const Controls = props => {
         value: index,
       }));
 
-  const shapeOptions = Options.defaultControls.shapeIndex.options
+  const shapeOptions = DEFAULT_CONTROLS.shapeIndex.options
       .map(({name}, index) => ({
         name,
         value: index,
       }));
 
   const numPoints =
-    Options.defaultControls.shapeIndex.options[props.shapeIndex].value;
+    DEFAULT_CONTROLS.shapeIndex.options[props.shapeIndex].value;
 
   const game = Game.games[props.gameIndex];
   let historyControls = null;
@@ -63,13 +63,13 @@ const Controls = props => {
     );
   }
 
-  const speedOptions = Options.defaultControls.speedIndex.options
+  const speedOptions = DEFAULT_CONTROLS.speedIndex.options
       .map(({name}, index) => ({
         name,
         value: index,
       }));
 
-  const qualityOptions = Options.defaultControls.qualityIndex.options
+  const qualityOptions = DEFAULT_CONTROLS.qualityIndex.options
       .map(({name}, index) => ({
         name,
         value: index,

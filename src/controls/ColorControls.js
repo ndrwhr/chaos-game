@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Options from '../Options';
+import { DEFAULT_CONTROLS } from '../Options';
 import RadioControl from './RadioControl';
 
 export default ({colorModeIndex, colors, game, onChange}) => {
@@ -21,7 +21,7 @@ export default ({colorModeIndex, colors, game, onChange}) => {
       <button
         className="btn btn--block-center"
         onClick={() => onChange('colors',
-          Options.defaultControls.colors.defaultValue([], colors.length))}
+          DEFAULT_CONTROLS.colors.defaultValue([], colors.length))}
       >
         randomize colors
       </button>

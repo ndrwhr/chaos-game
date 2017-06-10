@@ -6,7 +6,7 @@ export const COLOR_MODES = {
   RANDOM: 2,
 };
 
-const lightColorLookup = [
+export const LIGHT_COLOR_LOOKUP = [
   '#ffcdd2','#ef9a9a','#e57373','#f8bbd0','#f48fb1','#e1bee7','#ce93d8',
   '#d1c4e9','#b39ddb','#c5cae9','#9fa8da','#bbdefb','#90caf9','#64b5f6',
   '#42a5f5','#b3e5fc','#81d4fa','#4fc3f7','#29b6f6','#03a9f4','#b2ebf2',
@@ -22,7 +22,7 @@ const lightColorLookup = [
   return lookup;
 }, new Set());
 
-const colors = [
+export const COLORS = [
   ['#fff9c4', '#fff59d', '#fff176', '#ffee58', '#ffeb3b', '#fdd835', '#fbc02d', '#f9a825', '#f57f17'],
   ['#ffecb3', '#ffe082', '#ffd54f', '#ffca28', '#ffc107', '#ffb300', '#ffa000', '#ff8f00', '#ff6f00'],
   ['#ffe0b2', '#ffcc80', '#ffb74d', '#ffa726', '#ff9800', '#fb8c00', '#f57c00', '#ef6c00', '#e65100'],
@@ -40,22 +40,22 @@ const colors = [
   ['#cfd8dc', '#b0bec5', '#90a4ae', '#78909c', '#607d8b', '#546e7a', '#455a64', '#37474f', '#263238'],
 ];
 
-const colorLookup = colors.reduce((lookup, set, setIndex) => {
+const colorLookup = COLORS.reduce((lookup, set, setIndex) => {
     set.forEach((color, colorIndex) =>
       lookup.set(color, [setIndex, colorIndex]));
     return lookup;
 }, new Map());
 
 function getNextColor(pastColors = []){
-    if (!pastColors.length) return _.sample(colors.map(set => set[8]));
+    if (!pastColors.length) return _.sample(COLORS.map(set => set[8]));
 
     const options = pastColors.reduce((options, pastColor) => {
         const [setIndex, colorIndex] = colorLookup.get(pastColor);
 
-        const previousSet1 = colors[(setIndex - 1)];
-        const previousSet2 = colors[(setIndex - 2)];
-        const nextSet1 = colors[(setIndex + 1)];
-        const nextSet2 = colors[(setIndex + 2)];
+        const previousSet1 = COLORS[(setIndex - 1)];
+        const previousSet2 = COLORS[(setIndex - 2)];
+        const nextSet1 = COLORS[(setIndex + 1)];
+        const nextSet2 = COLORS[(setIndex + 2)];
 
         if (previousSet1) options.add(previousSet1[colorIndex]);
         if (previousSet2) options.add(previousSet2[colorIndex]);
@@ -63,17 +63,17 @@ function getNextColor(pastColors = []){
         if (nextSet2) options.add(nextSet2[colorIndex]);
 
         if (colorIndex > 0){
-          options.add(colors[setIndex][colorIndex - 1]);
+          options.add(COLORS[setIndex][colorIndex - 1]);
         }
         if (colorIndex > 1){
-          options.add(colors[setIndex][colorIndex - 2]);
+          options.add(COLORS[setIndex][colorIndex - 2]);
         }
 
-        if (colorIndex < colors[0].length - 1){
-          options.add(colors[setIndex][colorIndex + 1]);
+        if (colorIndex < COLORS[0].length - 1){
+          options.add(COLORS[setIndex][colorIndex + 1]);
         }
-        if (colorIndex < colors[0].length - 2){
-          options.add(colors[setIndex][colorIndex + 2]);
+        if (colorIndex < COLORS[0].length - 2){
+          options.add(COLORS[setIndex][colorIndex + 2]);
         }
 
         return options;
@@ -88,7 +88,7 @@ const createTransform = () => ({
   probability: 0.5,
 });
 
-const defaultControls = {
+export const DEFAULT_CONTROLS = {
   colors: {
     defaultValue: (existingColors = [], expectedNumColors) => {
       const colors = existingColors.slice(0, expectedNumColors);
@@ -210,7 +210,7 @@ const defaultControls = {
   },
 };
 
-const optionalControlFactory = {
+export const OPTIONAL_CONTROL_FACTORY = {
   colorModeIndex: () => ({
     options: [
       {
@@ -229,13 +229,4 @@ const optionalControlFactory = {
     options: _.range(size + 1),
     defaultValue: () => 1,
   }),
-};
-
-export default {
-  colors,
-  COLOR_MODES,
-  lightColorLookup,
-  defaultControls,
-  getNextColor,
-  optionalControlFactory,
 };
