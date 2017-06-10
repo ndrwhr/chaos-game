@@ -221,10 +221,6 @@ const optionalControlFactory = {
         name: 'Color Via Targets',
         value: COLOR_MODES.BY_TARGET,
       },
-      {
-        name: 'Random',
-        value: COLOR_MODES.RANDOM,
-      },
     ],
     defaultValue: () => 0,
   }),

@@ -3,6 +3,7 @@ import React from 'react';
 
 import Game from '../Game';
 import Options from '../Options';
+import ColorControls from './ColorControls';
 import ExclusionControl from './ExclusionControl';
 import RadioControl from './RadioControl';
 import TransformControls from './TransformControls';
@@ -59,17 +60,6 @@ const Controls = props => {
           onChange={index => props.onChange('historyIndex', index)}
         />
       </Control>
-    );
-  }
-
-  let colorModeControls;
-  if (game.controls.colorModeIndex){
-    colorModeControls = (
-      <RadioControl
-        selectedValue={props.colorModeIndex}
-        options={game.controls.colorModeIndex.options}
-        onChange={index => props.onChange('colorModeIndex', index)}
-      />
     );
   }
 
@@ -134,14 +124,12 @@ const Controls = props => {
       </Control>
 
       <Control title="Colors">
-        {colorModeControls}
-        <button
-          className="btn btn--block-center"
-          onClick={() => props.onChange('colors',
-            Options.defaultControls.colors.defaultValue([], props.colors.length))}
-        >
-          randomize colors
-        </button>
+        <ColorControls
+          colorModeIndex={props.colorModeIndex}
+          colors={props.colors}
+          game={game}
+          onChange={props.onChange}
+        />
       </Control>
 
       <Control
