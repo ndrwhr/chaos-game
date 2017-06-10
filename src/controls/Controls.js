@@ -3,7 +3,6 @@ import React from 'react';
 
 import Game from '../Game';
 import Options from '../Options';
-import ColorPicker from './ColorPicker';
 import ExclusionControl from './ExclusionControl';
 import RadioControl from './RadioControl';
 import TransformControls from './TransformControls';
@@ -121,16 +120,23 @@ const Controls = props => {
         />
       </Control>
 
-      <TransformControls
-        fixedNumTransforms={props.fixedNumTransforms}
-        onChange={transforms => props.onChange('transforms', transforms)}
-        transforms={props.transforms}
-      />
+      <Control
+        title="Transformations"
+        description="Adjust the core rules of the Chaos Game below."
+      >
+        <TransformControls
+          colors={props.colorModeIndex ? null : props.colors}
+          fixedNumTransforms={props.fixedNumTransforms}
+          onColorChange={colors => props.onChange('colors', colors)}
+          onChange={transforms => props.onChange('transforms', transforms)}
+          transforms={props.transforms}
+        />
+      </Control>
 
       <Control title="Colors">
         {colorModeControls}
         <button
-          className="btn btn--shuffle"
+          className="btn btn--block-center"
           onClick={() => props.onChange('colors',
             Options.defaultControls.colors.defaultValue([], props.colors.length))}
         >

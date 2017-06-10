@@ -106,7 +106,7 @@ export default ({exclusions, numPoints, onChange}) => {
           </g>
         ))}
       </svg>
-      <button className="btn btn--shuffle" onClick={onShuffle}>
+      <button className="btn btn--block-center" onClick={onShuffle}>
         randomize exclusions
       </button>
     </div>

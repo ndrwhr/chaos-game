@@ -7,15 +7,24 @@
 
 .color-picker {
   position: absolute;
-  top: 20px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   height: 540px;
   background: var(--color-white);
   display: flex;
   flex-direction: column;
   padding: 10px;
   box-shadow: 0 1px 25px 5px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms;
+  z-index: 1;
+}
+
+.color-picker--open {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .app--dark .color-picker {

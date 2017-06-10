@@ -23,8 +23,12 @@ export default (props) => {
     props.onChange(newColor);
   };
 
+  const classes = classNames('color-picker', {
+    'color-picker--open': props.open,
+  });
+
   return (
-    <div className="color-picker">
+    <div className={classes}>
       <div className="color-picker__lists">
         <div className="color-picker__list color-picker__list--hues">
           {hues.map(hue => (
@@ -67,7 +71,12 @@ export default (props) => {
         >
           select random
         </button>
-        <button className="btn btn--inline">close</button>
+        <button
+          className="btn btn--inline"
+          onClick={props.onClose}
+        >
+          close
+        </button>
       </div>
     </div>
   )
