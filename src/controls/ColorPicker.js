@@ -9,9 +9,11 @@ import './color-picker.css';
 export default (props) => {
   const hueIndex = 4;
 
+  const color = props.color || COLORS[0][hueIndex];
+
   const shades = COLORS.find(colorList =>
-    colorList.includes(props.color));
-  const shadeIndex = shades.indexOf(props.color);
+    colorList.includes(color));
+  const shadeIndex = shades.indexOf(color);
 
   const hues = COLORS.map(colorList => colorList[hueIndex]);
   const selectedHue = shades[hueIndex];
@@ -53,7 +55,7 @@ export default (props) => {
               className={
                 classNames('color-picker__button color-picker__button--shade', {
                   'color-picker__button--dark-text': LIGHT_COLOR_LOOKUP.has(shade),
-                  'color-picker__button--selected': shade === props.color,
+                  'color-picker__button--selected': shade === color,
                 })
               }
               style={{background: shade}}
