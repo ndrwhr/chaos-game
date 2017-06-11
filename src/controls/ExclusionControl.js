@@ -22,7 +22,7 @@ export default ({exclusions, numPoints, onChange}) => {
   };
 
   const onShuffle = () => onChange(new Set(
-    _.sampleSize(_.range(numPoints), _.random(1, numPoints - 2))
+    _.sampleSize(_.range(1, numPoints - 1), _.random(1, numPoints - 2))
   ));
 
   const angleLerp = 360 / numPoints;
