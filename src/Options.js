@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import colorConvert from 'color-convert';
 
 export const COLOR_MODES = {
   BY_TRANSFORM: 0,
@@ -90,11 +91,20 @@ const createTransform = () => ({
 
 export const DEFAULT_CONTROLS = {
   colors: {
-    defaultValue: (existingColors = [], expectedNumColors) => {
+    defaultValue: (existingColors = [], expectedNumColors, sortByHue =  false) => {
       const colors = existingColors.slice(0, expectedNumColors);
       while (colors.length < expectedNumColors){
         colors.push(getNextColor(colors));
       }
+
+      if (sortByHue){
+        colors.sort((a, b) => {
+            const [aH,,aL] = colorConvert.hex.hsl(a);
+            const [bH,,bL] = colorConvert.hex.hsl(b);
+            return (bH - aH) || (aL-bL);
+        });
+      }
+
       return colors;
     },
   },
@@ -222,7 +232,7 @@ export const OPTIONAL_CONTROL_FACTORY = {
         value: COLOR_MODES.BY_TARGET,
       },
     ],
-    defaultValue: () => 0,
+    defaultValue: () => 1,
   }),
 
   historyIndex: (size) => ({

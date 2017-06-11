@@ -93,7 +93,7 @@ export default ({colorModeIndex, colors, game, onChange}) => {
       <button
         className="btn btn--block-center"
         onClick={() => onChange('colors',
-          DEFAULT_CONTROLS.colors.defaultValue([], colors.length))}
+          DEFAULT_CONTROLS.colors.defaultValue([], colors.length, true))}
       >
         randomize colors
       </button>
