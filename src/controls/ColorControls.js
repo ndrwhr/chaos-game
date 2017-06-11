@@ -1,3 +1,4 @@
+import { vec2 } from 'gl-matrix';
 import React, {Component} from 'react';
 
 import GameUtils  from '../game-utils';
@@ -22,27 +23,27 @@ class TargetColorControl extends Component {
     return (
       <div className="color-controls__target-control">
         <svg
-          viewBox="-0.15 -0.15 1.3 1.3"
+          viewBox="0 0 1 1"
         >
-          {points.map((point, index) => (
-            <g
-              className="color-controls__target-control-point"
-              key={point}
-              transform={`translate(${point[0]}, ${point[1]})`}
-              onClick={() => {
-                this.setState({
-                  selectedIndex: index,
-                });
-              }}
-            >
-              <circle
-                cx="0"
-                cy="0"
-                r="0.12"
+          {points.map((point, index) => {
+            const previousPoint = points[(index + points.length - 1) % points.length];
+            const nextPoint = points[(index + 1) % points.length];
+            const serializedPoints = [
+              point,
+              vec2.lerp(vec2.create(), point, nextPoint, 0.48),
+              vec2.lerp(vec2.create(), point, [0.5, 0.5], 0.96),
+              vec2.lerp(vec2.create(), point, previousPoint, 0.48),
+            ].map(([x, y]) => `${x},${y}`).join(' ');
+
+            return (
+              <polygon
+                key={point}
                 fill={this.props.colors[index]}
+                points={serializedPoints}
+                onClick={() => this.setState({selectedIndex: index})}
               />
-            </g>
-          ))}
+            );
+          })}
         </svg>
         <ColorPicker
           color={this.props.colors[this.state.selectedIndex]}

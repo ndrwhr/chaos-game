@@ -7,9 +7,5 @@
 .color-controls__target-control {
   position: relative;
   width: 50%;
-  margin: 20px auto;
-}
-
-.color-controls__target-control-point {
-  cursor: pointer;
+  margin: 10px auto;
 }
