@@ -26,13 +26,26 @@ class TargetColorControl extends Component {
           viewBox="0 0 1 1"
         >
           {points.map((point, index) => {
-            const previousPoint = points[(index + points.length - 1) % points.length];
-            const nextPoint = points[(index + 1) % points.length];
+            const nextPoint = vec2.lerp(
+              vec2.create(),
+              point,
+              points[(index + 1) % points.length],
+              0.48
+            );
+            const previousPoint = vec2.lerp(
+              vec2.create(),
+              point,
+              points[(index + points.length - 1) % points.length],
+              0.48
+            );
+            const centerPoint = vec2.lerp(vec2.create(), point, [0.5, 0.5], 0.96);
+
             const serializedPoints = [
               point,
-              vec2.lerp(vec2.create(), point, nextPoint, 0.48),
-              vec2.lerp(vec2.create(), point, [0.5, 0.5], 0.96),
-              vec2.lerp(vec2.create(), point, previousPoint, 0.48),
+              nextPoint,
+              vec2.lerp(vec2.create(), nextPoint, centerPoint, 0.6),
+              vec2.lerp(vec2.create(), previousPoint, centerPoint, 0.6),
+              previousPoint,
             ].map(([x, y]) => `${x},${y}`).join(' ');
 
             return (
