@@ -1,12 +1,40 @@
+import listify from 'listify';
 import _ from 'lodash';
 import classNames from 'classnames';
+import pluralize from 'pluralize';
 import React from 'react';
 
 import GameUtils from '../game-utils';
 
 import './exclusion-control.css';
 
-export default ({exclusions, numPoints, onChange}) => {
+const getExclusionHelp = (exclusions, historySize) => {
+  if (exclusions.size){
+    let excludedTargets = [...exclusions].sort((a, b) => a - b);
+    let str = 'The next chosen target cannot be ';
+
+    if (excludedTargets[0] === 0) {
+      str = `${str} the same ${excludedTargets.length > 1 ? 'or' : 'as'}`;
+      excludedTargets.shift();
+    }
+
+    if (excludedTargets.length) {
+      str = `${str} ${listify(excludedTargets, { finalWord: 'or' })}
+        ${pluralize('place', excludedTargets[excludedTargets.length - 1])} away from`;
+    }
+
+    const actualHistorySize = historySize || 2;
+
+    return `${str} the ${actualHistorySize > 1 ? 'last' : 'previously'}
+      ${actualHistorySize > 1 ? actualHistorySize : ''} chosen
+      ${pluralize('target', historySize)}
+      ${historySize === null ? '(provided both previous targets were the same)' : ''}.`;
+  }
+
+  return 'The next target will be chosen randomly.';
+};
+
+export default ({exclusions, historySize, numPoints, onChange}) => {
   const points = GameUtils.createPolygon(numPoints);
 
   const onToggle = (index) => {
@@ -106,6 +134,9 @@ export default ({exclusions, numPoints, onChange}) => {
           </g>
         ))}
       </svg>
+
+      <p className="exclusion-control__help">{getExclusionHelp(exclusions, historySize)}</p>
+
       <button className="btn btn--block-center" onClick={onShuffle}>
         randomize exclusions
       </button>

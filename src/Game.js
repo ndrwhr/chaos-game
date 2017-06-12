@@ -148,7 +148,93 @@ const createAttractor = ({
 
 const games = [
   {
+    name: 'History Exclusion',
+
+    description: 'Using the number points specified by the Point History control, choose the next target based the intersection of the exclusion rules.',
+
+    controls: {
+      colorModeIndex: OPTIONAL_CONTROL_FACTORY.colorModeIndex(),
+      historyIndex: OPTIONAL_CONTROL_FACTORY.historyIndex(3),
+    },
+
+    createAttractor(points, {colorModeIndex, colors, exclusions, historyIndex, transforms}){
+      const getIntersection = (a, b) => new Set([...a].filter(x => b.has(x)));
+
+      const historySize = this.controls.historyIndex.options[historyIndex];
+      const possibleTargetLookup = generateExclusionTargetLookup(points, exclusions);
+
+      const getPossibleTargets = memoize((n, ...previousTargets) => {
+        // If the previous target was undefined it means that there are no
+        // other choices.
+        if (previousTargets.length && !previousTargets[0]) return [];
+
+        return [
+          ...(previousTargets
+              .map(target => new Set(possibleTargetLookup.get(target)))
+              .reduce((intersection, possibleTargets) => {
+                return getIntersection(intersection, possibleTargets);
+              }, new Set(points)))
+        ];
+      });
+
+      const targetSelector = createTargetSelectorWithHistory(
+        historySize,
+        previousTargets => _.sample(
+          getPossibleTargets(previousTargets.length, ...previousTargets)
+        )
+      );
+
+      const transformSelector = createSharedTransformSelector(transforms);
+
+      return createAttractor({
+        colorSelector: createColorSelector({points, transforms, colors, colorModeIndex}),
+        targetSelector,
+        transforms,
+        transformSelector,
+      });
+    },
+  },
+  {
+    name: 'History Exclusion II',
+
+    description: 'Similar to the “History Exclusion” variation, however the exclusion rules are only applied if the previously chosen two targets were the same.',
+
+    controls: {
+      colorModeIndex: OPTIONAL_CONTROL_FACTORY.colorModeIndex(),
+    },
+
+    createAttractor(points, {colorModeIndex, colors, exclusions, transforms}){
+      const possibleTargetLookup = generateExclusionTargetLookup(points, exclusions);
+
+      const targetSelector = createTargetSelectorWithHistory(2,
+        (previousTargets) => {
+          // If the previous target was undefined it means that there are no
+          // other choices.
+          if (previousTargets.length && !previousTargets[0]) return;
+
+          const uniquePreviousTargets = new Set(previousTargets);
+
+          let possibleTargets = uniquePreviousTargets.size === 1 ?
+            possibleTargetLookup.get(previousTargets[0]) :
+            points;
+
+          return _.sample(possibleTargets);
+        });
+
+      const transformSelector = createSharedTransformSelector(transforms);
+
+      return createAttractor({
+        colorSelector: createColorSelector({points, transforms, colors, colorModeIndex}),
+        targetSelector,
+        transforms,
+        transformSelector,
+      });
+    }
+  },
+  {
     name: 'Target Transforms',
+
+    description: 'Instead of choosing a transformation randomly, associate a transform with each target.',
 
     numTransforms: ({shapeIndex}) =>
       DEFAULT_CONTROLS.shapeIndex.options[shapeIndex].value,
@@ -201,88 +287,6 @@ const games = [
       });
     },
   },
-  {
-    name: 'Exclusion Intersection',
-
-    description: '',
-
-    controls: {
-      colorModeIndex: OPTIONAL_CONTROL_FACTORY.colorModeIndex(),
-      historyIndex: OPTIONAL_CONTROL_FACTORY.historyIndex(3),
-    },
-
-    createAttractor(points, {colorModeIndex, colors, exclusions, historyIndex, transforms}){
-      const getIntersection = (a, b) => new Set([...a].filter(x => b.has(x)));
-
-      const historySize = this.controls.historyIndex.options[historyIndex];
-      const possibleTargetLookup = generateExclusionTargetLookup(points, exclusions);
-
-      const getPossibleTargets = memoize((n, ...previousTargets) => {
-        // If the previous target was undefined it means that there are no
-        // other choices.
-        if (previousTargets.length && !previousTargets[0]) return [];
-
-        return [
-          ...(previousTargets
-              .map(target => new Set(possibleTargetLookup.get(target)))
-              .reduce((intersection, possibleTargets) => {
-                return getIntersection(intersection, possibleTargets);
-              }, new Set(points)))
-        ];
-      });
-
-      const targetSelector = createTargetSelectorWithHistory(
-        historySize,
-        previousTargets => _.sample(
-          getPossibleTargets(previousTargets.length, ...previousTargets)
-        )
-      );
-
-      const transformSelector = createSharedTransformSelector(transforms);
-
-      return createAttractor({
-        colorSelector: createColorSelector({points, transforms, colors, colorModeIndex}),
-        targetSelector,
-        transforms,
-        transformSelector,
-      });
-    },
-  },
-  {
-    name: 'Last Two',
-
-    controls: {
-      colorModeIndex: OPTIONAL_CONTROL_FACTORY.colorModeIndex(),
-    },
-
-    createAttractor(points, {colorModeIndex, colors, exclusions, transforms}){
-      const possibleTargetLookup = generateExclusionTargetLookup(points, exclusions);
-
-      const targetSelector = createTargetSelectorWithHistory(2,
-        (previousTargets) => {
-          // If the previous target was undefined it means that there are no
-          // other choices.
-          if (previousTargets.length && !previousTargets[0]) return;
-
-          const uniquePreviousTargets = new Set(previousTargets);
-
-          let possibleTargets = uniquePreviousTargets.size === 1 ?
-            possibleTargetLookup.get(previousTargets[0]) :
-            points;
-
-          return _.sample(possibleTargets);
-        });
-
-      const transformSelector = createSharedTransformSelector(transforms);
-
-      return createAttractor({
-        colorSelector: createColorSelector({points, transforms, colors, colorModeIndex}),
-        targetSelector,
-        transforms,
-        transformSelector,
-      });
-    }
-  }
 ];
 
 export default {

@@ -41,6 +41,7 @@ const Controls = props => {
 
   const game = Game.games[props.gameIndex];
   let historyControls = null;
+  let historySize = null;
   if (game.controls.historyIndex){
     const historyOptions = game.controls.historyIndex.options
         .map((name, index) => ({
@@ -48,10 +49,12 @@ const Controls = props => {
           value: index,
         }));
 
+    historySize = game.controls.historyIndex.options[props.historyIndex];
+
     historyControls = (
       <Control
         title="Point History"
-        description="The number of points to remember."
+        description="The number of previous targets to take into consideration when choosing the next target."
       >
         <RadioControl
           buttonStyle={true}
@@ -77,20 +80,21 @@ const Controls = props => {
 
   return (
     <div className="controls">
-      <Control title="Variation">
+      <Control
+        title="Variation"
+        description="Change the core rules of the chaos game."
+      >
         <RadioControl
           selectedValue={props.gameIndex}
           options={gameOptions}
           onChange={index => props.onChange('gameIndex', index)}
         />
+        <p className="controls__description">{game.description}</p>
       </Control>
 
       {historyControls}
 
-      <Control
-        title="Number of Points"
-        description="You can also move the points around by hovering over (or tapping) the generated fractal."
-      >
+      <Control title="Number of Points">
         <RadioControl
           buttonStyle={true}
           selectedValue={props.shapeIndex}
@@ -104,6 +108,7 @@ const Controls = props => {
         description="When choosing the next target point, you can optionally tell the chaos game to not select a particular neighbor based on the previously selected target(s)."
       >
         <ExclusionControl
+          historySize={historySize}
           numPoints={numPoints}
           exclusions={props.exclusions}
           onChange={(exclusions) => props.onChange('exclusions', exclusions)}
@@ -154,12 +159,6 @@ const Controls = props => {
           options={speedOptions}
           onChange={index => props.onChange('speedIndex', index)}
         />
-      </Control>
-
-      <Control title="">
-        <button onClick={() => props.onChange('isRunning', !props.isRunning)}>
-           {props.isRunning ? 'Pause' : 'Play'}
-         </button>
       </Control>
     </div>
   );

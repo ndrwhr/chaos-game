@@ -29,6 +29,11 @@
   margin-bottom: 10px;
 }
 
+.controls__description {
+  font-size: 13px;
+  margin: 20px 0 10px;
+}
+
 .controls__control-children {
   padding: 10px;
 }

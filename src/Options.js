@@ -110,7 +110,7 @@ export const DEFAULT_CONTROLS = {
   },
 
   gameIndex: {
-    defaultValue: () => 1,
+    defaultValue: () => 0,
   },
 
   exclusions: {
@@ -224,19 +224,19 @@ export const OPTIONAL_CONTROL_FACTORY = {
   colorModeIndex: () => ({
     options: [
       {
-        name: 'Color Via Transforms',
+        name: 'Color via transforms',
         value: COLOR_MODES.BY_TRANSFORM,
       },
       {
-        name: 'Color Via Targets',
+        name: 'Color via targets',
         value: COLOR_MODES.BY_TARGET,
       },
     ],
     defaultValue: () => 1,
   }),
 
-  historyIndex: (size) => ({
-    options: _.range(size + 1),
-    defaultValue: () => 1,
+  historyIndex: (max) => ({
+    options: _.range(1, max + 1),
+    defaultValue: () => 0,
   }),
 };

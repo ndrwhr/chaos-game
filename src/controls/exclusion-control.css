@@ -1,6 +1,12 @@
 @import '../variables.css';
 
-.exclusion-control {
+.exclusion-control__help {
+  font-size: 13px;
+  margin: 20px 0;
+}
+
+.exclusion-control__points {
+  display: block;
   width: 50%;
   margin: 0 auto;
 }
