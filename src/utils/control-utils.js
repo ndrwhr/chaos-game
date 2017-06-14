@@ -48,73 +48,41 @@ export function getControlValues(previousValues = {}) {
   return controls;
 }
 
-function serializeTransformObject(obj) {
-  return Object.keys(obj).map(key => `${key}${Math.floor(obj[key] * 10000) / 10000}`).join('');
-}
+export function saveControlValues(controls) {
+  const game = Games[controls.gameIndex];
 
-function deserializeTransformObject(str) {
-  const obj = {};
-  const regex = /([a-z])(-?\d+(?:\.\d+)?)/g;
+  const serializedParams = Object.keys(controls).reduce((params, controlName) => {
+    const serializeFn =
+      (DEFAULT_CONTROLS[controlName] && DEFAULT_CONTROLS[controlName].serialize) ||
+      (game.controls[controlName] && game.controls[controlName].serialize);
 
-  let result = regex.exec(str);
-  while (result) {
-    const [, key, value] = result;
-    obj[key] = parseFloat(value);
-    result = regex.exec(str);
-  }
-
-  return obj;
-}
-
-export function saveControlValues(values) {
-  const game = Games[values.gameIndex];
-
-  const smallParams = Object.keys(values).reduce((params, control) => {
-    const serializedName =
-      (DEFAULT_CONTROLS[control] && DEFAULT_CONTROLS[control].serializedName) ||
-      (game.controls[control] && game.controls[control].serializedName);
-
-    if (serializedName){
-      const value = values[control];
-      if (Array.isArray(value)) {
-        params[serializedName] = value.map(entry => (
-          (typeof entry === 'object') ? serializeTransformObject(entry) : entry)
-        );
-      } else {
-        params[serializedName] = value;
-      }
-    }
-
-    return params;
+    return serializeFn ? {
+      ...params,
+      ...serializeFn(controls[controlName]),
+    } : params;
   }, {});
 
-  const serializedParams = queryString.stringify(smallParams, {arrayFormat: 'bracket'});
-  window.history.replaceState({}, document.title, `?${serializedParams}`);
+  const paramsString = queryString.stringify(serializedParams, {arrayFormat: 'bracket'});
+  window.history.replaceState({}, document.title, `?${paramsString}`);
 }
 
 export function readSavedControlValues() {
   const parsedParams = queryString.parse(window.location.search, {arrayFormat: 'bracket'});
 
-  function iterateControls(controls){
-    return Object.keys(controls).reduce((result, control) => {
-      const serializeValue = parsedParams[controls[control].serializedName];
-      if (serializeValue){
-        if (Array.isArray(serializeValue)) {
-          result[control] = serializeValue.map(value => (
-            isNaN(parseInt(value, 10)) ? deserializeTransformObject(value) : parseInt(value, 10)
-          ));
-        } else {
-          result[control] = parseInt(serializeValue, 10);
-        }
-      }
-      return result;
-    }, {});
-  }
+  const iterateControls = controls => (
+    Object.keys(controls).reduce((result, control) => {
+      const serializedValue = parsedParams[controls[control].serializeTo];
+      return serializedValue ? {
+        ...result,
+        ...controls[control].deserialize(serializedValue),
+      } : result;
+    }, {})
+  );
 
   let controls = iterateControls(DEFAULT_CONTROLS);
 
   const game = Games[controls.gameIndex];
-  if (game){
+  if (game) {
     controls = Object.assign({}, controls, iterateControls(game.controls));
   }
 

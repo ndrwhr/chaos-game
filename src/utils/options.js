@@ -21,9 +21,36 @@ const createTransform = () => ({
   [TRANSFORM_PARAMS.PROBABILITY]: 0.5,
 });
 
+const withIntSerializer = (control, options) => ({
+  ...options,
+
+  serialize: value => ({
+    [options.serializeTo]: value
+  }),
+
+  deserialize: value => {
+    const parsedValue = parseInt(value, 10);
+    return isNaN(parsedValue) ? {} : {
+      [control]: parsedValue,
+    };
+  },
+});
+
+const withIntArraySerializer = (control, options) => ({
+  ...options,
+
+  serialize: values => ({
+    [options.serializeTo]: values
+  }),
+
+  deserialize: values => (Array.isArray(values) ? {
+    [control]: values.map(value => parseInt(value, 10)).filter(value => !isNaN(value)),
+  } : {}),
+});
+
 export const DEFAULT_CONTROLS = {
-  colors: {
-    serializedName: 'c',
+  colors: withIntArraySerializer('colors', {
+    serializeTo: 'c',
 
     defaultValue: (existingColors = [], expectedNumColors, sortByHue =  false) => {
       const colors = existingColors.slice(0, expectedNumColors);
@@ -41,19 +68,19 @@ export const DEFAULT_CONTROLS = {
 
       return colors;
     },
-  },
+  }),
 
-  gameIndex: {
-    serializedName: 'g',
+  gameIndex: withIntSerializer('gameIndex', {
+    serializeTo: 'g',
 
     defaultValue: () => 0,
-  },
+  }),
 
-  exclusions: {
-    serializedName: 'e',
+  exclusions: withIntArraySerializer('exclusions', {
+    serializeTo: 'e',
 
     defaultValue: () => [1, 4],
-  },
+  }),
 
   qualityIndex: {
     options: [
@@ -77,8 +104,8 @@ export const DEFAULT_CONTROLS = {
     defaultValue: () => 0,
   },
 
-  shapeIndex: {
-    serializedName: 's',
+  shapeIndex: withIntSerializer('shapeIndex', {
+    serializeTo: 's',
 
     options: [
       {
@@ -115,7 +142,7 @@ export const DEFAULT_CONTROLS = {
       }
     ],
     defaultValue: () => 2,
-  },
+  }),
 
   speedIndex: {
     options: [
@@ -136,7 +163,43 @@ export const DEFAULT_CONTROLS = {
   },
 
   transforms: {
-    serializedName: 't',
+    serializeTo: 't',
+
+    serialize: (values) => ({
+      t: values.map(transform => (
+        Object.keys(transform).map(key => (
+          `${key}${Math.floor(transform[key] * 10000) / 10000}`)
+        ).join('')
+      )),
+    }),
+
+    deserialize: (values) => {
+      const parseTransform = (str) => {
+        const transform = {};
+
+        const valueRegex = /([srp])(-?\d+(?:\.\d+)?)/g;
+        let result = valueRegex.exec(str);
+        while (result) {
+          const [, key, value] = result;
+          const parsedValue = parseFloat(value);
+
+          if (!isNaN(parsedValue)) {
+            transform[key] = parsedValue;
+          }
+
+          result = valueRegex.exec(str);
+        }
+
+        return Object.keys(transform).length === 3 ? transform : null;
+      };
+
+      return {
+        transforms: values.reduce((transforms, value) => {
+          const transform = parseTransform(value);
+          return transform ? [...transforms, transform] : transforms;
+        }, []),
+      };
+    },
 
     options: [
       {
@@ -166,8 +229,8 @@ export const DEFAULT_CONTROLS = {
 };
 
 export const OPTIONAL_CONTROL_FACTORY = {
-  colorModeIndex: () => ({
-    serializedName: 'cm',
+  colorModeIndex: () => (withIntSerializer('colorModeIndex', {
+    serializeTo: 'cm',
 
     options: [
       {
@@ -180,13 +243,13 @@ export const OPTIONAL_CONTROL_FACTORY = {
       },
     ],
     defaultValue: () => 1,
-  }),
+  })),
 
-  historyIndex: (max) => ({
-    serializedName: 'h',
+  historyIndex: (max) => (withIntSerializer('historyIndex', {
+    serializeTo: 'h',
 
     options: _.range(1, max + 1),
 
     defaultValue: () => 0,
-  }),
+  })),
 };
