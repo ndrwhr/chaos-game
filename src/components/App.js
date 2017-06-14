@@ -2,9 +2,13 @@ import React, {Component} from 'react';
 
 import Canvas from './Canvas';
 import Controls from './controls/Controls';
-import Games, { createPolygon } from './utils/games';
-import { getControlValues, readSavedControlValues, saveControlValues, } from './utils/control-utils';
-import { DEFAULT_CONTROLS } from './utils/options';
+import Games, { createPolygon } from '../utils/games';
+import {
+  getControlValues,
+  readSavedControlValues,
+  saveControlValues,
+} from '../utils/control-utils';
+import { DEFAULT_CONTROLS } from '../utils/options';
 
 import './app.css';
 

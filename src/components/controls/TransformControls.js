@@ -2,8 +2,8 @@ import classNames from 'classnames';
 import _ from 'lodash';
 import React, { Component } from 'react';
 
-import { getActualColor, isLightColor } from '../utils/colors';
-import { DEFAULT_CONTROLS, TRANSFORM_PARAMS } from '../utils/options';
+import { getActualColor, isLightColor } from '../../utils/colors';
+import { DEFAULT_CONTROLS, TRANSFORM_PARAMS } from '../../utils/options';
 import ColorPicker from './ColorPicker';
 
 import './transform-controls.css';

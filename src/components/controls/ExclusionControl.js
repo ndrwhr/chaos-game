@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import pluralize from 'pluralize';
 import React from 'react';
 
-import { createPolygon } from '../utils/games';
+import { createPolygon } from '../../utils/games';
 
 import './exclusion-control.css';
 

@@ -1,9 +1,9 @@
 import { vec2 } from 'gl-matrix';
 import React, {Component} from 'react';
 
-import { createPolygon }  from '../utils/games';
-import { COLOR_MODES, DEFAULT_CONTROLS } from '../utils/options';
-import { getActualColor } from '../utils/colors';
+import { createPolygon }  from '../../utils/games';
+import { COLOR_MODES, DEFAULT_CONTROLS } from '../../utils/options';
+import { getActualColor } from '../../utils/colors';
 import ColorPicker from './ColorPicker';
 import RadioControl from './RadioControl';
 

@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import React from 'react';
 
-import Games from '../utils/games';
-import { DEFAULT_CONTROLS } from '../utils/options';
+import Games from '../../utils/games';
+import { DEFAULT_CONTROLS } from '../../utils/options';
 import ColorControls from './ColorControls';
 import ExclusionControl from './ExclusionControl';
 import RadioControl from './RadioControl';
