@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import _ from 'lodash';
 import React, { Component } from 'react';
 
-import { COLORS, LIGHT_COLOR_LOOKUP } from '../Options';
+import { COLOR_INDEXES, getActualColor, isLightColor } from '../utils/colors';
 
 import './color-picker.css';
 
@@ -23,18 +23,19 @@ export default class ColorPicker extends Component {
   render(){
     const props = this.props;
     const hueIndex = 4;
-    const color = props.color || COLORS[0][hueIndex];
+    const color = props.color === null || props.color === undefined ?
+      COLOR_INDEXES[0][hueIndex] : props.color;
 
-    const shades = COLORS.find(colorList => colorList.includes(color));
+    const shades = COLOR_INDEXES.find(shadeList => shadeList.includes(color));
     const shadeIndex = shades.indexOf(color);
 
-    const hues = COLORS.map(colorList => colorList[hueIndex]);
+    const hues = COLOR_INDEXES.map(shadeList => shadeList[hueIndex]);
     const selectedHue = shades[hueIndex];
 
     const selectRandomColor = () => {
       const shiftedShadeIndex = shadeIndex + _.sample(_.range(-2, 2));
       const newShadeIndex = _.clamp(shiftedShadeIndex, 0, shades.length);
-      const newColor = _.sample(COLORS)[newShadeIndex];
+      const newColor = _.sample(COLOR_INDEXES)[newShadeIndex];
       props.onChange(newColor);
     };
 
@@ -51,11 +52,11 @@ export default class ColorPicker extends Component {
                 key={`hue-${hue}`}
                 className={
                   classNames('color-picker__button color-picker__button--hue', {
-                    'color-picker__button--dark-text': LIGHT_COLOR_LOOKUP.has(hue),
+                    'color-picker__button--dark-text': isLightColor(hue),
                     'color-picker__button--selected': hue === selectedHue,
                   })
                 }
-                style={{background: hue}}
+                style={{background: getActualColor(hue)}}
                 onClick={() => this.props.onChange(hue)}
               />
             ))}
@@ -67,11 +68,11 @@ export default class ColorPicker extends Component {
                 key={`shade-${index}`}
                 className={
                   classNames('color-picker__button color-picker__button--shade', {
-                    'color-picker__button--dark-text': LIGHT_COLOR_LOOKUP.has(shade),
+                    'color-picker__button--dark-text': isLightColor(shade),
                     'color-picker__button--selected': shade === color,
                   })
                 }
-                style={{background: shade}}
+                style={{background: getActualColor(shade)}}
                 onClick={() => this.props.onChange(shade)}
               />
             ))}

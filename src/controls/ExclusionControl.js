@@ -4,13 +4,13 @@ import classNames from 'classnames';
 import pluralize from 'pluralize';
 import React from 'react';
 
-import GameUtils from '../game-utils';
+import { createPolygon } from '../utils/games';
 
 import './exclusion-control.css';
 
-const getExclusionHelp = (exclusions, historySize) => {
-  if (exclusions.size){
-    let excludedTargets = [...exclusions].sort((a, b) => a - b);
+const getExclusionHelp = (exclusionsSet, historySize) => {
+  if (exclusionsSet.size){
+    let excludedTargets = [...exclusionsSet].sort((a, b) => a - b);
     let str = 'The next chosen target cannot be ';
 
     if (excludedTargets[0] === 0) {
@@ -35,7 +35,8 @@ const getExclusionHelp = (exclusions, historySize) => {
 };
 
 export default ({exclusions, historySize, numPoints, onChange}) => {
-  const points = GameUtils.createPolygon(numPoints);
+  const exclusionsSet = new Set(exclusions);
+  const points = createPolygon(numPoints);
 
   const onToggle = (index) => {
     const updatedExclusions = new Set(exclusions);
@@ -46,12 +47,12 @@ export default ({exclusions, historySize, numPoints, onChange}) => {
       updatedExclusions.add(index);
     }
 
-    onChange(updatedExclusions);
+    onChange([...updatedExclusions]);
   };
 
-  const onShuffle = () => onChange(new Set(
-    _.sampleSize(_.range(1, numPoints - 1), _.random(1, numPoints - 2))
-  ));
+  const onShuffle = () => onChange([
+    ...(new Set(_.sampleSize(_.range(1, numPoints - 1), _.random(1, numPoints - 2)))),
+  ]);
 
   const angleLerp = 360 / numPoints;
   let triangleAngles = _.times(numPoints - 1,
@@ -95,7 +96,7 @@ export default ({exclusions, historySize, numPoints, onChange}) => {
           <g
             className={
               classNames('exclusion-control__point', {
-                'exclusion-control__point--excluded': exclusions.has(index),
+                'exclusion-control__point--excluded': exclusionsSet.has(index),
                 'exclusion-control__point--first': index === 0,
               })
             }
@@ -135,7 +136,7 @@ export default ({exclusions, historySize, numPoints, onChange}) => {
         ))}
       </svg>
 
-      <p className="exclusion-control__help">{getExclusionHelp(exclusions, historySize)}</p>
+      <p className="exclusion-control__help">{getExclusionHelp(exclusionsSet, historySize)}</p>
 
       <button className="btn btn--block-center" onClick={onShuffle}>
         randomize exclusions

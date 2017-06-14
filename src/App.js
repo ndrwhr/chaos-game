@@ -2,67 +2,25 @@ import React, {Component} from 'react';
 
 import Canvas from './Canvas';
 import Controls from './controls/Controls';
-import Game from './Game';
-import GameUtils from './game-utils';
-import { COLOR_MODES, DEFAULT_CONTROLS } from './Options';
+import Games, { createPolygon } from './utils/games';
+import { getControlValues, readSavedControlValues, saveControlValues, } from './utils/control-utils';
+import { DEFAULT_CONTROLS } from './utils/options';
 
 import './app.css';
 
-const getControlValues = (existingControls = {}) => {
-  const controls = [
-    'gameIndex',
-    'exclusions',
-    'qualityIndex',
-    'shapeIndex',
-    'speedIndex',
-  ].reduce((acc, control) => {
-    const previousValue = existingControls[control];
-    acc[control] = previousValue !== null && previousValue !== undefined ?
-      previousValue : DEFAULT_CONTROLS[control].defaultValue();
-    return acc;
-  }, {});
-
-  const numPoints = DEFAULT_CONTROLS.shapeIndex.options[controls.shapeIndex].value;
-  const game = Game.games[controls.gameIndex];
-
-  Object.keys(game.controls).forEach(control => {
-    const previousValue = existingControls[control];
-    controls[control] = previousValue !== null && previousValue !== undefined ?
-      previousValue : game.controls[control].defaultValue();
-  });
-
-  if (game.numTransforms){
-    const numTransforms = game.numTransforms(controls);
-    controls.transforms = (existingControls.transforms || []).slice(0, numTransforms);
-    while (controls.transforms.length < numTransforms){
-      controls.transforms.push(DEFAULT_CONTROLS.transforms.createTransform());
-    }
-  } else {
-    controls.transforms = existingControls.transforms ||
-      DEFAULT_CONTROLS.transforms.defaultValue();
-  }
-
-  let numColors = !controls.colorModeIndex ||
-    controls.colorModeIndex === COLOR_MODES.BY_TRANSFORM ?
-    controls.transforms.length : numPoints;
-
-  // Set up the color controls based on the previously set color options.
-  controls.colors = DEFAULT_CONTROLS.colors
-    .defaultValue(existingControls.colors, numColors);
-
-  return controls;
-};
-
 const getPoints = ({shapeIndex}) =>
-  GameUtils.createPolygon(DEFAULT_CONTROLS.shapeIndex.options[shapeIndex].value);
+  createPolygon(DEFAULT_CONTROLS.shapeIndex.options[shapeIndex].value);
 
 class App extends Component {
   constructor(props){
     super(props);
 
-    const controls = getControlValues();
+    const controls = getControlValues(readSavedControlValues());
+
+    saveControlValues(controls);
+
     const points = getPoints(controls);
-    const game = Game.games[controls.gameIndex];
+    const game = Games[controls.gameIndex];
     const attractor = game.createAttractor(points, controls);
 
     this.state = {
@@ -84,7 +42,7 @@ class App extends Component {
   }
 
   render() {
-    const game = Game.games[this.state.controls.gameIndex];
+    const game = Games[this.state.controls.gameIndex];
 
     const qualityIndex = this.state.controls.qualityIndex;
     const quality = DEFAULT_CONTROLS.qualityIndex.options[qualityIndex];
@@ -119,12 +77,6 @@ class App extends Component {
     );
   }
 
-  createPointControls(controls){
-    const numPoints =
-        DEFAULT_CONTROLS.shapeIndex.options[controls.shapeIndex].value;
-    return GameUtils.createPolygon(numPoints);
-  }
-
   onControlChange(option, newValue){
     if (option === 'isRunning'){
       this.setState({
@@ -146,7 +98,10 @@ class App extends Component {
         ...this.state.controls,
         [option]: newValue,
       });
-      const game = Game.games[controls.gameIndex];
+
+      saveControlValues(controls);
+
+      const game = Games[controls.gameIndex];
       const points = option === 'shapeIndex' ? getPoints(controls) : this.state.points;
       const attractor = game.createAttractor(points, controls);
 
@@ -162,7 +117,7 @@ class App extends Component {
   onPointChange(points){
     this.canvas.clear();
 
-    const game = Game.games[this.state.controls.gameIndex];
+    const game = Games[this.state.controls.gameIndex];
     const attractor = game.createAttractor(points, this.state.controls);
 
     this.setState({

@@ -1,7 +1,13 @@
 import _ from 'lodash';
 import {vec2, mat2} from 'gl-matrix';
 
-import { COLOR_MODES, DEFAULT_CONTROLS, OPTIONAL_CONTROL_FACTORY } from './Options';
+import { getActualColor } from './colors';
+import {
+  COLOR_MODES,
+  DEFAULT_CONTROLS,
+  OPTIONAL_CONTROL_FACTORY,
+  TRANSFORM_PARAMS,
+} from './options';
 
 const memoize = fn => {
   const createNewMap = () => new Map();
@@ -28,11 +34,12 @@ const memoize = fn => {
 };
 
 const generateExclusionTargetLookup = (points, exclusions) => {
+  const exclusionSet = new Set(exclusions);
   return new Map(points.map((targetPoint, targetIndex) => {
     const possibleValues = [
       ...points.slice(targetIndex),
       ...points.slice(0, targetIndex),
-    ].filter((point, index) => !exclusions.has(index));
+    ].filter((point, index) => !exclusionSet.has(index));
 
     return [targetPoint, possibleValues];
   }));
@@ -52,10 +59,10 @@ const createTargetSelectorWithHistory = (historySize, targetSelector) => {
 
 const createSharedTransformSelector = (transforms) => {
   const totalProbability = transforms.reduce(
-      (acc, {probability}) => acc + probability, 0);
+      (acc, transform) => acc + transform[TRANSFORM_PARAMS.PROBABILITY], 0);
 
   const transformPool = transforms.reduce((pool, transform) => {
-    _.times(Math.floor(100 * transform.probability / totalProbability), () => {
+    _.times(Math.floor(100 * transform[TRANSFORM_PARAMS.PROBABILITY] / totalProbability), () => {
       pool.push(transform);
     });
 
@@ -66,19 +73,20 @@ const createSharedTransformSelector = (transforms) => {
 };
 
 const createColorSelector = ({points, transforms, colors, colorModeIndex = null} = {}) => {
+  const actualColors = colors.map(getActualColor);
   let selector;
 
   if (colorModeIndex === null || colorModeIndex === COLOR_MODES.BY_TRANSFORM){
     const colorLookup = transforms.reduce((map, transform, index) => {
-        map.set(transform, colors[index]);
+        map.set(transform, actualColors[index]);
         return map;
       }, new Map());
     selector = (point, transform) => colorLookup.get(transform);
   } else if (colorModeIndex === COLOR_MODES.RANDOM){
-    selector = () => _.sample(colors);
+    selector = () => _.sample(actualColors);
   } else {
     const colorLookup = points.reduce((map, point, index) => {
-        map.set(point, colors[index]);
+        map.set(point, actualColors[index]);
         return map;
       }, new Map());
     selector = point => colorLookup.get(point);
@@ -96,9 +104,9 @@ const createAttractor = ({
   const transformMatrixLookup = transforms.reduce((lookup, transform) => {
     const scaleMatrix = mat2.fromScaling(
       mat2.create(),
-      vec2.fromValues(transform.scale, transform.scale),
+      vec2.fromValues(transform[TRANSFORM_PARAMS.SCALE], transform[TRANSFORM_PARAMS.SCALE]),
     );
-    const rotationMatrix = mat2.fromRotation(mat2.create(), transform.rotation);
+    const rotationMatrix = mat2.fromRotation(mat2.create(), transform[TRANSFORM_PARAMS.ROTATION]);
     const transformMatrix = mat2.multiply(
       mat2.create(),
       scaleMatrix,
@@ -146,7 +154,28 @@ const createAttractor = ({
   };
 };
 
-const games = [
+export function createPolygon(n, clockwise=true) {
+  if (n === 4){
+    const offset = 0.146446609;
+    return [
+      vec2.fromValues(offset, offset),
+      vec2.fromValues(1 - offset, offset),
+      vec2.fromValues(1 - offset, 1 - offset),
+      vec2.fromValues(offset, 1 - offset),
+    ];
+  }
+
+  const lerp = 2 * Math.PI / n;
+  return _.times(n, index => {
+    const angle = lerp * (index);
+    const vector = vec2.fromValues(0, -0.5);
+    const rotationMatrix = mat2.fromRotation(mat2.create(), angle);
+
+    return vec2.transformMat2(vec2.create(), vector, rotationMatrix);
+  }).map(point => vec2.add(vec2.create(), point, vec2.fromValues(0.5, 0.5)));
+}
+
+export default [
   {
     name: 'History Exclusion',
 
@@ -288,7 +317,3 @@ const games = [
     },
   },
 ];
-
-export default {
-  games,
-};

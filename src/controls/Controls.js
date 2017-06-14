@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import React from 'react';
 
-import Game from '../Game';
-import { DEFAULT_CONTROLS } from '../Options';
+import Games from '../utils/games';
+import { DEFAULT_CONTROLS } from '../utils/options';
 import ColorControls from './ColorControls';
 import ExclusionControl from './ExclusionControl';
 import RadioControl from './RadioControl';
@@ -24,7 +24,7 @@ const Control = ({title, description, children}) => (
 );
 
 const Controls = props => {
-  const gameOptions = Game.games
+  const gameOptions = Games
       .map(({name}, index) => ({
         name,
         value: index,
@@ -39,7 +39,7 @@ const Controls = props => {
   const numPoints =
     DEFAULT_CONTROLS.shapeIndex.options[props.shapeIndex].value;
 
-  const game = Game.games[props.gameIndex];
+  const game = Games[props.gameIndex];
   let historyControls = null;
   let historySize = null;
   if (game.controls.historyIndex){

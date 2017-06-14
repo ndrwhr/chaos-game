@@ -1,8 +1,9 @@
 import { vec2 } from 'gl-matrix';
 import React, {Component} from 'react';
 
-import GameUtils  from '../game-utils';
-import { COLOR_MODES, DEFAULT_CONTROLS } from '../Options';
+import { createPolygon }  from '../utils/games';
+import { COLOR_MODES, DEFAULT_CONTROLS } from '../utils/options';
+import { getActualColor } from '../utils/colors';
 import ColorPicker from './ColorPicker';
 import RadioControl from './RadioControl';
 
@@ -18,7 +19,7 @@ class TargetColorControl extends Component {
   }
 
   render(){
-    const points = GameUtils.createPolygon(this.props.colors.length);
+    const points = createPolygon(this.props.colors.length);
 
     return (
       <div className="color-controls__target-control">
@@ -51,7 +52,7 @@ class TargetColorControl extends Component {
             return (
               <polygon
                 key={point}
-                fill={this.props.colors[index]}
+                fill={getActualColor(this.props.colors[index])}
                 points={serializedPoints}
                 onClick={() => this.setState({selectedIndex: index})}
               />

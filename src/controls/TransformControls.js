@@ -2,7 +2,8 @@ import classNames from 'classnames';
 import _ from 'lodash';
 import React, { Component } from 'react';
 
-import { DEFAULT_CONTROLS, LIGHT_COLOR_LOOKUP } from '../Options';
+import { getActualColor, isLightColor } from '../utils/colors';
+import { DEFAULT_CONTROLS, TRANSFORM_PARAMS } from '../utils/options';
 import ColorPicker from './ColorPicker';
 
 import './transform-controls.css';
@@ -10,7 +11,7 @@ import './transform-controls.css';
 const TRANSFORM_OPTIONS = DEFAULT_CONTROLS.transforms.options;
 
 const createRandomTransform = () => TRANSFORM_OPTIONS.reduce((update, option) => {
-  update[option.name] = _.random(option.minValue, option.maxValue);
+  update[option.key] = _.random(option.minValue, option.maxValue);
   return update;
 }, {});
 
@@ -52,12 +53,12 @@ class TransformControl extends Component {
 
     const probability = Math.floor(actualProbability * 10000) / 100;
 
-    const colorEl = color && (
+    const colorEl = color !== null && color !== undefined && (
       <div
         className={classNames('transform-controls__transform-color', {
-          'transform-controls__transform-color--light': LIGHT_COLOR_LOOKUP.has(color),
+          'transform-controls__transform-color--light': isLightColor(color),
         })}
-        style={{background: color}}
+        style={{background: getActualColor(color)}}
         onClick={() => this.setState({isColorPickerOpen: true})}
       >
         edit color
@@ -92,13 +93,13 @@ class TransformControl extends Component {
         {
           TRANSFORM_OPTIONS.map(option => (
             <RangeControl
-              key={option.name}
-              name={option.name}
+              key={option.key}
+              name={option.key}
               minValue={option.minValue}
               maxValue={option.maxValue}
-              value={transform[option.name]}
+              value={transform[option.key]}
               onChange={value => onChange(Object.assign({}, transform, {
-                [option.name]: value,
+                [option.key]: value,
               }))}
             />
           ))
@@ -131,7 +132,8 @@ export default ({colors, onColorChange, fixedNumTransforms, onChange, transforms
     onColorChange(newColors);
   };
 
-  const totalProbability = transforms.reduce((acc, {probability}) => acc + probability, 0);
+  const totalProbability = transforms.reduce((acc, transform) =>
+    acc + transform[TRANSFORM_PARAMS.PROBABILITY], 0);
 
   return (
     <div className="transform-controls">
@@ -161,7 +163,7 @@ export default ({colors, onColorChange, fixedNumTransforms, onChange, transforms
             colors={colors}
             color={colors && colors[index]}
             onColorChange={newColor => updateColors(index, newColor)}
-            actualProbability={transform.probability / totalProbability}
+            actualProbability={transform[TRANSFORM_PARAMS.PROBABILITY] / totalProbability}
             transform={transform}
             transformIndex={index}
             onChange={updatedTransform => updateTransform(index, updatedTransform)}
