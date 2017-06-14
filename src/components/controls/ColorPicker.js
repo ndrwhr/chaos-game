@@ -2,7 +2,8 @@ import classNames from 'classnames';
 import _ from 'lodash';
 import React, { Component } from 'react';
 
-import { COLOR_INDEXES, getActualColor, isLightColor } from '../../utils/colors';
+import { COLOR_INDEXES } from '../../constants/colors';
+import { getActualColor, isLightColor } from '../../utils/colors';
 
 import './color-picker.css';
 
