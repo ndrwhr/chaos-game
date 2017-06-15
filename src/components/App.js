@@ -73,6 +73,25 @@ class App extends Component {
               size={this.state.canvasSize}
               speed={speed}
           />
+
+          <div className="app__meta-controls">
+            <button
+              className={classNames('app__meta-control', {
+                'app__meta-control--pause': this.state.isRunning,
+                'app__meta-control--play': !this.state.isRunning,
+              })}
+              onClick={() => this.setState({ isRunning: !this.state.isRunning })}
+              title={this.state.isRunning ? 'Pause' : 'Play'}
+            />
+            <a
+              className="app__meta-control app__meta-control--download"
+              onClick={(evt) => (evt.target.href = this.canvas.toDataURL())}
+              download="chaos-game.png"
+              title="Download"
+            >
+              download
+            </a>
+          </div>
         </div>
         <div className="app__controls">
           <Controls

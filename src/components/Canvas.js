@@ -45,6 +45,10 @@ class Canvas extends Component {
     );
   }
 
+  toDataURL(){
+    return this._canvas.toDataURL();
+  }
+
   start(){
     cancelAnimationFrame(this._animationId);
     const update = () => {

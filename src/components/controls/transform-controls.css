@@ -57,11 +57,19 @@
 }
 
 .transform-controls__transform-button--shuffle::after {
-  background-image: url('./shuffle-black.svg');
+  background-image: url('./img/shuffle-black.svg');
+}
+
+.app--dark .transform-controls__transform-button--shuffle::after {
+  background-image: url('./img/shuffle-white.svg');
 }
 
 .transform-controls__transform-button--trash::after {
-  background-image: url('./trash-black.svg');
+  background-image: url('./img/trash-black.svg');
+}
+
+.app--dark .transform-controls__transform-button--trash::after {
+  background-image: url('./img/trash-white.svg');
 }
 
 .transform-control__range {

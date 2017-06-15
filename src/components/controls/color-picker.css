@@ -77,7 +77,7 @@
   background-position: center center;
   background-size: contain;
   background-repeat: no-repeat;
-  background-image: url('./check-mark-white.svg');
+  background-image: url('./img/check-mark-white.svg');
   pointer-events: none;
   opacity: 0;
   transform: scale(0.1);
@@ -87,7 +87,7 @@
 }
 
 .color-picker__button--dark-text::after {
-  background-image: url('./check-mark-black.svg');
+  background-image: url('./img/check-mark-black.svg');
 }
 
 .color-picker__button:not(.color-picker__button--selected):hover::after {

@@ -24,11 +24,61 @@
   user-select: none;
 }
 
-.app__canvas-container > * {
+.app__meta-controls {
   position: absolute;
-  top: 50%;
-  left:  50%;
-  transform: translate(-50%, -50%);
+  top: 0;
+  left: 0;
+  display: flex;
+  padding: 10px;
+}
+
+.app__meta-control {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0;
+  opacity: 0.6;
+  background: none;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  margin: 0px;
+}
+
+.app__meta-control:hover {
+  opacity: 0.9;
+}
+
+.app__meta-control::after {
+  display: block;
+  content: '';
+  height: 50px;
+  width: 50px;
+  background: transparent center/contain;
+}
+
+.app__meta-control--download::after {
+  background-image: url('./img/download.svg');
+}
+
+.app--dark .app__meta-control--download::after {
+  background-image: url('./img/download-white.svg');
+}
+
+.app__meta-control--play::after {
+  background-image: url('./img/play.svg');
+}
+
+.app--dark .app__meta-control--play::after {
+  background-image: url('./img/play-white.svg');
+}
+
+.app__meta-control--pause::after {
+  background-image: url('./img/pause.svg');
+}
+
+.app--dark .app__meta-control--pause::after {
+  background-image: url('./img/pause-white.svg');
 }
 
 .btn {
