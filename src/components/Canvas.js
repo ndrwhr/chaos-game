@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 
+import { BACKGROUND_COLORS } from '../constants/controls';
+
 import './canvas.css';
 
 class Canvas extends Component {
@@ -7,8 +9,6 @@ class Canvas extends Component {
     this._context = this._canvas.getContext('2d');
 
     this.resizeCanvas(this.props.size);
-
-    this._context.fillStyle = 'rgba(38, 50, 56, 0.5)';
 
     this.start();
   }
@@ -26,18 +26,17 @@ class Canvas extends Component {
   }
 
   clear(){
-    this._context.fillStyle = 'white';
+    this._context.fillStyle = BACKGROUND_COLORS[this.props.background];
     this._context.fillRect(0, 0, this.props.size, this.props.size);
   }
 
   resizeCanvas(newSize){
-    this.clear();
-
     this._canvas.width = newSize * 2;
     this._canvas.height = newSize * 2;
     this._canvas.style.width = `${newSize}px`;
     this._canvas.style.height = `${newSize}px`;
     this._context.scale(2, 2);
+    this.clear();
   }
 
   render() {

@@ -39,6 +39,7 @@ export function getControlValues(previousValues = {}) {
   };
 
   const controls = [
+    CONTROL_TYPES.BACKGROUND,
     CONTROL_TYPES.EXCLUSIONS,
     CONTROL_TYPES.GAME,
     CONTROL_TYPES.NUM_TARGETS,

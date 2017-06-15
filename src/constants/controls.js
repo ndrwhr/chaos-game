@@ -9,6 +9,16 @@ export const COLORING_MODES = {
   RANDOM: 2,
 };
 
+export const BACKGROUND_TYPES = {
+  LIGHT: 'light',
+  DARK: 'dark',
+};
+
+export const BACKGROUND_COLORS = {
+  [BACKGROUND_TYPES.LIGHT]: '#fff',
+  [BACKGROUND_TYPES.DARK]: '#263238',
+};
+
 export const TRANSFORM_PARAMS = {
   SCALE: 's',
   ROTATION: 'r',
@@ -16,6 +26,7 @@ export const TRANSFORM_PARAMS = {
 };
 
 export const CONTROL_TYPES = {
+  BACKGROUND: 'background',
   COLORING_MODE: 'coloringMode',
   COLORS: 'colors',
   EXCLUSIONS: 'exclusions',
@@ -34,6 +45,7 @@ export const GAME_TYPES = {
 };
 
 const CONTROL_TYPES_SERIALIZATIONS = {
+  [CONTROL_TYPES.BACKGROUND]: 'b',
   [CONTROL_TYPES.COLORING_MODE]: 'cm',
   [CONTROL_TYPES.COLORS]: 'c',
   [CONTROL_TYPES.EXCLUSIONS]: 'e',
@@ -104,6 +116,23 @@ const withOptions = options => params => ({
 });
 
 export const CONTROLS = {
+  [CONTROL_TYPES.BACKGROUND]: composeControl(
+    withIntSerializer(),
+    withOptions([
+      {
+        name: 'Light',
+        value: BACKGROUND_TYPES.LIGHT,
+      },
+      {
+        name: 'Dark',
+        value: BACKGROUND_TYPES.DARK,
+      },
+    ]),
+  )({
+    type: CONTROL_TYPES.BACKGROUND,
+
+    defaultValue: () => 0,
+  }),
   [CONTROL_TYPES.COLORING_MODE]: composeControl(
     withIntSerializer(),
     withOptions([

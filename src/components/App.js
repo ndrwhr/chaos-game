@@ -1,8 +1,9 @@
+import classNames from 'classnames';
 import React, {Component} from 'react';
 
 import Canvas from './Canvas';
 import Controls from './controls/Controls';
-import { CONTROL_TYPES, CONTROLS } from '../constants/controls';
+import { BACKGROUND_TYPES, CONTROL_TYPES, CONTROLS } from '../constants/controls';
 import Games from '../constants/games';
 import {
   createPolygon,
@@ -48,17 +49,23 @@ class App extends Component {
   }
 
   render() {
+    const background = CONTROLS[CONTROL_TYPES.BACKGROUND].extractValueFrom(this.state.controls);
     const game = Games[CONTROLS[CONTROL_TYPES.GAME].extractValueFrom(this.state.controls)];
     const quality = CONTROLS[CONTROL_TYPES.QUALITY].extractValueFrom(this.state.controls);
     const speed = CONTROLS[CONTROL_TYPES.SPEED].extractValueFrom(this.state.controls);
 
     return (
-      <div className="app">
+      <div
+        className={classNames('app', {
+          'app--dark': background === BACKGROUND_TYPES.DARK,
+        })}
+      >
         <div
             className="app__canvas-container"
             ref={canvasContainer => {this.canvasContainer = canvasContainer;}}
         >
           <Canvas
+              background={background}
               attractor={this.state.attractor}
               isRunning={this.state.isRunning}
               quality={quality}
@@ -89,8 +96,6 @@ class App extends Component {
         isRunning: true,
       });
     } else {
-      this.canvas.clear();
-
       const controls = getControlValues({
         ...this.state.controls,
         [controlType]: newValue,
@@ -108,6 +113,9 @@ class App extends Component {
         controls,
         targets,
         isRunning: true,
+      }, () => {
+        // Clear the canvas once we know it's properties have been updated.
+        this.canvas.clear();
       });
     }
   }

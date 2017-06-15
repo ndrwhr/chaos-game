@@ -100,6 +100,17 @@ const Controls = ({ controls, fixedNumTransforms, onChange }) => {
       </Control>
 
       <Control
+        title="Background"
+      >
+        <RadioControl
+          buttonStyle
+          selectedValue={controls[CONTROL_TYPES.BACKGROUND]}
+          options={mapControlOptionsToRadioOptions(CONTROLS[CONTROL_TYPES.BACKGROUND])}
+          onChange={index => onChange(CONTROL_TYPES.BACKGROUND, index)}
+        />
+      </Control>
+
+      <Control
         title="Rendering Quality"
         description="Adjusts the size of the point drawn on every iteration."
       >
