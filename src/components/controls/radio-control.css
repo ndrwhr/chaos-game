@@ -38,10 +38,22 @@
   transition: background 200ms;
 }
 
+.app--dark .radio-control__fake-radio {
+  border-color: var(--color-white);
+}
+
 .radio-control__item-label:hover .radio-control__fake-radio {
   background: var(--color-black-a20);
 }
 
+.app--dark .radio-control__item-label:hover .radio-control__fake-radio {
+  background: var(--color-white-a20);
+}
+
 .radio-control__radio-input:checked + .radio-control__fake-radio {
   background: var(--color-black);
+}
+
+.app--dark .radio-control__radio-input:checked + .radio-control__fake-radio {
+  background: var(--color-white);
 }
