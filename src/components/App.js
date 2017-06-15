@@ -2,18 +2,20 @@ import React, {Component} from 'react';
 
 import Canvas from './Canvas';
 import Controls from './controls/Controls';
-import Games, { createPolygon } from '../utils/games';
+import { CONTROL_TYPES, CONTROLS } from '../constants/controls';
+import Games from '../constants/games';
 import {
+  createPolygon,
   getControlValues,
   readSavedControlValues,
   saveControlValues,
 } from '../utils/control-utils';
-import { DEFAULT_CONTROLS } from '../utils/options';
 
 import './app.css';
 
-const getPoints = ({shapeIndex}) =>
-  createPolygon(DEFAULT_CONTROLS.shapeIndex.options[shapeIndex].value);
+const getTargets = (controls) => (
+  createPolygon(CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(controls))
+);
 
 class App extends Component {
   constructor(props){
@@ -23,16 +25,16 @@ class App extends Component {
 
     saveControlValues(controls);
 
-    const points = getPoints(controls);
-    const game = Games[controls.gameIndex];
-    const attractor = game.createAttractor(points, controls);
+    const targets = getTargets(controls);
+    const game = Games[CONTROLS[CONTROL_TYPES.GAME].extractValueFrom(controls)];
+    const attractor = game.createAttractor(targets, controls);
 
     this.state = {
       attractor,
       canvasSize: 0,
       controls,
       isRunning: false,
-      points,
+      targets,
     };
 
     this.canvas = null;
@@ -46,13 +48,9 @@ class App extends Component {
   }
 
   render() {
-    const game = Games[this.state.controls.gameIndex];
-
-    const qualityIndex = this.state.controls.qualityIndex;
-    const quality = DEFAULT_CONTROLS.qualityIndex.options[qualityIndex];
-
-    const speedIndex = this.state.controls.speedIndex;
-    const speed = DEFAULT_CONTROLS.speedIndex.options[speedIndex].value;
+    const game = Games[CONTROLS[CONTROL_TYPES.GAME].extractValueFrom(this.state.controls)];
+    const quality = CONTROLS[CONTROL_TYPES.QUALITY].extractValueFrom(this.state.controls);
+    const speed = CONTROLS[CONTROL_TYPES.SPEED].extractValueFrom(this.state.controls);
 
     return (
       <div className="app">
@@ -63,7 +61,7 @@ class App extends Component {
           <Canvas
               attractor={this.state.attractor}
               isRunning={this.state.isRunning}
-              quality={quality.value}
+              quality={quality}
               ref={canvas => {this.canvas = canvas;}}
               size={this.state.canvasSize}
               speed={speed}
@@ -71,24 +69,19 @@ class App extends Component {
         </div>
         <div className="app__controls">
           <Controls
-              {...this.state.controls}
-              isRunning={this.state.isRunning}
-              onChange={this.onControlChange}
+              controls={this.state.controls}
               fixedNumTransforms={!!game.numTransforms}
+              onChange={this.onControlChange}
             />
         </div>
       </div>
     );
   }
 
-  onControlChange(option, newValue){
-    if (option === 'isRunning'){
-      this.setState({
-        isRunning: newValue,
-      });
-    } else if (option === 'speedIndex'){
+  onControlChange(controlType, newValue){
+    if (controlType === CONTROL_TYPES.SPEED){
       const controls = Object.assign({}, this.state.controls, {
-        [option]: newValue,
+        [controlType]: newValue,
       });
 
       this.setState({
@@ -100,35 +93,23 @@ class App extends Component {
 
       const controls = getControlValues({
         ...this.state.controls,
-        [option]: newValue,
+        [controlType]: newValue,
       });
 
       saveControlValues(controls);
 
-      const game = Games[controls.gameIndex];
-      const points = option === 'shapeIndex' ? getPoints(controls) : this.state.points;
-      const attractor = game.createAttractor(points, controls);
+      const game = Games[CONTROLS[CONTROL_TYPES.GAME].extractValueFrom(controls)];
+      const targets = controlType === CONTROL_TYPES.NUM_TARGETS ?
+        getTargets(controls) : this.state.targets;
+      const attractor = game.createAttractor(targets, controls);
 
       this.setState({
         attractor,
         controls,
-        points,
+        targets,
         isRunning: true,
       });
     }
-  }
-
-  onPointChange(points){
-    this.canvas.clear();
-
-    const game = Games[this.state.controls.gameIndex];
-    const attractor = game.createAttractor(points, this.state.controls);
-
-    this.setState({
-      attractor,
-      points,
-      isRunning: true,
-    });
   }
 
   onResize(){

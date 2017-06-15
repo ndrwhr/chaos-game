@@ -3,7 +3,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 
 import { COLOR_INDEXES } from '../../constants/colors';
-import { getActualColor, isLightColor } from '../../utils/colors';
+import { getActualColor, isLightColor } from '../../utils/color-utils';
 
 import './color-picker.css';
 

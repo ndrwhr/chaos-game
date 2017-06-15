@@ -2,15 +2,15 @@ import classNames from 'classnames';
 import _ from 'lodash';
 import React, { Component } from 'react';
 
-import { getActualColor, isLightColor } from '../../utils/colors';
-import { DEFAULT_CONTROLS, TRANSFORM_PARAMS } from '../../utils/options';
+import { getActualColor, isLightColor } from '../../utils/color-utils';
+import { CONTROL_TYPES, CONTROLS, TRANSFORM_PARAMS } from '../../constants/controls';
 import ColorPicker from './ColorPicker';
 
 import './transform-controls.css';
 
-const TRANSFORM_OPTIONS = DEFAULT_CONTROLS.transforms.options;
+const PARAM_VALUES = CONTROLS[CONTROL_TYPES.TRANSFORMS].paramsValues;
 
-const createRandomTransform = () => TRANSFORM_OPTIONS.reduce((update, option) => {
+const createRandomTransform = () => PARAM_VALUES.reduce((update, option) => {
   update[option.key] = _.random(option.minValue, option.maxValue);
   return update;
 }, {});
@@ -91,7 +91,7 @@ class TransformControl extends Component {
         </h4>
 
         {
-          TRANSFORM_OPTIONS.map(option => (
+          PARAM_VALUES.map(option => (
             <RangeControl
               key={option.key}
               name={option.key}
@@ -119,17 +119,20 @@ class TransformControl extends Component {
   }
 }
 
-export default ({colors, onColorChange, fixedNumTransforms, onChange, transforms}) => {
+export default ({ controls, fixedNumTransforms, onChange }) => {
+  const colors = controls[CONTROL_TYPES.COLORING_MODE] ? null : controls[CONTROL_TYPES.COLORS];
+  const transforms = controls[CONTROL_TYPES.TRANSFORMS];
+
   const updateTransform = (index, updatedTransform) => {
     const updatedTransforms = transforms.slice();
     updatedTransforms[index] = updatedTransform;
-    onChange(updatedTransforms);
+    onChange(CONTROL_TYPES.TRANSFORMS, updatedTransforms);
   };
 
   const updateColors = (index, newColor) => {
     const newColors = colors.slice();
     newColors[index] = newColor;
-    onColorChange(newColors);
+    onChange(CONTROL_TYPES.COLORS, newColors)
   };
 
   const totalProbability = transforms.reduce((acc, transform) =>
@@ -140,17 +143,21 @@ export default ({colors, onColorChange, fixedNumTransforms, onChange, transforms
       <div className="transform-controls__buttons">
         <button
           className="btn btn--inline"
-          onClick={() => onChange(transforms.map(() => createRandomTransform()))}
+          onClick={() => (
+            onChange(CONTROL_TYPES.TRANSFORMS, transforms.map(() => createRandomTransform()))
+          )}
         >
           randomize transforms
         </button>
 
         <button
           className="btn btn--inline"
-          onClick={() => {
-            onChange(transforms.map(() =>
-              DEFAULT_CONTROLS.transforms.createTransform()));
-          }}
+          onClick={() => (
+            onChange(
+              CONTROL_TYPES.TRANSFORMS,
+              transforms.map(() => CONTROLS[CONTROL_TYPES.TRANSFORMS].createTransform())
+            )
+          )}
         >
           reset transforms
         </button>
@@ -168,7 +175,11 @@ export default ({colors, onColorChange, fixedNumTransforms, onChange, transforms
             transformIndex={index}
             onChange={updatedTransform => updateTransform(index, updatedTransform)}
             onRemove={transforms.length > 1 && !fixedNumTransforms && (() =>
-              onChange([...transforms.slice(0, index), ...transforms.slice(index +1)]))}
+              onChange(
+                CONTROL_TYPES.TRANSFORMS,
+                [...transforms.slice(0, index), ...transforms.slice(index +1)]
+              )
+            )}
           />
         ))
       }
@@ -176,8 +187,12 @@ export default ({colors, onColorChange, fixedNumTransforms, onChange, transforms
       {!fixedNumTransforms && (
         <button
           className="btn btn--block-center"
-          onClick={() =>
-            onChange([...transforms, DEFAULT_CONTROLS.transforms.createTransform()])}
+          onClick={() => (
+            onChange(
+              CONTROL_TYPES.TRANSFORMS,
+              [...transforms, CONTROLS[CONTROL_TYPES.TRANSFORMS].createTransform()]
+            )
+          )}
         >
           add transform
         </button>

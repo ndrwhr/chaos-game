@@ -4,7 +4,8 @@ import classNames from 'classnames';
 import pluralize from 'pluralize';
 import React from 'react';
 
-import { createPolygon } from '../../utils/games';
+import { CONTROL_TYPES, CONTROLS } from '../../constants/controls';
+import { createPolygon } from '../../utils/control-utils';
 
 import './exclusion-control.css';
 
@@ -28,15 +29,20 @@ const getExclusionHelp = (exclusionsSet, historySize) => {
     return `${str} the ${actualHistorySize > 1 ? 'last' : 'previously'}
       ${actualHistorySize > 1 ? actualHistorySize : ''} chosen
       ${pluralize('target', historySize)}
-      ${historySize === null ? '(provided both previous targets were the same)' : ''}.`;
+      ${typeof historySize !== 'number' ? '(provided both previous targets were the same)' : ''}.`;
   }
 
   return 'The next target will be chosen randomly.';
 };
 
-export default ({exclusions, historySize, numPoints, onChange}) => {
+export default ({ controls, onChange }) => {
+  const exclusions = controls[CONTROL_TYPES.EXCLUSIONS];
+  const historySize = controls[CONTROL_TYPES.HISTORY] &&
+    CONTROLS[CONTROL_TYPES.HISTORY].extractValueFrom(controls);
+  const numTargets = CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(controls);
+
   const exclusionsSet = new Set(exclusions);
-  const points = createPolygon(numPoints);
+  const points = createPolygon(numTargets);
 
   const onToggle = (index) => {
     const updatedExclusions = new Set(exclusions);
@@ -47,18 +53,21 @@ export default ({exclusions, historySize, numPoints, onChange}) => {
       updatedExclusions.add(index);
     }
 
-    onChange([...updatedExclusions]);
+    onChange(CONTROL_TYPES.EXCLUSIONS, [...updatedExclusions]);
   };
 
-  const onShuffle = () => onChange([
-    ...(new Set(_.sampleSize(_.range(1, numPoints - 1), _.random(1, numPoints - 2)))),
-  ]);
+  const onShuffle = () => onChange(
+    CONTROL_TYPES.EXCLUSIONS,
+    [
+      ...(new Set(_.sampleSize(_.range(1, numTargets - 1), _.random(1, numTargets - 2)))),
+    ],
+  );
 
-  const angleLerp = 360 / numPoints;
-  let triangleAngles = _.times(numPoints - 1,
+  const angleLerp = 360 / numTargets;
+  let triangleAngles = _.times(numTargets - 1,
     index => ((angleLerp * (index + 1)) - 18));
 
-  if (numPoints === 4){
+  if (numTargets === 4){
     triangleAngles = triangleAngles.map(angle => angle - 45);
   }
 

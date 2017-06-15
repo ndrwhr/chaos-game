@@ -1,90 +1,107 @@
+import {vec2, mat2} from 'gl-matrix';
+import _ from 'lodash';
 import queryString from 'query-string';
 
-import Games from './games';
-import { COLOR_MODES, DEFAULT_CONTROLS } from './options';
+import Games from '../constants/games';
+import {
+  COLORING_MODES,
+  CONTROL_TYPES,
+  CONTROLS,
+  SERIALIZATIONS_TO_CONTROL_TYPES,
+} from '../constants/controls';
 
-export function getControlValues(previousValues = {}) {
-  const controls = [
-    'gameIndex',
-    'exclusions',
-    'qualityIndex',
-    'shapeIndex',
-    'speedIndex',
-  ].reduce((acc, control) => {
-    const previousValue = previousValues[control];
-    acc[control] = previousValue !== null && previousValue !== undefined ?
-      previousValue : DEFAULT_CONTROLS[control].defaultValue();
-    return acc;
-  }, {});
-
-  const numPoints = DEFAULT_CONTROLS.shapeIndex.options[controls.shapeIndex].value;
-  const game = Games[controls.gameIndex];
-
-  Object.keys(game.controls).forEach(control => {
-    const previousValue = previousValues[control];
-    controls[control] = previousValue !== null && previousValue !== undefined ?
-      previousValue : game.controls[control].defaultValue();
-  });
-
-  if (game.numTransforms){
-    const numTransforms = game.numTransforms(controls);
-    controls.transforms = (previousValues.transforms || []).slice(0, numTransforms);
-    while (controls.transforms.length < numTransforms){
-      controls.transforms.push(DEFAULT_CONTROLS.transforms.createTransform());
-    }
-  } else {
-    controls.transforms = previousValues.transforms ||
-      DEFAULT_CONTROLS.transforms.defaultValue();
+export function createPolygon(n, clockwise=true) {
+  if (n === 4){
+    const offset = 0.146446609;
+    return [
+      vec2.fromValues(offset, offset),
+      vec2.fromValues(1 - offset, offset),
+      vec2.fromValues(1 - offset, 1 - offset),
+      vec2.fromValues(offset, 1 - offset),
+    ];
   }
 
-  let numColors = !controls.colorModeIndex ||
-    controls.colorModeIndex === COLOR_MODES.BY_TRANSFORM ?
-    controls.transforms.length : numPoints;
+  const lerp = 2 * Math.PI / n;
+  return _.times(n, index => {
+    const angle = lerp * (index);
+    const vector = vec2.fromValues(0, -0.5);
+    const rotationMatrix = mat2.fromRotation(mat2.create(), angle);
+
+    return vec2.transformMat2(vec2.create(), vector, rotationMatrix);
+  }).map(point => vec2.add(vec2.create(), point, vec2.fromValues(0.5, 0.5)));
+}
+
+export function getControlValues(previousValues = {}) {
+  const maybeUseDefault = (controlType, getDefault) => {
+    const previousValue = previousValues[controlType];
+    return previousValue !== null && previousValue !== undefined ?
+      previousValue : CONTROLS[controlType].defaultValue();
+  };
+
+  const controls = [
+    CONTROL_TYPES.EXCLUSIONS,
+    CONTROL_TYPES.GAME,
+    CONTROL_TYPES.NUM_TARGETS,
+    CONTROL_TYPES.QUALITY,
+    CONTROL_TYPES.SPEED,
+  ].reduce((acc, controlType) => ({
+    ...acc,
+    [controlType]: maybeUseDefault(controlType),
+  }), {});
+
+  const numPoints = CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(controls);
+
+  const game = Games[CONTROLS[CONTROL_TYPES.GAME].extractValueFrom(controls)];
+  game.additionalControls.forEach((controlType) => {
+    controls[controlType] = maybeUseDefault(controlType);
+  });
+
+  if (game.numTransforms) {
+    const numTransforms = game.numTransforms(controls);
+    controls[CONTROL_TYPES.TRANSFORMS] =
+      (previousValues[CONTROL_TYPES.TRANSFORMS] || []).slice(0, numTransforms);
+    while (controls[CONTROL_TYPES.TRANSFORMS].length < numTransforms) {
+      controls[CONTROL_TYPES.TRANSFORMS].push(CONTROLS[CONTROL_TYPES.TRANSFORMS].createTransform());
+    }
+  } else {
+    controls[CONTROL_TYPES.TRANSFORMS] = previousValues[CONTROL_TYPES.TRANSFORMS] ||
+      CONTROLS[CONTROL_TYPES.TRANSFORMS].defaultValue();
+  }
+
+  const numColors = !controls[CONTROL_TYPES.COLORING_MODE] ||
+    controls[CONTROL_TYPES.COLORING_MODE] === COLORING_MODES.BY_TRANSFORM ?
+    controls[CONTROL_TYPES.TRANSFORMS].length : numPoints;
 
   // Set up the color controls based on the previously set color options.
-  controls.colors = DEFAULT_CONTROLS.colors
-    .defaultValue(previousValues.colors, numColors);
+  controls[CONTROL_TYPES.COLORS] = CONTROLS[CONTROL_TYPES.COLORS]
+    .defaultValue(previousValues[CONTROL_TYPES.COLORS], numColors);
 
   return controls;
 }
 
 export function saveControlValues(controls) {
-  const game = Games[controls.gameIndex];
-
-  const serializedParams = Object.keys(controls).reduce((params, controlName) => {
-    const serializeFn =
-      (DEFAULT_CONTROLS[controlName] && DEFAULT_CONTROLS[controlName].serialize) ||
-      (game.controls[controlName] && game.controls[controlName].serialize);
-
+  const serializedParams = Object.keys(controls).reduce((params, controlType) => {
+    const serializeFn = CONTROLS[controlType] && CONTROLS[controlType].serialize;
     return serializeFn ? {
       ...params,
-      ...serializeFn(controls[controlName]),
+      ...serializeFn(controls[controlType]),
     } : params;
   }, {});
 
-  const paramsString = queryString.stringify(serializedParams, {arrayFormat: 'bracket'});
+  const paramsString = queryString.stringify(serializedParams);
   window.history.replaceState({}, document.title, `?${paramsString}`);
 }
 
 export function readSavedControlValues() {
-  const parsedParams = queryString.parse(window.location.search, {arrayFormat: 'bracket'});
+  const parsedParams = queryString.parse(window.location.search);
 
-  const iterateControls = controls => (
-    Object.keys(controls).reduce((result, control) => {
-      const serializedValue = parsedParams[controls[control].serializeTo];
-      return serializedValue ? {
-        ...result,
-        ...controls[control].deserialize(serializedValue),
-      } : result;
-    }, {})
-  );
-
-  let controls = iterateControls(DEFAULT_CONTROLS);
-
-  const game = Games[controls.gameIndex];
-  if (game) {
-    controls = Object.assign({}, controls, iterateControls(game.controls));
-  }
+  const controls = Object.keys(parsedParams).reduce((result, serializedControlType) => {
+    const controlType = SERIALIZATIONS_TO_CONTROL_TYPES[serializedControlType];
+    return CONTROLS[controlType] && CONTROLS[controlType].deserialize ? {
+      ...result,
+      ...CONTROLS[controlType].deserialize(parsedParams[serializedControlType]),
+    } : {};
+  }, {});
 
   return controls;
 }

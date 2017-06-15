@@ -1,9 +1,10 @@
 import { vec2 } from 'gl-matrix';
 import React, {Component} from 'react';
 
-import { createPolygon }  from '../../utils/games';
-import { COLOR_MODES, DEFAULT_CONTROLS } from '../../utils/options';
-import { getActualColor } from '../../utils/colors';
+import { getActualColor } from '../../utils/color-utils';
+import { createPolygon }  from '../../utils/control-utils';
+import { COLORING_MODES, CONTROL_TYPES, CONTROLS } from '../../constants/controls';
+import Games from '../../constants/games';
 import ColorPicker from './ColorPicker';
 import RadioControl from './RadioControl';
 
@@ -70,20 +71,22 @@ class TargetColorControl extends Component {
   }
 }
 
-export default ({colorModeIndex, colors, game, onChange}) => {
-  let colorModeControls;
-  if (game.controls.colorModeIndex) {
-    colorModeControls = (
-      <RadioControl
-        selectedValue={colorModeIndex}
-        options={game.controls.colorModeIndex.options}
-        onChange={index => onChange('colorModeIndex', index)}
-      />
-    );
-  }
+export default ({ controls, onChange }) => {
+  const game = Games[CONTROLS[CONTROL_TYPES.GAME].extractValueFrom(controls)];
+  const coloringMode = controls[CONTROL_TYPES.COLORING_MODE];
+  const colors = controls[CONTROL_TYPES.COLORS]
+
+  const hasColoringModeControls = game.additionalControls.includes(CONTROL_TYPES.COLORING_MODE);
+  const colorModeControls = hasColoringModeControls && (
+    <RadioControl
+      selectedValue={coloringMode}
+      options={CONTROLS[CONTROL_TYPES.COLORING_MODE].options}
+      onChange={index => onChange(CONTROL_TYPES.COLORING_MODE, index)}
+    />
+  );
 
   let colorControls;
-  if (!game.controls.colorModeIndex || colorModeIndex === COLOR_MODES.BY_TRANSFORM) {
+  if (!hasColoringModeControls || coloringMode === COLORING_MODES.BY_TRANSFORM) {
     colorControls = (
       <p className="color-controls__help">Adjust the color for each transform above.</p>
     );
@@ -107,7 +110,7 @@ export default ({colorModeIndex, colors, game, onChange}) => {
       <button
         className="btn btn--block-center"
         onClick={() => onChange('colors',
-          DEFAULT_CONTROLS.colors.defaultValue([], colors.length, true))}
+          CONTROLS[CONTROL_TYPES.COLORS].defaultValue([], colors.length, true))}
       >
         randomize colors
       </button>

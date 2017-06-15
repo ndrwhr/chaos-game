@@ -1,13 +1,14 @@
 import _ from 'lodash';
 import {vec2, mat2} from 'gl-matrix';
 
-import { getActualColor } from './colors';
+import { getActualColor } from '../utils/color-utils';
 import {
-  COLOR_MODES,
-  DEFAULT_CONTROLS,
-  OPTIONAL_CONTROL_FACTORY,
+  COLORING_MODES,
+  CONTROL_TYPES,
+  CONTROLS,
+  GAME_TYPES,
   TRANSFORM_PARAMS,
-} from './options';
+} from '../constants/controls';
 
 const memoize = fn => {
   const createNewMap = () => new Map();
@@ -33,15 +34,16 @@ const memoize = fn => {
   };
 };
 
-const generateExclusionTargetLookup = (points, exclusions) => {
+const generateExclusionTargetLookup = (targets, exclusions) => {
   const exclusionSet = new Set(exclusions);
-  return new Map(points.map((targetPoint, targetIndex) => {
-    const possibleValues = [
-      ...points.slice(targetIndex),
-      ...points.slice(0, targetIndex),
-    ].filter((point, index) => !exclusionSet.has(index));
 
-    return [targetPoint, possibleValues];
+  return new Map(targets.map((target, targetIndex) => {
+    const possibleValues = [
+      ...targets.slice(targetIndex),
+      ...targets.slice(0, targetIndex),
+    ].filter((nop, index) => !exclusionSet.has(index));
+
+    return [target, possibleValues];
   }));
 };
 
@@ -72,20 +74,20 @@ const createSharedTransformSelector = (transforms) => {
   return () => _.sample(transformPool);
 };
 
-const createColorSelector = ({points, transforms, colors, colorModeIndex = null} = {}) => {
+const createColorSelector = ({targets, transforms, colors, coloringMode = null} = {}) => {
   const actualColors = colors.map(getActualColor);
   let selector;
 
-  if (colorModeIndex === null || colorModeIndex === COLOR_MODES.BY_TRANSFORM){
+  if (coloringMode === null || coloringMode === COLORING_MODES.BY_TRANSFORM){
     const colorLookup = transforms.reduce((map, transform, index) => {
         map.set(transform, actualColors[index]);
         return map;
       }, new Map());
     selector = (point, transform) => colorLookup.get(transform);
-  } else if (colorModeIndex === COLOR_MODES.RANDOM){
+  } else if (coloringMode === COLORING_MODES.RANDOM){
     selector = () => _.sample(actualColors);
   } else {
-    const colorLookup = points.reduce((map, point, index) => {
+    const colorLookup = targets.reduce((map, point, index) => {
         map.set(point, actualColors[index]);
         return map;
       }, new Map());
@@ -95,7 +97,7 @@ const createColorSelector = ({points, transforms, colors, colorModeIndex = null}
   return selector;
 };
 
-const createAttractor = ({
+const attractorFactory = ({
       colorSelector,
       targetSelector,
       transforms,
@@ -154,43 +156,27 @@ const createAttractor = ({
   };
 };
 
-export function createPolygon(n, clockwise=true) {
-  if (n === 4){
-    const offset = 0.146446609;
-    return [
-      vec2.fromValues(offset, offset),
-      vec2.fromValues(1 - offset, offset),
-      vec2.fromValues(1 - offset, 1 - offset),
-      vec2.fromValues(offset, 1 - offset),
-    ];
-  }
+export default {
+  [GAME_TYPES.HISTORY_EXCLUSION]: {
+    description: 'Using the number of targets specified by the Target History control, choose the next target based the intersection of the exclusion rules. See the “Exclusions” control below for more details.',
 
-  const lerp = 2 * Math.PI / n;
-  return _.times(n, index => {
-    const angle = lerp * (index);
-    const vector = vec2.fromValues(0, -0.5);
-    const rotationMatrix = mat2.fromRotation(mat2.create(), angle);
+    additionalControls: [
+      CONTROL_TYPES.COLORING_MODE,
+      CONTROL_TYPES.HISTORY,
+    ],
 
-    return vec2.transformMat2(vec2.create(), vector, rotationMatrix);
-  }).map(point => vec2.add(vec2.create(), point, vec2.fromValues(0.5, 0.5)));
-}
+    createAttractor(targets, controls){
+      const {
+        [CONTROL_TYPES.COLORING_MODE]: coloringMode,
+        [CONTROL_TYPES.COLORS]: colors,
+        [CONTROL_TYPES.EXCLUSIONS]: exclusions,
+        [CONTROL_TYPES.TRANSFORMS]: transforms
+      } = controls;
 
-export default [
-  {
-    name: 'History Exclusion',
-
-    description: 'Using the number points specified by the Point History control, choose the next target based the intersection of the exclusion rules.',
-
-    controls: {
-      colorModeIndex: OPTIONAL_CONTROL_FACTORY.colorModeIndex(),
-      historyIndex: OPTIONAL_CONTROL_FACTORY.historyIndex(3),
-    },
-
-    createAttractor(points, {colorModeIndex, colors, exclusions, historyIndex, transforms}){
       const getIntersection = (a, b) => new Set([...a].filter(x => b.has(x)));
 
-      const historySize = this.controls.historyIndex.options[historyIndex];
-      const possibleTargetLookup = generateExclusionTargetLookup(points, exclusions);
+      const historySize = CONTROLS[CONTROL_TYPES.HISTORY].extractValueFrom(controls);
+      const possibleTargetLookup = generateExclusionTargetLookup(targets, exclusions);
 
       const getPossibleTargets = memoize((n, ...previousTargets) => {
         // If the previous target was undefined it means that there are no
@@ -198,11 +184,11 @@ export default [
         if (previousTargets.length && !previousTargets[0]) return [];
 
         return [
-          ...(previousTargets
+          ...(
+            previousTargets
               .map(target => new Set(possibleTargetLookup.get(target)))
-              .reduce((intersection, possibleTargets) => {
-                return getIntersection(intersection, possibleTargets);
-              }, new Set(points)))
+              .reduce(getIntersection, new Set(targets))
+          )
         ];
       });
 
@@ -215,25 +201,31 @@ export default [
 
       const transformSelector = createSharedTransformSelector(transforms);
 
-      return createAttractor({
-        colorSelector: createColorSelector({points, transforms, colors, colorModeIndex}),
+      return attractorFactory({
+        colorSelector: createColorSelector({ targets, transforms, colors, coloringMode }),
         targetSelector,
         transforms,
         transformSelector,
       });
     },
   },
-  {
-    name: 'History Exclusion II',
 
-    description: 'Similar to the “History Exclusion” variation, however the exclusion rules are only applied if the previously chosen two targets were the same.',
+  [GAME_TYPES.HISTORY_EXCLUSION_2]: {
+    description: 'Similar to the “History Exclusion” variation, however the exclusion rules are only applied if the previously chosen two targets were the same. See the “Exclusions” control below for more details.',
 
-    controls: {
-      colorModeIndex: OPTIONAL_CONTROL_FACTORY.colorModeIndex(),
-    },
+    additionalControls: [
+      CONTROL_TYPES.COLORING_MODE,
+    ],
 
-    createAttractor(points, {colorModeIndex, colors, exclusions, transforms}){
-      const possibleTargetLookup = generateExclusionTargetLookup(points, exclusions);
+    createAttractor(targets, controls){
+      const {
+        [CONTROL_TYPES.COLORING_MODE]: coloringMode,
+        [CONTROL_TYPES.COLORS]: colors,
+        [CONTROL_TYPES.EXCLUSIONS]: exclusions,
+        [CONTROL_TYPES.TRANSFORMS]: transforms
+      } = controls;
+
+      const possibleTargetLookup = generateExclusionTargetLookup(targets, exclusions);
 
       const targetSelector = createTargetSelectorWithHistory(2,
         (previousTargets) => {
@@ -245,43 +237,47 @@ export default [
 
           let possibleTargets = uniquePreviousTargets.size === 1 ?
             possibleTargetLookup.get(previousTargets[0]) :
-            points;
+            targets;
 
           return _.sample(possibleTargets);
         });
 
       const transformSelector = createSharedTransformSelector(transforms);
 
-      return createAttractor({
-        colorSelector: createColorSelector({points, transforms, colors, colorModeIndex}),
+      return attractorFactory({
+        colorSelector: createColorSelector({targets, transforms, colors, coloringMode}),
         targetSelector,
         transforms,
         transformSelector,
       });
-    }
+    },
   },
-  {
-    name: 'Target Transforms',
 
+  [GAME_TYPES.TARGET_TRANSFORMS]: {
     description: 'Instead of choosing a transformation randomly, associate a transform with each target.',
 
-    numTransforms: ({shapeIndex}) =>
-      DEFAULT_CONTROLS.shapeIndex.options[shapeIndex].value,
+    numTransforms: controls => CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(controls),
 
-    controls: {
-      historyIndex: OPTIONAL_CONTROL_FACTORY.historyIndex(3),
-    },
+    additionalControls: [
+      CONTROL_TYPES.HISTORY,
+    ],
 
-    createAttractor(points, {colors, exclusions, historyIndex, transforms}){
-      const transformMap = points.reduce((map, point, index) => {
+    createAttractor(targets, controls){
+      const {
+        [CONTROL_TYPES.COLORS]: colors,
+        [CONTROL_TYPES.EXCLUSIONS]: exclusions,
+        [CONTROL_TYPES.TRANSFORMS]: transforms
+      } = controls;
+
+      const transformMap = targets.reduce((map, point, index) => {
         map.set(point, transforms[index]);
         return map;
       }, new Map());
 
       const getIntersection = (a, b) => new Set([...a].filter(x => b.has(x)));
 
-      const historySize = this.controls.historyIndex.options[historyIndex];
-      const possibleTargetLookup = generateExclusionTargetLookup(points, exclusions);
+      const historySize = CONTROLS[CONTROL_TYPES.HISTORY].extractValueFrom(controls);
+      const possibleTargetLookup = generateExclusionTargetLookup(targets, exclusions);
 
       const getPossibleTargets = memoize((n, ...previousTargets) => {
         // If the previous target was undefined it means that there are no
@@ -293,7 +289,7 @@ export default [
               .map(target => new Set(possibleTargetLookup.get(target)))
               .reduce((intersection, possibleTargets) => {
                 return getIntersection(intersection, possibleTargets);
-              }, new Set(points)))
+              }, new Set(targets)))
         ];
       });
 
@@ -308,7 +304,7 @@ export default [
         return transformMap.get(target);
       };
 
-      return createAttractor({
+      return attractorFactory({
         colorSelector: createColorSelector({transforms, colors}),
         targetSelector,
         transforms,
@@ -316,4 +312,4 @@ export default [
       });
     },
   },
-];
+};
