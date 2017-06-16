@@ -50,7 +50,7 @@ export function getControlValues(previousValues = {}) {
     [controlType]: maybeUseDefault(controlType),
   }), {});
 
-  const numPoints = CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(controls);
+  const numTargets = CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(controls);
 
   const game = Games[CONTROLS[CONTROL_TYPES.GAME].extractValueFrom(controls)];
   game.additionalControls.forEach((controlType) => {
@@ -69,9 +69,15 @@ export function getControlValues(previousValues = {}) {
       CONTROLS[CONTROL_TYPES.TRANSFORMS].defaultValue();
   }
 
-  const numColors = !controls[CONTROL_TYPES.COLORING_MODE] ||
-    controls[CONTROL_TYPES.COLORING_MODE] === COLORING_MODES.BY_TRANSFORM ?
-    controls[CONTROL_TYPES.TRANSFORMS].length : numPoints;
+  let numColors;
+  if (!controls[CONTROL_TYPES.COLORING_MODE] ||
+      controls[CONTROL_TYPES.COLORING_MODE] === COLORING_MODES.BY_TRANSFORM) {
+    numColors = controls[CONTROL_TYPES.TRANSFORMS].length;
+  } else if (controls[CONTROL_TYPES.COLORING_MODE] === COLORING_MODES.BY_TARGET) {
+    numColors = numTargets;
+  } else {
+    numColors = CONTROLS[CONTROL_TYPES.COLORING_MODE].gradientOptions.numColors;
+  }
 
   // Set up the color controls based on the previously set color options.
   controls[CONTROL_TYPES.COLORS] = CONTROLS[CONTROL_TYPES.COLORS]

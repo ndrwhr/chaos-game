@@ -6,7 +6,7 @@ import { getActualColor, getNextColor } from '../utils/color-utils';
 export const COLORING_MODES = {
   BY_TRANSFORM: 0,
   BY_TARGET: 1,
-  RANDOM: 2,
+  GRADIENT: 2,
 };
 
 export const BACKGROUND_TYPES = {
@@ -144,9 +144,17 @@ export const CONTROLS = {
         name: 'Color via targets',
         value: COLORING_MODES.BY_TARGET,
       },
+      {
+        name: '4 Corner Gradient',
+        value: COLORING_MODES.GRADIENT,
+      },
     ]),
   )({
     type: CONTROL_TYPES.COLORING_MODE,
+
+    gradientOptions: {
+      numColors: 4,
+    },
 
     defaultValue: () => 1,
   }),

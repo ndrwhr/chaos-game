@@ -1,7 +1,7 @@
-import _ from 'lodash';
+import convert from 'color-convert';
 import {vec2, mat2} from 'gl-matrix';
+import _ from 'lodash';
 
-import { getActualColor } from '../utils/color-utils';
 import {
   COLORING_MODES,
   CONTROL_TYPES,
@@ -9,6 +9,7 @@ import {
   GAME_TYPES,
   TRANSFORM_PARAMS,
 } from '../constants/controls';
+import { getActualColor } from '../utils/color-utils';
 
 const memoize = fn => {
   const createNewMap = () => new Map();
@@ -83,15 +84,37 @@ const createColorSelector = ({targets, transforms, colors, coloringMode = null} 
         map.set(transform, actualColors[index]);
         return map;
       }, new Map());
-    selector = (point, transform) => colorLookup.get(transform);
-  } else if (coloringMode === COLORING_MODES.RANDOM){
-    selector = () => _.sample(actualColors);
+    selector = (target, transform) => colorLookup.get(transform);
+  } else if (coloringMode === COLORING_MODES.GRADIENT){
+    const parsedColors = colors.map(color => convert.hex.rgb(getActualColor(color)));
+    const componentMatrixes = _.times(3, componentIndex => mat2.fromValues(
+      parsedColors[0][componentIndex],
+      parsedColors[3][componentIndex],
+      parsedColors[1][componentIndex],
+      parsedColors[2][componentIndex],
+    ));
+
+    const interpolate = ([x, y], componentIndex) => {
+      const clampedX = _.clamp(x, 0, 1);
+      const clampedY = _.clamp(y, 0, 1);
+      const xInterp = vec2.transformMat2(
+        vec2.create(),
+        vec2.fromValues(1 - clampedX, clampedX),
+        componentMatrixes[componentIndex],
+      );
+      return vec2.dot(xInterp, vec2.fromValues(1 - clampedY, clampedY));
+    };
+
+    selector = (target, transform, point) => {
+      const components = _.times(3, componentIndex => interpolate(point, componentIndex));
+      return `#${convert.rgb.hex(components)}`;
+    };
   } else {
-    const colorLookup = targets.reduce((map, point, index) => {
-        map.set(point, actualColors[index]);
+    const colorLookup = targets.reduce((map, target, index) => {
+        map.set(target, actualColors[index]);
         return map;
       }, new Map());
-    selector = point => colorLookup.get(point);
+    selector = target => colorLookup.get(target);
   }
 
   return selector;
@@ -137,10 +160,11 @@ const attractorFactory = ({
 
     const transform = transformSelector(target);
     const transformMatrix = transformMatrixLookup.get(transform);
-    const color = colorSelector(target, transform);
+    const point = moveCurrentPoint(target, transformMatrix);
+    const color = colorSelector(target, transform, point);
 
     return {
-      point: moveCurrentPoint(target, transformMatrix),
+      point,
       color,
     };
   };
