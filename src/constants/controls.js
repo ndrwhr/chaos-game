@@ -133,20 +133,24 @@ export const CONTROLS = {
 
     defaultValue: () => 0,
   }),
+
   [CONTROL_TYPES.COLORING_MODE]: composeControl(
     withIntSerializer(),
     withOptions([
       {
         name: 'Color via transforms',
         value: COLORING_MODES.BY_TRANSFORM,
+        description: 'Adjust the color for each transform above.',
       },
       {
         name: 'Color via targets',
         value: COLORING_MODES.BY_TARGET,
+        description: 'Use the controls above to change the color assigned to each target.',
       },
       {
         name: '4 Corner Gradient',
         value: COLORING_MODES.GRADIENT,
+        description: 'Use the controls above to change the color of each corner of the gradient.',
       },
     ]),
   )({

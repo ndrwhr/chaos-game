@@ -21,9 +21,15 @@ const Control = ({title, description, children}) => (
   <div className="controls__control">
     <h3 className="controls__control-title">
       {title}
+      {description && (
+        <div className="controls__control-help">
+          <div className="controls__control-help-icon" />
+          <div className="controls__control-help-text">
+            {description}
+          </div>
+        </div>
+      )}
     </h3>
-    {description &&
-      <p className="controls__control-description">{description}</p>}
     <div className="controls__control-children">
       {children}
     </div>
@@ -60,9 +66,7 @@ const Controls = ({ controls, fixedNumTransforms, onChange }) => {
         <p className="controls__description">{game.description}</p>
       </Control>
 
-      {historyControls}
-
-      <Control title="Number of Points">
+      <Control title="Number of Targets">
         <RadioControl
           buttonStyle={true}
           selectedValue={controls[CONTROL_TYPES.NUM_TARGETS]}
@@ -70,6 +74,8 @@ const Controls = ({ controls, fixedNumTransforms, onChange }) => {
           onChange={index => onChange(CONTROL_TYPES.NUM_TARGETS, index)}
         />
       </Control>
+
+      {historyControls}
 
       <Control
         title="Exclusions"
@@ -112,7 +118,6 @@ const Controls = ({ controls, fixedNumTransforms, onChange }) => {
 
       <Control
         title="Rendering Quality"
-        description="Adjusts the size of the point drawn on every iteration."
       >
         <RadioControl
           buttonStyle
@@ -124,7 +129,6 @@ const Controls = ({ controls, fixedNumTransforms, onChange }) => {
 
       <Control
         title="Rendering Speed"
-        description="Adjusts the number of points drawn. Faster speeds require more CPU usage."
       >
         <RadioControl
           buttonStyle

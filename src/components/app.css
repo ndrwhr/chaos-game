@@ -95,6 +95,7 @@
   transition:
     200ms background,
     200ms border;
+  user-select: none;
 }
 
 .app--dark .btn {
