@@ -1,11 +1,12 @@
 
 .color-controls__help {
   font-size: 13px;
-  margin-bottom: 10px;
+  width: 75%;
+  margin: 0 auto 20px;
 }
 
 .color-controls__target-control {
   position: relative;
   width: 50%;
-  margin: 10px auto;
+  margin: 20px auto 0 ;
 }

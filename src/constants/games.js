@@ -185,7 +185,6 @@ export default {
     description: 'Using the number of targets specified by the Target History control, choose the next target based the intersection of the exclusion rules. See the “Exclusions” control below for more details.',
 
     additionalControls: [
-      CONTROL_TYPES.COLORING_MODE,
       CONTROL_TYPES.HISTORY,
     ],
 
@@ -226,7 +225,12 @@ export default {
       const transformSelector = createSharedTransformSelector(transforms);
 
       return attractorFactory({
-        colorSelector: createColorSelector({ targets, transforms, colors, coloringMode }),
+        colorSelector: createColorSelector({
+          coloringMode,
+          colors,
+          targets,
+          transforms,
+        }),
         targetSelector,
         transforms,
         transformSelector,
@@ -237,9 +241,7 @@ export default {
   [GAME_TYPES.HISTORY_EXCLUSION_2]: {
     description: 'Similar to the “History Exclusion” variation, however the exclusion rules are only applied if the previously chosen two targets were the same. See the “Exclusions” control below for more details.',
 
-    additionalControls: [
-      CONTROL_TYPES.COLORING_MODE,
-    ],
+    additionalControls: [],
 
     createAttractor(targets, controls){
       const {
@@ -269,7 +271,12 @@ export default {
       const transformSelector = createSharedTransformSelector(transforms);
 
       return attractorFactory({
-        colorSelector: createColorSelector({targets, transforms, colors, coloringMode}),
+        colorSelector: createColorSelector({
+          coloringMode,
+          colors,
+          targets,
+          transforms,
+        }),
         targetSelector,
         transforms,
         transformSelector,
@@ -282,15 +289,18 @@ export default {
 
     numTransforms: controls => CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(controls),
 
+    disableTargetColoringMode: true,
+
     additionalControls: [
       CONTROL_TYPES.HISTORY,
     ],
 
     createAttractor(targets, controls){
       const {
+        [CONTROL_TYPES.COLORING_MODE]: coloringMode,
         [CONTROL_TYPES.COLORS]: colors,
         [CONTROL_TYPES.EXCLUSIONS]: exclusions,
-        [CONTROL_TYPES.TRANSFORMS]: transforms
+        [CONTROL_TYPES.TRANSFORMS]: transforms,
       } = controls;
 
       const transformMap = targets.reduce((map, point, index) => {
@@ -309,11 +319,13 @@ export default {
         if (previousTargets.length && !previousTargets[0]) return [];
 
         return [
-          ...(previousTargets
+          ...(
+            previousTargets
               .map(target => new Set(possibleTargetLookup.get(target)))
               .reduce((intersection, possibleTargets) => {
                 return getIntersection(intersection, possibleTargets);
-              }, new Set(targets)))
+              }, new Set(targets))
+          ),
         ];
       });
 
@@ -329,7 +341,12 @@ export default {
       };
 
       return attractorFactory({
-        colorSelector: createColorSelector({transforms, colors}),
+        colorSelector: createColorSelector({
+          targets,
+          transforms,
+          colors,
+          coloringMode,
+        }),
         targetSelector,
         transforms,
         transformSelector,

@@ -74,39 +74,33 @@ class TargetColorControl extends Component {
 export default ({ controls, onChange }) => {
   const game = Games[CONTROLS[CONTROL_TYPES.GAME].extractValueFrom(controls)];
   const coloringMode = controls[CONTROL_TYPES.COLORING_MODE];
-  const colors = controls[CONTROL_TYPES.COLORS]
-
-  const hasColoringModeControls = game.additionalControls.includes(CONTROL_TYPES.COLORING_MODE);
-  const colorModeControls = hasColoringModeControls && (
-    <RadioControl
-      selectedValue={coloringMode}
-      options={CONTROLS[CONTROL_TYPES.COLORING_MODE].options}
-      onChange={index => onChange(CONTROL_TYPES.COLORING_MODE, index)}
-    />
-  );
-
-  let colorControls;
-  if (!hasColoringModeControls || coloringMode === COLORING_MODES.BY_TRANSFORM) {
-    colorControls = (
-      <p className="color-controls__help">Adjust the color for each transform above.</p>
-    );
-  } else {
-    colorControls = (
-      <TargetColorControl
-        colors={colors}
-        onChange={(index, newColor) => {
-          const updatedColors = [...colors];
-          updatedColors[index] = newColor;
-          onChange('colors', updatedColors);
-        }}
-      />
-    );
-  }
+  const colors = controls[CONTROL_TYPES.COLORS];
+  const selectedOption = CONTROLS[CONTROL_TYPES.COLORING_MODE].options.find(option =>
+    option.value === coloringMode);
+  const modeOptions = CONTROLS[CONTROL_TYPES.COLORING_MODE].options
+    .filter(option => !game.disableTargetColoringMode || option.value !== COLORING_MODES.BY_TARGET);
 
   return (
     <div className="color-controls">
-      {colorModeControls}
-      {colorControls}
+      <RadioControl
+        selectedValue={coloringMode}
+        options={modeOptions}
+        onChange={index => onChange(CONTROL_TYPES.COLORING_MODE, index)}
+      />
+
+      {coloringMode !== COLORING_MODES.BY_TRANSFORM && (
+        <TargetColorControl
+          colors={colors}
+          onChange={(index, newColor) => {
+            const updatedColors = [...colors];
+            updatedColors[index] = newColor;
+            onChange('colors', updatedColors);
+          }}
+        />
+      )}
+
+      <p className="color-controls__help">{selectedOption.description}</p>
+
       <button
         className="btn btn--block-center"
         onClick={() => onChange('colors',

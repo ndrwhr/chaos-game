@@ -156,7 +156,7 @@ export const CONTROLS = {
       numColors: 4,
     },
 
-    defaultValue: () => 1,
+    defaultValue: () => 0,
   }),
 
   [CONTROL_TYPES.COLORS]: composeControl(

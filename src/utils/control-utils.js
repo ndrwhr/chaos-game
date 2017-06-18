@@ -40,6 +40,7 @@ export function getControlValues(previousValues = {}) {
 
   const controls = [
     CONTROL_TYPES.BACKGROUND,
+    CONTROL_TYPES.COLORING_MODE,
     CONTROL_TYPES.EXCLUSIONS,
     CONTROL_TYPES.GAME,
     CONTROL_TYPES.NUM_TARGETS,
@@ -69,9 +70,13 @@ export function getControlValues(previousValues = {}) {
       CONTROLS[CONTROL_TYPES.TRANSFORMS].defaultValue();
   }
 
+  if (game.disableTargetColoringMode &&
+      controls[CONTROL_TYPES.COLORING_MODE] === COLORING_MODES.BY_TARGET) {
+    controls[CONTROL_TYPES.COLORING_MODE] = COLORING_MODES.BY_TRANSFORM;
+  }
+
   let numColors;
-  if (!controls[CONTROL_TYPES.COLORING_MODE] ||
-      controls[CONTROL_TYPES.COLORING_MODE] === COLORING_MODES.BY_TRANSFORM) {
+  if (controls[CONTROL_TYPES.COLORING_MODE] === COLORING_MODES.BY_TRANSFORM) {
     numColors = controls[CONTROL_TYPES.TRANSFORMS].length;
   } else if (controls[CONTROL_TYPES.COLORING_MODE] === COLORING_MODES.BY_TARGET) {
     numColors = numTargets;
