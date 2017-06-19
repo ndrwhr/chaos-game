@@ -23,7 +23,7 @@ const getTargets = (controls) => (
 const getDelayPromise = time => new Promise(resolve => setTimeout(resolve, time));
 
 class App extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
 
     const controls = getControlValues(readSavedControlValues());

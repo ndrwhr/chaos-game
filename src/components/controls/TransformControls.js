@@ -32,7 +32,7 @@ const RangeControl = props => (
 );
 
 class TransformControl extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
 
     this.state = {

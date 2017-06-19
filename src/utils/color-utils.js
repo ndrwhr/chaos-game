@@ -4,7 +4,7 @@ import { COLOR_INDEXES, COLORS, LIGHT_COLORS_SET } from '../constants/colors';
 
 const ROW_SIZE = COLORS[0].length;
 
-function indexToRowCol(index){
+function indexToRowCol(index) {
   return [Math.floor(index / ROW_SIZE), index % ROW_SIZE];
 }
 

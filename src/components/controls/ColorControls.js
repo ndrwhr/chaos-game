@@ -11,7 +11,7 @@ import RadioControl from './RadioControl';
 import './color-controls.css';
 
 class TargetColorControl extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
 
     this.state = {

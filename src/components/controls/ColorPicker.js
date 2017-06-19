@@ -8,7 +8,7 @@ import { getActualColor, isLightColor } from '../../utils/color-utils';
 import './color-picker.css';
 
 export default class ColorPicker extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
     this.onBodyClick = this.onBodyClick.bind(this);
   }
@@ -97,7 +97,7 @@ export default class ColorPicker extends Component {
     );
   }
 
-  onBodyClick(evt){
+  onBodyClick(evt) {
     if (!evt.target.matches('.color-picker, .color-picker *') && this.props.open){
       this.props.onClose();
     }
