@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import React, {Component} from 'react';
+import React, { Component } from 'react';
+import { CSSTransitionGroup } from 'react-transition-group';
 
 import Canvas from './Canvas';
 import Controls from './controls/Controls';
@@ -11,12 +12,15 @@ import {
   readSavedControlValues,
   saveControlValues,
 } from '../utils/control-utils';
+import { isTouchDevice } from '../utils/browser-utils';
 
 import './app.css';
 
 const getTargets = (controls) => (
   createPolygon(CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(controls))
 );
+
+const getDelayPromise = time => new Promise(resolve => setTimeout(resolve, time));
 
 class App extends Component {
   constructor(props){
@@ -34,7 +38,9 @@ class App extends Component {
       attractor,
       canvasSize: 0,
       controls,
+      downloadUrl: null,
       isRunning: false,
+      isGeneratingDownloadLink: false,
       targets,
     };
 
@@ -76,6 +82,12 @@ class App extends Component {
 
           <div className="app__meta-controls">
             <button
+              className="app__meta-control app__meta-control--download"
+              onClick={() => this.onDownloadButtonClick()}
+              download="chaos-game.jpeg"
+              title="Download"
+            />
+            <button
               className={classNames('app__meta-control', {
                 'app__meta-control--pause': this.state.isRunning,
                 'app__meta-control--play': !this.state.isRunning,
@@ -83,15 +95,37 @@ class App extends Component {
               onClick={() => this.setState({ isRunning: !this.state.isRunning })}
               title={this.state.isRunning ? 'Pause' : 'Play'}
             />
-            <a
-              className="app__meta-control app__meta-control--download"
-              onClick={(evt) => (evt.target.href = this.canvas.toDataURL())}
-              download="chaos-game.png"
-              title="Download"
-            >
-              download
-            </a>
           </div>
+
+          <CSSTransitionGroup
+            transitionName={{
+              leave: 'app__download-mask--leave',
+              leaveActive: 'app__download-mask--leave-active',
+              enter: 'app__download-mask--enter',
+              enterActive: 'app__download-mask--enter-active',
+            }}
+            transitionEnterTimeout={200}
+            transitionLeaveTimeout={200}
+          >
+            {(this.state.isGeneratingDownloadLink || this.state.downloadUrl) && (
+              <div
+                className="app__download-mask"
+                onClick={() => this.state.downloadUrl && this.onDownloadLinkClick()}
+              >
+                {this.state.isGeneratingDownloadLink ? (
+                  <div className="app__download-progress">generating download link...</div>
+                ) : (
+                  <a
+                    className="btn btn--large"
+                    download="chaos-game.png"
+                    href={this.state.downloadUrl}
+                  >
+                    {isTouchDevice() ? 'tap' : 'click'} here to download
+                  </a>
+                )}
+              </div>
+            )}
+          </CSSTransitionGroup>
         </div>
         <div className="app__controls">
           <Controls
@@ -112,6 +146,7 @@ class App extends Component {
 
       this.setState({
         controls,
+        downloadUrl: null,
         isRunning: true,
       });
     } else {
@@ -130,13 +165,37 @@ class App extends Component {
       this.setState({
         attractor,
         controls,
-        targets,
+        downloadUrl: null,
         isRunning: true,
+        targets,
       }, () => {
         // Clear the canvas once we know it's properties have been updated.
         this.canvas.clear();
       });
     }
+  }
+
+  onDownloadButtonClick(){
+    this.setState({
+      isRunning: false,
+      isGeneratingDownloadLink: true,
+    }, () => {
+      Promise.all([
+        this.canvas.toBlob(),
+        getDelayPromise(2 * 1000),
+      ]).then(([blob]) => {
+        this.setState({
+          downloadUrl: window.URL.createObjectURL(blob),
+          isGeneratingDownloadLink: false,
+        });
+      });
+    });
+  }
+
+  onDownloadLinkClick(){
+    this.setState({
+      downloadUrl: null,
+    });
   }
 
   onResize(){

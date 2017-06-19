@@ -27,7 +27,7 @@
 .app__meta-controls {
   position: absolute;
   top: 0;
-  left: 0;
+  right: 0;
   display: flex;
   padding: 10px;
 }
@@ -37,16 +37,16 @@
   justify-content: center;
   align-items: center;
   font-size: 0;
-  opacity: 0.6;
+  opacity: 0.8;
   background: none;
   outline: none;
   border: none;
   cursor: pointer;
-  margin: 0px;
+  transition: opacity 100ms;
 }
 
 .app__meta-control:hover {
-  opacity: 0.9;
+  opacity: 1;
 }
 
 .app__meta-control::after {
@@ -81,6 +81,73 @@
   background-image: url('./img/pause-white.svg');
 }
 
+.app__download-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--color-white-a95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+}
+
+.app--dark .app__download-mask {
+  background: var(--color-black-a95);
+}
+
+.app__download-mask--leave {
+  opacity: 1;
+}
+
+.app__download-mask--leave-active {
+  opacity: 0.01;
+  transition: opacity 200ms ease-out;
+}
+
+.app__download-mask--enter {
+  opacity: 0.01;
+}
+
+.app__download-mask--enter-active {
+  opacity: 1;
+  transition: opacity 200ms ease-out;
+}
+
+.app__download-progress {
+  position: relative;
+  letter-spacing: 0.3em;
+  font-weight: 300;
+  padding: 10px;
+}
+
+.app__download-progress::after {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--color-black);
+  content: '';
+  transform: scaleX(0);
+  animation: download-progress-bar 1s forwards;
+}
+
+.app--dark .app__download-progress::after {
+  background: var(--color-white);
+}
+
+@keyframes download-progress-bar {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
 .btn {
   font-family: inherit;
   color: inherit;
@@ -96,6 +163,7 @@
     200ms background,
     200ms border;
   user-select: none;
+  text-decoration: none;
 }
 
 .app--dark .btn {
@@ -129,4 +197,9 @@
 .btn--block-center {
   display: block;
   margin: 0 auto;
+}
+
+.btn--large {
+  font-size: 15px;
+  font-weight: 300;
 }

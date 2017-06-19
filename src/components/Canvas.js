@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 
 import { BACKGROUND_COLORS } from '../constants/controls';
+import '../utils/canvas-to-blob-polyfill';
 
 import './canvas.css';
 
@@ -8,33 +9,31 @@ class Canvas extends Component {
   componentDidMount() {
     this._context = this._canvas.getContext('2d');
 
-    this.resizeCanvas(this.props.size);
+    this.resizeCanvas();
 
     this.start();
   }
 
-  componentWillUpdate(nextProps){
-    if (nextProps.size !== this.props.size){
-      this.resizeCanvas(nextProps.size);
-    }
-  }
-
   componentDidUpdate(prevProps) {
-    if (this.props.isRunning === true && !prevProps.isRunning){
+    if (prevProps.size !== this.props.size) {
+      this.resizeCanvas();
+    }
+
+    if (this.props.isRunning === true && !prevProps.isRunning) {
       this.start();
     }
   }
 
-  clear(){
+  clear() {
     this._context.fillStyle = BACKGROUND_COLORS[this.props.background];
     this._context.fillRect(0, 0, this.props.size, this.props.size);
   }
 
-  resizeCanvas(newSize){
-    this._canvas.width = newSize * 2;
-    this._canvas.height = newSize * 2;
-    this._canvas.style.width = `${newSize}px`;
-    this._canvas.style.height = `${newSize}px`;
+  resizeCanvas() {
+    this._canvas.width = this.props.size * 2;
+    this._canvas.height = this.props.size * 2;
+    this._canvas.style.width = `${this.props.size}px`;
+    this._canvas.style.height = `${this.props.size}px`;
     this._context.scale(2, 2);
     this.clear();
   }
@@ -45,8 +44,12 @@ class Canvas extends Component {
     );
   }
 
-  toDataURL(){
-    return this._canvas.toDataURL();
+  toBlob(){
+    return new Promise(resolve => {
+      this._canvas.toBlob((blob) => {
+        resolve(blob);
+      });
+    });
   }
 
   start(){

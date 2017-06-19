@@ -11,7 +11,8 @@
     "pluralize": "^5.0.0",
     "query-string": "^4.3.4",
     "react": "^15.5.4",
-    "react-dom": "^15.5.4"
+    "react-dom": "^15.5.4",
+    "react-transition-group": "^1.2.0"
   },
   "devDependencies": {
     "react-scripts": "0.9.5"
