@@ -58,7 +58,6 @@ class App extends Component {
     const background = CONTROLS[CONTROL_TYPES.BACKGROUND].extractValueFrom(this.state.controls);
     const game = Games[CONTROLS[CONTROL_TYPES.GAME].extractValueFrom(this.state.controls)];
     const quality = CONTROLS[CONTROL_TYPES.QUALITY].extractValueFrom(this.state.controls);
-    const speed = CONTROLS[CONTROL_TYPES.SPEED].extractValueFrom(this.state.controls);
 
     return (
       <div
@@ -77,7 +76,6 @@ class App extends Component {
               quality={quality}
               ref={canvas => {this.canvas = canvas;}}
               size={this.state.canvasSize}
-              speed={speed}
           />
 
           <div className="app__meta-controls">

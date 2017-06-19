@@ -1,9 +1,12 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 
 import { BACKGROUND_COLORS } from '../constants/controls';
 import '../utils/canvas-to-blob-polyfill';
 
 import './canvas.css';
+
+const CANVAS_SCALE = 2;
+const DRAWING_SCALE = 0.8;
 
 class Canvas extends Component {
   componentDidMount() {
@@ -26,15 +29,26 @@ class Canvas extends Component {
 
   clear() {
     this._context.fillStyle = BACKGROUND_COLORS[this.props.background];
-    this._context.fillRect(0, 0, this.props.size, this.props.size);
+
+    const size = this.props.size * CANVAS_SCALE;
+
+    this._context.fillRect(
+      -size,
+      -size,
+      size * 3,
+      size * 3,
+    );
   }
 
   resizeCanvas() {
-    this._canvas.width = this.props.size * 2;
-    this._canvas.height = this.props.size * 2;
+    this._canvas.width = this.props.size * CANVAS_SCALE;
+    this._canvas.height = this.props.size * CANVAS_SCALE;
     this._canvas.style.width = `${this.props.size}px`;
     this._canvas.style.height = `${this.props.size}px`;
-    this._context.scale(2, 2);
+
+    const offset = this.props.size * CANVAS_SCALE * (1 - DRAWING_SCALE) / 2;
+    this._context.setTransform(DRAWING_SCALE, 0, 0, DRAWING_SCALE, offset, offset);
+
     this.clear();
   }
 
@@ -57,7 +71,7 @@ class Canvas extends Component {
     const update = () => {
       // Draw as many points as possible in 50 milliseconds.
       const start = performance.now();
-      while (performance.now() - start < this.props.speed){
+      while (performance.now() - start < 40){
         this.draw();
       }
 
@@ -72,15 +86,12 @@ class Canvas extends Component {
     const {color, point} = this.props.attractor.getNextPoint();
     if (!point) return;
 
-    const scale = 0.8;
-    const offset = (1 - scale) / 2;
-
     const [x, y] = point;
     const pointSize = this.props.quality;
     this._context.fillStyle = color;
     this._context.fillRect(
-      ((x * scale) + offset) * this.props.size,
-      ((y * scale) + offset) * this.props.size,
+      x * this.props.size * CANVAS_SCALE,
+      y * this.props.size * CANVAS_SCALE,
       pointSize,
       pointSize
     );

@@ -45,7 +45,6 @@ export function getControlValues(previousValues = {}) {
     CONTROL_TYPES.GAME,
     CONTROL_TYPES.NUM_TARGETS,
     CONTROL_TYPES.QUALITY,
-    CONTROL_TYPES.SPEED,
   ].reduce((acc, controlType) => ({
     ...acc,
     [controlType]: maybeUseDefault(controlType),

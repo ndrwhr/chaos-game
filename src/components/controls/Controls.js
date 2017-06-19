@@ -126,17 +126,6 @@ const Controls = ({ controls, fixedNumTransforms, onChange }) => {
           onChange={index => onChange(CONTROL_TYPES.QUALITY, index)}
         />
       </Control>
-
-      <Control
-        title="Rendering Speed"
-      >
-        <RadioControl
-          buttonStyle
-          selectedValue={controls[CONTROL_TYPES.SPEED]}
-          options={mapControlOptionsToRadioOptions(CONTROLS[CONTROL_TYPES.SPEED])}
-          onChange={index => onChange(CONTROL_TYPES.SPEED, index)}
-        />
-      </Control>
     </div>
   );
 };

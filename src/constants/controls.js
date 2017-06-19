@@ -34,7 +34,6 @@ export const CONTROL_TYPES = {
   HISTORY: 'historySize',
   NUM_TARGETS: 'numTargets',
   QUALITY: 'quality',
-  SPEED: 'speed',
   TRANSFORMS: 'transforms',
 };
 
@@ -263,27 +262,6 @@ export const CONTROLS = {
     type: CONTROL_TYPES.NUM_TARGETS,
 
     defaultValue: () => 2,
-  }),
-
-  [CONTROL_TYPES.SPEED]: composeControl(
-    withOptions([
-      {
-        name: 'Slow',
-        value: 5,
-      },
-      {
-        name: 'Medium',
-        value: 20,
-      },
-      {
-        name: 'Fast',
-        value: 40,
-      },
-    ]),
-  )({
-    type: CONTROL_TYPES.SPEED,
-
-    defaultValue: () => 0,
   }),
 
   [CONTROL_TYPES.TRANSFORMS]: composeControl(
