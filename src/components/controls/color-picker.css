@@ -17,15 +17,12 @@
   box-shadow: 0 1px 35px 0 rgba(0, 0, 0, 0.3);
   opacity: 0;
   pointer-events: none;
-  transition:
-    opacity 200ms,
-    transform 200ms;
-  transform: translate(-50%, -50%) scale(0.9);
+  transition: opacity 200ms;
+  transform: translate(-50%, -50%);
   z-index: 1;
 }
 
 .color-picker--open {
-  transform: translate(-50%, -50%) scale(1);
   opacity: 1;
   pointer-events: auto;
 }

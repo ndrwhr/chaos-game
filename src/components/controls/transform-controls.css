@@ -72,22 +72,53 @@
   background-image: url('./img/trash-white.svg');
 }
 
+.transform-controls__transform-button--reset::after {
+  background-image: url('./img/reset-black.svg');
+}
+
+.app--dark .transform-controls__transform-button--reset::after {
+  background-image: url('./img/reset-white.svg');
+}
+
 .transform-control__range {
   display: flex;
 }
 
 .transform-controls__transform-color {
   height: 22px;
-  width: 120px;
-  border-radius: 3px;
+  width: 22px;
   margin-left: 15px;
-  text-align: center;
-  font-size: 13px;
-  line-height: 22px;
-  color: white;
   cursor: pointer;
+  border: none;
+  outline: none;
+  border-radius: 3px;
 }
 
-.transform-controls__transform-color--light {
-  color: black;
+.transform-controls__transform-range {
+  margin-bottom: 10px;
+}
+
+.transform-controls__icon {
+  fill: var(--color-black);
+}
+
+.app--dark .transform-controls__icon {
+  fill: var(--color-white);
+}
+
+.transform-controls__icon-line {
+  stroke: var(--color-black);
+  stroke-width: 5;
+}
+
+.app--dark .transform-controls__icon-line {
+  stroke: var(--color-white);
+}
+
+.transform-controls__icon-line--light {
+  stroke: var(--color-black-a20);
+}
+
+.app--dark .transform-controls__icon-line--light {
+  stroke: var(--color-white-a50);
 }

@@ -1,0 +1,45 @@
+@import '../../variables.css';
+
+.range {
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+
+.range__slider-container {
+  flex: 1;
+  position: relative;
+  height: 25px;
+  width: 100%;
+  border: 1px solid var(--color-black);
+  cursor: col-resize;
+}
+
+.app--dark .range__slider-container {
+  border-color: var(--color-white);
+}
+
+.range__slider-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: var(--color-black);
+  pointer-events: none;
+  transition:
+    background-color 500ms,
+    transform 200ms;
+  transform: scaleX(0);
+  transform-origin: top left;
+}
+
+.app--dark .range__slider-bar {
+  background: var(--color-white);
+}
+
+.range__icon {
+  height: 25px;
+  width: 25px;
+  margin-right: 10px;
+}

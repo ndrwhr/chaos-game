@@ -37,8 +37,7 @@ const getExclusionHelp = (exclusionsSet, historySize) => {
 
 export default ({ controls, onChange }) => {
   const exclusions = controls[CONTROL_TYPES.EXCLUSIONS];
-  const historySize = controls[CONTROL_TYPES.HISTORY] &&
-    CONTROLS[CONTROL_TYPES.HISTORY].extractValueFrom(controls);
+  const historySize = CONTROLS[CONTROL_TYPES.HISTORY].extractValueFrom(controls);
   const numTargets = CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(controls);
 
   const exclusionsSet = new Set(exclusions);

@@ -132,7 +132,7 @@
   background: var(--color-black);
   content: '';
   transform: scaleX(0);
-  animation: download-progress-bar 1s forwards;
+  animation: download-progress-bar 1.75s forwards;
 }
 
 .app--dark .app__download-progress::after {

@@ -62,7 +62,7 @@ export const SERIALIZATIONS_TO_CONTROL_TYPES = Object.keys(CONTROL_TYPES_SERIALI
     [CONTROL_TYPES_SERIALIZATIONS[key]]: key,
   }), {});
 
-const createTransform = () => ({
+export const createTransform = () => ({
   [TRANSFORM_PARAMS.SCALE]: 0.5,
   [TRANSFORM_PARAMS.ROTATION]: 0,
   [TRANSFORM_PARAMS.PROBABILITY]: 0.5,
@@ -111,7 +111,10 @@ const withOptions = options => params => ({
 
   options,
 
-  extractValueFrom: controls => options[controls[params.type]].value,
+  extractValueFrom: controls => {
+    const index = controls[params.type];
+    return (index !== null && index !== undefined) ? options[index].value : null;
+  },
 });
 
 export const CONTROLS = {
@@ -231,19 +234,19 @@ export const CONTROLS = {
     withOptions([
       {
         name: 'Rough',
-        value: 1,
+        value: 4,
       },
       {
         name: 'Low',
-        value: 0.5,
+        value: 2,
       },
       {
         name: 'Medium',
-        value: 0.2,
+        value: 1,
       },
       {
         name: 'Fine',
-        value: 0.1,
+        value: 0.2,
       },
     ]),
   )({
@@ -302,18 +305,36 @@ export const CONTROLS = {
         key: TRANSFORM_PARAMS.SCALE,
         minValue: 0.1,
         maxValue: 0.9,
+        formatValue: (value) => {
+          return `Move about ${Math.round(value * 100)}% of the way towards the next target.`;
+        },
       },
       {
         name: 'rotation',
         key: TRANSFORM_PARAMS.ROTATION,
         minValue: -Math.PI / 10,
         maxValue: Math.PI / 10,
+        formatValue(value){
+          const degrees = (180 / Math.PI) * value;
+          const absDegrees = Math.abs(degrees);
+          const formattedDeg = Math.round(absDegrees * 10) / 10;
+
+          if (absDegrees < 0.2) {
+            return 'Move just about straight towards the target.';
+          }
+
+          const direction = degrees < 0 ? 'left' : 'right';
+          return `Rotate about ${formattedDeg} degrees to the ${direction}.`;
+        },
       },
       {
         name: 'probability',
         key: TRANSFORM_PARAMS.PROBABILITY,
         minValue: 0.001,
         maxValue: 1,
+        formatValue(value){
+          return `Probability ${value}.`;
+        },
       },
     ],
 
