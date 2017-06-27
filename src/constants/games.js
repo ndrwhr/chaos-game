@@ -313,20 +313,29 @@ export default {
       const historySize = CONTROLS[CONTROL_TYPES.HISTORY].extractValueFrom(controls);
       const possibleTargetLookup = generateExclusionTargetLookup(targets, exclusions);
 
+      const totalProbability = transforms.reduce(
+        (acc, transform) => acc + transform[TRANSFORM_PARAMS.PROBABILITY], 0);
+      const targetPools = targets.reduce((map, target) => {
+        const probability = transformMap.get(target)[TRANSFORM_PARAMS.PROBABILITY];
+        const pool = _.times(Math.floor(100 * probability / totalProbability), () => target);
+        return map.set(target, pool);
+      }, new Map());
+
       const getPossibleTargets = memoize((n, ...previousTargets) => {
         // If the previous target was undefined it means that there are no
         // other choices.
         if (previousTargets.length && !previousTargets[0]) return [];
 
-        return [
-          ...(
-            previousTargets
-              .map(target => new Set(possibleTargetLookup.get(target)))
-              .reduce((intersection, possibleTargets) => {
-                return getIntersection(intersection, possibleTargets);
-              }, new Set(targets))
-          ),
-        ];
+        const possibleTargetSet = previousTargets
+          .map(target => new Set(possibleTargetLookup.get(target)))
+          .reduce((intersection, possibleTargets) => {
+            return getIntersection(intersection, possibleTargets);
+          }, new Set(targets));
+
+        return [...possibleTargetSet].reduce((acc, target) => [
+          ...acc,
+          ...targetPools.get(target),
+        ], []);
       });
 
       const targetSelector = createTargetSelectorWithHistory(
