@@ -1,7 +1,6 @@
 @import '../variables.css';
 
 .app {
-  display: flex;
   width: 100%;
   color: var(--color-black);
   background: var(--color-white);
@@ -15,13 +14,35 @@
 
 .app__controls {
   position: relative;
-  width: var(--controls-width--desktop);
+  left: 0;
+  width: 100%;
+}
+
+@media only screen  and (min-width : 800px) {
+  .app__controls {
+    position: relative;
+    left: calc(100% - var(--sidebar-width));
+    width: var(--sidebar-width);
+  }
 }
 
 .app__canvas-container {
   position: relative;
-  flex: 1;
-  user-select: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding-top: 100%;
+}
+
+@media only screen and (min-width : 800px) {
+  .app__canvas-container {
+    position: fixed;
+    right: var(--sidebar-width);
+    width: auto;
+    bottom: 0;
+    left: 0;
+    padding-top: 0;
+  }
 }
 
 .app__meta-controls {
