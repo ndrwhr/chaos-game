@@ -4,7 +4,12 @@ import { CSSTransitionGroup } from 'react-transition-group';
 
 import Canvas from './Canvas';
 import Controls from './controls/Controls';
-import { BACKGROUND_TYPES, CONTROL_TYPES, CONTROLS } from '../constants/controls';
+import {
+  BACKGROUND_TYPES,
+  CONTROL_TYPES,
+  CONTROLS,
+  SERIALIZABLE_CONTROLS,
+} from '../constants/controls';
 import Games from '../constants/games';
 import {
   createPolygon,
@@ -39,7 +44,7 @@ class App extends Component {
       canvasSize: 0,
       controls,
       downloadUrl: null,
-      isRunning: false,
+      isRunning: true,
       isGeneratingDownloadLink: false,
       targets,
     };
@@ -77,7 +82,6 @@ class App extends Component {
               ref={canvas => {this.canvas = canvas;}}
               size={this.state.canvasSize}
           />
-
           <div className="app__meta-controls">
             <button
               className="app__meta-control app__meta-control--download"
@@ -137,40 +141,34 @@ class App extends Component {
   }
 
   onControlChange(controlType, newValue){
-    if (controlType === CONTROL_TYPES.SPEED){
-      const controls = Object.assign({}, this.state.controls, {
-        [controlType]: newValue,
-      });
+    const controlUpdate = {
+      ...this.state.controls,
+      [controlType]: newValue,
+    };
 
-      this.setState({
-        controls,
-        downloadUrl: null,
-        isRunning: true,
-      });
-    } else {
-      const controls = getControlValues({
-        ...this.state.controls,
-        [controlType]: newValue,
-      });
-
-      saveControlValues(controls);
-
-      const game = Games[CONTROLS[CONTROL_TYPES.GAME].extractValueFrom(controls)];
-      const targets = controlType === CONTROL_TYPES.NUM_TARGETS ?
-        getTargets(controls) : this.state.targets;
-      const attractor = game.createAttractor(targets, controls);
-
-      this.setState({
-        attractor,
-        controls,
-        downloadUrl: null,
-        isRunning: true,
-        targets,
-      }, () => {
-        // Clear the canvas once we know it's properties have been updated.
-        this.canvas.clear();
-      });
+    // If the user changed something that will be serialized to the URL then we should clear
+    // the preset state.
+    if (SERIALIZABLE_CONTROLS.has(controlType)) {
+      controlUpdate[CONTROL_TYPES.PRESET] = 0;
     }
+
+    const controls = getControlValues(controlUpdate);
+    saveControlValues(controls);
+
+    const game = Games[CONTROLS[CONTROL_TYPES.GAME].extractValueFrom(controls)];
+    const targets = getTargets(controls);
+    const attractor = game.createAttractor(targets, controls);
+
+    this.setState({
+      attractor,
+      controls,
+      downloadUrl: null,
+      isRunning: true,
+      targets,
+    }, () => {
+      // Clear the canvas once we know it's properties have been updated.
+      this.canvas.clear();
+    });
   }
 
   onDownloadButtonClick(){

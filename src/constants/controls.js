@@ -33,6 +33,7 @@ export const CONTROL_TYPES = {
   GAME: 'gameVariation',
   HISTORY: 'historySize',
   NUM_TARGETS: 'numTargets',
+  PRESET: 'preset',
   QUALITY: 'quality',
   TRANSFORMS: 'transforms',
 };
@@ -52,7 +53,6 @@ const CONTROL_TYPES_SERIALIZATIONS = {
   [CONTROL_TYPES.HISTORY]: 'h',
   [CONTROL_TYPES.NUM_TARGETS]: 'n',
   [CONTROL_TYPES.QUALITY]: 'q',
-  [CONTROL_TYPES.SPEED]: 's',
   [CONTROL_TYPES.TRANSFORMS]: 't',
 };
 
@@ -267,6 +267,31 @@ export const CONTROLS = {
     defaultValue: () => 2,
   }),
 
+  [CONTROL_TYPES.PRESET]: composeControl(
+    withOptions([
+      {
+        name: 'custom',
+        value: null,
+      },
+      {
+        name: 'History Exclusion 1',
+        value: 'c=94_103_102_112&cm=2&e=5_1_4_3&h=0&n=4&t=s0.7239r-0.3106p0.25_s0.611r0.2758p0.7107_s0.727r-0.15p0.2256&v=0',
+      },
+      {
+        name: 'History Exclusion 2',
+        value: 'c=67_76_74_92&cm=2&e=5_6_4_3_2_1&h=1&n=7&t=s0.8833r0.2955p0.3125_s0.3874r0.165p0.8605_s0.5981r0.1829p0.47&v=0',
+      },
+      {
+        name: 'History Exclusion 3',
+        value: 'c=130&cm=0&e=0_4_5_3&h=0&n=5&t=s0.5r0p0.5&v=0',
+      }
+    ]),
+  )({
+    type: CONTROL_TYPES.PRESET,
+
+    defaultValue: () => 0,
+  }),
+
   [CONTROL_TYPES.TRANSFORMS]: composeControl(
     withArraySerializer({
       valueSerializer: transform => (
@@ -345,3 +370,7 @@ export const CONTROLS = {
     ]),
   }),
 };
+
+export const SERIALIZABLE_CONTROLS = new Set(Object.keys(CONTROLS).filter(controlType => (
+  !!CONTROLS[controlType].serialize
+)));

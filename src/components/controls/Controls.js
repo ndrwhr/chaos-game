@@ -5,6 +5,7 @@ import Games from '../../constants/games';
 import { CONTROL_TYPES, CONTROLS } from '../../constants/controls';
 import ColorControls from './ColorControls';
 import ExclusionControl from './ExclusionControl';
+import PresetControl from './PresetControl';
 import RadioControl from './RadioControl';
 import TransformControls from './TransformControls';
 
@@ -54,6 +55,26 @@ const Controls = ({ controls, fixedNumTransforms, onChange }) => {
 
   return (
     <div className="controls">
+      <Control title="Presets">
+        <PresetControl
+          selectedValue={controls[CONTROL_TYPES.PRESET]}
+          onChange={index => onChange(CONTROL_TYPES.PRESET, index)}
+        />
+      </Control>
+
+      <Control
+        title="Rendering Quality"
+      >
+        <RadioControl
+          buttonStyle
+          selectedValue={controls[CONTROL_TYPES.QUALITY]}
+          options={mapControlOptionsToRadioOptions(CONTROLS[CONTROL_TYPES.QUALITY])}
+          onChange={index => onChange(CONTROL_TYPES.QUALITY, index)}
+        />
+      </Control>
+
+      <div className="controls__divider" />
+
       <Control
         title="Variation"
         description="Change the core rules of the chaos game."
@@ -113,17 +134,6 @@ const Controls = ({ controls, fixedNumTransforms, onChange }) => {
           selectedValue={controls[CONTROL_TYPES.BACKGROUND]}
           options={mapControlOptionsToRadioOptions(CONTROLS[CONTROL_TYPES.BACKGROUND])}
           onChange={index => onChange(CONTROL_TYPES.BACKGROUND, index)}
-        />
-      </Control>
-
-      <Control
-        title="Rendering Quality"
-      >
-        <RadioControl
-          buttonStyle
-          selectedValue={controls[CONTROL_TYPES.QUALITY]}
-          options={mapControlOptionsToRadioOptions(CONTROLS[CONTROL_TYPES.QUALITY])}
-          onChange={index => onChange(CONTROL_TYPES.QUALITY, index)}
         />
       </Control>
     </div>

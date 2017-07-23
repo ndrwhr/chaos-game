@@ -10,6 +10,33 @@ import {
   SERIALIZATIONS_TO_CONTROL_TYPES,
 } from '../constants/controls';
 
+function toQueryString(controls) {
+  const serializedParams = Object.keys(controls).reduce((params, controlType) => {
+    const serializeFn = CONTROLS[controlType] && CONTROLS[controlType].serialize;
+    return serializeFn ? {
+      ...params,
+      ...serializeFn(controls[controlType]),
+    } : params;
+  }, {});
+
+  const paramsString = queryString.stringify(serializedParams);
+  return paramsString
+}
+
+function parseQueryString(string) {
+  const parsedParams = queryString.parse(string);
+
+  const controls = Object.keys(parsedParams).reduce((result, serializedControlType) => {
+    const controlType = SERIALIZATIONS_TO_CONTROL_TYPES[serializedControlType];
+    return CONTROLS[controlType] && CONTROLS[controlType].deserialize ? {
+      ...result,
+      ...CONTROLS[controlType].deserialize(parsedParams[serializedControlType]),
+    } : {};
+  }, {});
+
+  return controls;
+}
+
 export function createPolygon(n, clockwise=true) {
   if (n === 4){
     const offset = 0.146446609;
@@ -32,13 +59,23 @@ export function createPolygon(n, clockwise=true) {
 }
 
 export function getControlValues(previousValues = {}) {
-  const maybeUseDefault = (controlType, getDefault) => {
+  const maybeUseDefault = (controlType) => {
     const previousValue = previousValues[controlType];
     return previousValue !== null && previousValue !== undefined ?
       previousValue : CONTROLS[controlType].defaultValue();
   };
 
-  const controls = [
+  let controls = {
+    [CONTROL_TYPES.PRESET]: maybeUseDefault(CONTROL_TYPES.PRESET),
+  };
+
+  if (controls.preset) {
+    Object.assign(previousValues, {
+      ...parseQueryString(CONTROLS[CONTROL_TYPES.PRESET].extractValueFrom(controls)),
+    });
+  }
+
+  controls = [
     CONTROL_TYPES.BACKGROUND,
     CONTROL_TYPES.COLORING_MODE,
     CONTROL_TYPES.EXCLUSIONS,
@@ -48,7 +85,7 @@ export function getControlValues(previousValues = {}) {
   ].reduce((acc, controlType) => ({
     ...acc,
     [controlType]: maybeUseDefault(controlType),
-  }), {});
+  }), controls);
 
   const numTargets = CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(controls);
 
@@ -91,28 +128,27 @@ export function getControlValues(previousValues = {}) {
 }
 
 export function saveControlValues(controls) {
-  const serializedParams = Object.keys(controls).reduce((params, controlType) => {
-    const serializeFn = CONTROLS[controlType] && CONTROLS[controlType].serialize;
-    return serializeFn ? {
-      ...params,
-      ...serializeFn(controls[controlType]),
-    } : params;
-  }, {});
-
-  const paramsString = queryString.stringify(serializedParams);
+  const paramsString = toQueryString(controls);
   window.history.replaceState({}, document.title, `?${paramsString}`);
 }
 
 export function readSavedControlValues() {
-  const parsedParams = queryString.parse(window.location.search);
+  const searchString = window.location.search.replace('?', '');
+  const controls = parseQueryString(searchString);
 
-  const controls = Object.keys(parsedParams).reduce((result, serializedControlType) => {
-    const controlType = SERIALIZATIONS_TO_CONTROL_TYPES[serializedControlType];
-    return CONTROLS[controlType] && CONTROLS[controlType].deserialize ? {
-      ...result,
-      ...CONTROLS[controlType].deserialize(parsedParams[serializedControlType]),
-    } : {};
-  }, {});
+  // Check if the parsed controls matches one of the preset.
+  const presetIndex = CONTROLS[CONTROL_TYPES.PRESET].options.findIndex(({ value }) => {
+    if (!value) return false;
+    const presetValues = parseQueryString(value);
+    return Object.keys(presetValues).every(controlType => (
+      _.isEqual(controls[controlType], presetValues[controlType])
+    ));
+  });
+
+  // If so then set the preset control.
+  if (presetIndex > 0) {
+    controls[CONTROL_TYPES.PRESET] = presetIndex;
+  }
 
   return controls;
 }

@@ -26,9 +26,23 @@
   margin-bottom: 10px;
 }
 
+.controls__divider {
+  width: 100%;
+  border-bottom: 1px solid var(--color-black-a20);
+  margin: 20px auto 40px;
+}
+
+.app--dark .controls__divider {
+  background-color: var(--color-white-a50);
+}
+
 .controls__description {
   font-size: 13px;
   margin: 20px 0 10px;
+}
+
+.controls__description:first-child {
+  margin-top: 0;
 }
 
 .controls__control-children {
