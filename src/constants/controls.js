@@ -115,6 +115,8 @@ const withOptions = options => params => ({
     const index = controls[params.type];
     return (index !== null && index !== undefined) ? options[index].value : null;
   },
+
+  random: () => _.random(0, options.length - 1),
 });
 
 export const CONTROLS = {
@@ -192,6 +194,10 @@ export const CONTROLS = {
     withArraySerializer(),
   )({
     type: CONTROL_TYPES.EXCLUSIONS,
+
+    random: numTargets => ([
+      ...(new Set(_.sampleSize(_.range(1, numTargets - 1), _.random(1, numTargets - 2)))),
+    ]),
 
     defaultValue: () => [1, 4],
   }),
@@ -364,6 +370,14 @@ export const CONTROLS = {
     ],
 
     createTransform,
+
+    randomTransform: () => {
+      const control = CONTROLS[CONTROL_TYPES.TRANSFORMS];
+      return control.paramsValues.reduce((acc, params) => ({
+        ...acc,
+        [params.key]: _.random(params.minValue, params.maxValue, true),
+      }), {});
+    },
 
     defaultValue: () => ([
       createTransform()

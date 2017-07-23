@@ -37,7 +37,7 @@ const Control = ({title, description, children}) => (
   </div>
 );
 
-const Controls = ({ controls, fixedNumTransforms, onChange }) => {
+const Controls = ({ controls, fixedNumTransforms, onChange, onRandomizeAll }) => {
   const game = Games[CONTROLS[CONTROL_TYPES.GAME].extractValueFrom(controls)];
   const historyControls = game.additionalControls.includes(CONTROL_TYPES.HISTORY) && (
     <Control
@@ -85,6 +85,13 @@ const Controls = ({ controls, fixedNumTransforms, onChange }) => {
           onChange={index => onChange(CONTROL_TYPES.GAME, index)}
         />
         <p className="controls__description">{game.description}</p>
+
+        <button
+          className="btn btn--block-center"
+          onClick={onRandomizeAll}
+        >
+          randomize all controls
+        </button>
       </Control>
 
       <Control title="Number of Targets">

@@ -14,6 +14,7 @@ import Games from '../constants/games';
 import {
   createPolygon,
   getControlValues,
+  getRandomControlValues,
   readSavedControlValues,
   saveControlValues,
 } from '../utils/control-utils';
@@ -52,6 +53,7 @@ class App extends Component {
     this.canvas = null;
 
     this.onControlChange = this.onControlChange.bind(this);
+    this.onRandomizeAll = this.onRandomizeAll.bind(this);
   }
 
   componentDidMount(){
@@ -134,6 +136,7 @@ class App extends Component {
               controls={this.state.controls}
               fixedNumTransforms={!!game.numTransforms}
               onChange={this.onControlChange}
+              onRandomizeAll={this.onRandomizeAll}
             />
         </div>
       </div>
@@ -153,6 +156,16 @@ class App extends Component {
     }
 
     const controls = getControlValues(controlUpdate);
+    this.updateStateWithNewControls(controls);
+  }
+
+  onRandomizeAll() {
+    this.updateStateWithNewControls(getRandomControlValues({
+      ...this.state.controls,
+    }));
+  }
+
+  updateStateWithNewControls(controls) {
     saveControlValues(controls);
 
     const game = Games[CONTROLS[CONTROL_TYPES.GAME].extractValueFrom(controls)];

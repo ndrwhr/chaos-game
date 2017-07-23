@@ -51,4 +51,4 @@ export function getNextColor(pastColorIndexes = []) {
     }, new Set());
 
     return _.sample([...options].filter(index => !pastColorIndexes.includes(index)));
-};
+}

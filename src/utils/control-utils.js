@@ -58,15 +58,15 @@ export function createPolygon(n, clockwise=true) {
   }).map(point => vec2.add(vec2.create(), point, vec2.fromValues(0.5, 0.5)));
 }
 
-export function getControlValues(previousValues = {}) {
-  const maybeUseDefault = (controlType) => {
-    const previousValue = previousValues[controlType];
-    return previousValue !== null && previousValue !== undefined ?
-      previousValue : CONTROLS[controlType].defaultValue();
-  };
+const maybeUseDefaultValue = (previousValues, controlType) => {
+  const previousValue = previousValues[controlType];
+  return previousValue !== null && previousValue !== undefined ?
+    previousValue : CONTROLS[controlType].defaultValue();
+};
 
+export function getControlValues(previousValues = {}) {
   let controls = {
-    [CONTROL_TYPES.PRESET]: maybeUseDefault(CONTROL_TYPES.PRESET),
+    [CONTROL_TYPES.PRESET]: maybeUseDefaultValue(previousValues, CONTROL_TYPES.PRESET),
   };
 
   if (controls.preset) {
@@ -84,14 +84,14 @@ export function getControlValues(previousValues = {}) {
     CONTROL_TYPES.QUALITY,
   ].reduce((acc, controlType) => ({
     ...acc,
-    [controlType]: maybeUseDefault(controlType),
+    [controlType]: maybeUseDefaultValue(previousValues, controlType),
   }), controls);
 
   const numTargets = CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(controls);
 
   const game = Games[CONTROLS[CONTROL_TYPES.GAME].extractValueFrom(controls)];
   game.additionalControls.forEach((controlType) => {
-    controls[controlType] = maybeUseDefault(controlType);
+    controls[controlType] = maybeUseDefaultValue(previousValues, controlType);
   });
 
   if (game.numTransforms) {
@@ -123,6 +123,77 @@ export function getControlValues(previousValues = {}) {
   // Set up the color controls based on the previously set color options.
   controls[CONTROL_TYPES.COLORS] = CONTROLS[CONTROL_TYPES.COLORS]
     .defaultValue(previousValues[CONTROL_TYPES.COLORS], numColors);
+
+  return controls;
+}
+
+export function getRandomControlValues(previousValues = {}) {
+  const controls = {
+    [CONTROL_TYPES.PRESET]: 0,
+  };
+
+  // Copy over non random values:
+  [
+    CONTROL_TYPES.BACKGROUND,
+    CONTROL_TYPES.QUALITY,
+  ].forEach(controlType => Object.assign(controls, {
+    [controlType]: maybeUseDefaultValue(previousValues, controlType),
+  }));
+
+  // Choose some random values for the base controls. These values will be used to randomize
+  // the remaining controls.
+  [
+    CONTROL_TYPES.COLORING_MODE,
+    CONTROL_TYPES.NUM_TARGETS,
+  ].forEach(controlType => Object.assign(controls, {
+    [controlType]: CONTROLS[controlType].random(),
+  }));
+
+  // Variation selection should not be randomized.
+  Object.assign(controls, {
+    [CONTROL_TYPES.GAME]: maybeUseDefaultValue(previousValues, CONTROL_TYPES.GAME),
+  });
+
+  const numTargets = CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(controls);
+
+  Object.assign(controls, {
+    [CONTROL_TYPES.EXCLUSIONS]: CONTROLS[CONTROL_TYPES.EXCLUSIONS].random(numTargets),
+  });
+
+  const game = Games[CONTROLS[CONTROL_TYPES.GAME].extractValueFrom(controls)];
+  game.additionalControls.forEach((controlType) => Object.assign(controls, {
+    [controlType]: CONTROLS[controlType].random(),
+  }));
+
+
+  const numTransforms = game.numTransforms ? game.numTransforms(controls) : _.random(1, 5);
+  Object.assign(controls, {
+    [CONTROL_TYPES.TRANSFORMS]: _.times(
+      numTransforms,
+      () => CONTROLS[CONTROL_TYPES.TRANSFORMS].randomTransform(),
+    ),
+  });
+
+  if (game.disableTargetColoringMode &&
+      controls[CONTROL_TYPES.COLORING_MODE] === COLORING_MODES.BY_TARGET) {
+    Object.assign(controls, {
+      [CONTROL_TYPES.COLORING_MODE]: COLORING_MODES.BY_TRANSFORM,
+    });
+  }
+
+  let numColors;
+  if (controls[CONTROL_TYPES.COLORING_MODE] === COLORING_MODES.BY_TRANSFORM) {
+    numColors = controls[CONTROL_TYPES.TRANSFORMS].length;
+  } else if (controls[CONTROL_TYPES.COLORING_MODE] === COLORING_MODES.BY_TARGET) {
+    numColors = numTargets;
+  } else {
+    numColors = CONTROLS[CONTROL_TYPES.COLORING_MODE].gradientOptions.numColors;
+  }
+
+  // Set up the color controls based on the previously set color options.
+  Object.assign(controls, {
+    [CONTROL_TYPES.COLORS]: CONTROLS[CONTROL_TYPES.COLORS].defaultValue([], numColors, true),
+  });
 
   return controls;
 }

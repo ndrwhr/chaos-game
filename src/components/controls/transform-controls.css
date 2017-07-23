@@ -1,8 +1,7 @@
 @import '../../variables.css';
 
 .transform-controls__buttons {
-  text-align: center;
-  margin-bottom: 30px;
+  text-align: right;
 }
 
 .transform-controls__transform {

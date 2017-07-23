@@ -293,29 +293,6 @@ export default ({ controls, fixedNumTransforms, onChange }) => {
 
   return (
     <div className="transform-controls">
-      <div className="transform-controls__buttons">
-        <button
-          className="btn btn--inline"
-          onClick={() => (
-            onChange(CONTROL_TYPES.TRANSFORMS, transforms.map(() => createRandomTransform()))
-          )}
-        >
-          randomize transforms
-        </button>
-
-        <button
-          className="btn btn--inline"
-          onClick={() => (
-            onChange(
-              CONTROL_TYPES.TRANSFORMS,
-              transforms.map(() => CONTROLS[CONTROL_TYPES.TRANSFORMS].createTransform())
-            )
-          )}
-        >
-          reset transforms
-        </button>
-      </div>
-
       {
         transforms.map((transform, index) => (
           <TransformControl
@@ -338,19 +315,42 @@ export default ({ controls, fixedNumTransforms, onChange }) => {
         ))
       }
 
-      {!fixedNumTransforms && (
+      <div className="transform-controls__buttons">
         <button
-          className="btn btn--block-center"
+          className="btn btn--inline"
           onClick={() => (
             onChange(
               CONTROL_TYPES.TRANSFORMS,
-              [...transforms, CONTROLS[CONTROL_TYPES.TRANSFORMS].createTransform()]
+              transforms.map(() => CONTROLS[CONTROL_TYPES.TRANSFORMS].createTransform())
             )
           )}
         >
-          add transform
+          reset all
         </button>
-      )}
+
+        <button
+          className="btn btn--inline"
+          onClick={() => (
+            onChange(CONTROL_TYPES.TRANSFORMS, transforms.map(() => createRandomTransform()))
+          )}
+        >
+          randomize all
+        </button>
+
+        {!fixedNumTransforms && (
+          <button
+            className="btn btn--inline"
+            onClick={() => (
+              onChange(
+                CONTROL_TYPES.TRANSFORMS,
+                [...transforms, CONTROLS[CONTROL_TYPES.TRANSFORMS].createTransform()]
+              )
+            )}
+          >
+            add transform
+          </button>
+        )}
+      </div>
     </div>
   );
 };

@@ -211,7 +211,7 @@
   color: var(--color-black);
 }
 
-.btn--inline {
+.btn--inline:not(:last-child) {
   margin-right: 10px;
 }
 
