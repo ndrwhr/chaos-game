@@ -149,6 +149,14 @@ class App extends Component {
       [controlType]: newValue,
     };
 
+    // Because we're going to be rendering a preset bump up the quality.
+    if (controlType === CONTROL_TYPES.PRESET) {
+      controlUpdate[CONTROL_TYPES.QUALITY] = Math.max(
+        controlUpdate[CONTROL_TYPES.QUALITY],
+        CONTROLS[CONTROL_TYPES.QUALITY].options.length - 2,
+      );
+    }
+
     // If the user changed something that will be serialized to the URL then we should clear
     // the preset state.
     if (SERIALIZABLE_CONTROLS.has(controlType)) {

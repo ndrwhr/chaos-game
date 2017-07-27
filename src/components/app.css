@@ -187,15 +187,24 @@
   text-decoration: none;
 }
 
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.btn--icon {
+  padding: 0;
+}
+
 .app--dark .btn {
   border-color: var(--color-white);
 }
 
-.btn:not(.btn--active):hover {
+.btn:not(.btn--active):not(:disabled):hover {
   background: var(--color-black-a20);
 }
 
-.app--dark .btn:not(.btn--active):hover {
+.app--dark .btn:not(.btn--active):not(:disabled):hover {
   background: var(--color-white-a20);
 }
 

@@ -2,13 +2,14 @@ import {vec2, mat2} from 'gl-matrix';
 import _ from 'lodash';
 import queryString from 'query-string';
 
-import Games from '../constants/games';
 import {
   COLORING_MODES,
   CONTROL_TYPES,
   CONTROLS,
+  PRESETS,
   SERIALIZATIONS_TO_CONTROL_TYPES,
 } from '../constants/controls';
+import Games from '../constants/games';
 
 function toQueryString(controls) {
   const serializedParams = Object.keys(controls).reduce((params, controlType) => {
@@ -166,7 +167,9 @@ export function getRandomControlValues(previousValues = {}) {
   }));
 
 
-  const numTransforms = game.numTransforms ? game.numTransforms(controls) : _.random(1, 5);
+  const numTransforms = game.numTransforms ?
+    game.numTransforms(controls) :
+    _.sample([1, 1, 1, 1, 2, 2, 2, 3, 3, 4]);
   Object.assign(controls, {
     [CONTROL_TYPES.TRANSFORMS]: _.times(
       numTransforms,
@@ -204,11 +207,11 @@ export function saveControlValues(controls) {
 }
 
 export function readSavedControlValues() {
-  const searchString = window.location.search.replace('?', '');
+  const searchString = window.location.search.replace('?', '') || _.sample(PRESETS);
   const controls = parseQueryString(searchString);
 
   // Check if the parsed controls matches one of the preset.
-  const presetIndex = CONTROLS[CONTROL_TYPES.PRESET].options.findIndex(({ value }) => {
+  const presetIndex = CONTROLS[CONTROL_TYPES.PRESET].options.findIndex(({ value }, index) => {
     if (!value) return false;
     const presetValues = parseQueryString(value);
     return Object.keys(presetValues).every(controlType => (
@@ -219,6 +222,7 @@ export function readSavedControlValues() {
   // If so then set the preset control.
   if (presetIndex > 0) {
     controls[CONTROL_TYPES.PRESET] = presetIndex;
+    controls[CONTROL_TYPES.QUALITY] = CONTROLS[CONTROL_TYPES.QUALITY].options.length - 2;
   }
 
   return controls;

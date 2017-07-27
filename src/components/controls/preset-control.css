@@ -1,31 +1,44 @@
 @import '../../variables.css';
 
+:root {
+  --preset-control-height: 30px;
+}
+
 .preset-control {
+  display: flex;
+  height: var(--preset-control-height);
+}
+
+.preset-control__select-wrapper {
+  display: flex;
+  align-items: center;
+  margin: 0 10px;
+  flex: 1;
   position: relative;
   border: 1px solid var(--color-black);
   background: var(--color-white);
   color: var(--color-black);
 }
 
-.app--dark .preset-control {
+.app--dark .preset-control__select-wrapper {
   background: var(--color-black);
   color: var(--color-white);
   border-color: var(--color-white);
 }
 
-.preset-control--active {
+.preset-control--active .preset-control__select-wrapper {
   background: var(--color-black);
   color: var(--color-white);
 }
 
-.app--dark .preset-control--active {
+.app--dark .preset-control--active .preset-control__select-wrapper {
   background: var(--color-white);
   color: var(--color-black);
 }
 
 .preset-control__select {
   width: 100%;
-  padding: 5px 10px;
+  padding: 0 10px;
   appearance: none;
   border-radius: 0;
   border: none;
@@ -37,7 +50,7 @@
   outline: none;
 }
 
-.preset-control__arrow {
+.preset-control__select-arrow {
   position: absolute;
   top: calc(50% - 2px);
   right: 10px;
@@ -49,14 +62,43 @@
   pointer-events: none;
 }
 
-.preset-control--active .preset-control__arrow {
+.preset-control--active .preset-control__select-arrow {
   border-color: var(--color-white);
 }
 
-.app--dark .preset-control__arrow {
+.app--dark .preset-control__select-arrow {
   border-color: var(--color-white);
 }
 
-.app--dark .preset-control--active .preset-control__arrow {
+.app--dark .preset-control--active .preset-control__select-arrow {
   border-color: var(--color-black);
+}
+
+.preset-control__button {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: var(--preset-control-height);
+  height: var(--preset-control-height);
+}
+
+.preset-control__button::after {
+  content: '';
+  height: 10px;
+  width: 10px;
+  border-right: 1px solid var(--color-black);
+  border-bottom: 1px solid var(--color-black);
+}
+
+.preset-control__button--previous::after {
+  transform: translateX(3px) rotate(135deg);
+}
+
+.preset-control__button--next::after {
+  transform: translateX(-3px) rotate(-45deg);
+}
+
+.app--dark .preset-control__button::after {
+  border-color: var(--color-white);
 }
