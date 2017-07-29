@@ -55,6 +55,22 @@ const Controls = ({ controls, fixedNumTransforms, onChange, onRandomizeAll }) =>
 
   return (
     <div className="controls">
+      <Control title="The Chaos Game">
+        <p className="controls__description">
+          For a fantastic introduction to Chaos Games, you should watch <a href="https://www.youtube.com/watch?v=kbKtFN71Lfs" target="_blank" rel="noopener noreferrer">this video</a> by Numberphile on YouTube (it's what inspired me to make this experiment).
+        </p>
+
+        <p className="controls__description">
+          From <a href="https://en.wikipedia.org/wiki/Chaos_game">wikipedia</a>:
+        </p>
+
+        <blockquote className="controls__quote" cite="https://en.wikipedia.org/wiki/Chaos_game">
+          <p className="controls__quote-content">
+            In mathematics, the term chaos game originally referred to a method of creating a fractal, using a polygon and an initial point selected at random inside it. The fractal is created by iteratively creating a sequence of points, starting with an initial random point, in which each point in the sequence is a given fraction of the distance between the previous point and one of the vertices of the polygon; the vertex is chosen at random in each iteration. Repeating this iterative process a large number of times, selecting the vertex at random on each iteration, and throwing out the first few points in the sequence, will often (but not always) produce a fractal shape.
+          </p>
+        </blockquote>
+      </Control>
+
       <Control title="Presets">
         <PresetControl
           selectedValue={controls[CONTROL_TYPES.PRESET]}
@@ -143,6 +159,8 @@ const Controls = ({ controls, fixedNumTransforms, onChange, onRandomizeAll }) =>
           onChange={index => onChange(CONTROL_TYPES.BACKGROUND, index)}
         />
       </Control>
+
+      <p className="controls__attribution">Built with ❤️ by <a href="/">Andrew Wang-Hoyer</a></p>
     </div>
   );
 };

@@ -41,6 +41,22 @@
   margin: 20px 0 10px;
 }
 
+.controls__quote {
+  margin: 20px 0 10px;
+}
+
+.controls__quote-content {
+  font-size: 13px;
+  padding: 0 10px;
+  text-align: justify;
+  border-left: 2px solid var(--color-black);
+  border-right: 2px solid var(--color-black);
+}
+
+.app--dark .controls__quote-content {
+  border-color: var(--color-white);
+}
+
 .controls__description:first-child {
   margin-top: 0;
 }
@@ -99,4 +115,9 @@
 .app--dark .controls__control-help-text {
   background: var(--color-white);
   color: var(--color-black);
+}
+
+.controls__attribution {
+  font-size: 13px;
+  text-align: center;
 }
