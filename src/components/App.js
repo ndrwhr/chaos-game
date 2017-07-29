@@ -22,11 +22,11 @@ import { isTouchDevice } from '../utils/browser-utils';
 
 import './app.css';
 
-const getTargets = (controls) => (
-  createPolygon(CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(controls))
-);
+const getTargets = controls =>
+  createPolygon(CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(controls));
 
-const getDelayPromise = time => new Promise(resolve => setTimeout(resolve, time));
+const getDelayPromise = time =>
+  new Promise(resolve => setTimeout(resolve, time));
 
 class App extends Component {
   constructor(props) {
@@ -56,15 +56,20 @@ class App extends Component {
     this.onRandomizeAll = this.onRandomizeAll.bind(this);
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.onResize();
     window.addEventListener('resize', () => this.onResize());
   }
 
   render() {
-    const background = CONTROLS[CONTROL_TYPES.BACKGROUND].extractValueFrom(this.state.controls);
-    const game = Games[CONTROLS[CONTROL_TYPES.GAME].extractValueFrom(this.state.controls)];
-    const quality = CONTROLS[CONTROL_TYPES.QUALITY].extractValueFrom(this.state.controls);
+    const background = CONTROLS[CONTROL_TYPES.BACKGROUND].extractValueFrom(
+      this.state.controls,
+    );
+    const game =
+      Games[CONTROLS[CONTROL_TYPES.GAME].extractValueFrom(this.state.controls)];
+    const quality = CONTROLS[CONTROL_TYPES.QUALITY].extractValueFrom(
+      this.state.controls,
+    );
 
     return (
       <div
@@ -73,16 +78,20 @@ class App extends Component {
         })}
       >
         <div
-            className="app__canvas-container"
-            ref={canvasContainer => {this.canvasContainer = canvasContainer;}}
+          className="app__canvas-container"
+          ref={canvasContainer => {
+            this.canvasContainer = canvasContainer;
+          }}
         >
           <Canvas
-              background={background}
-              attractor={this.state.attractor}
-              isRunning={this.state.isRunning}
-              quality={quality}
-              ref={canvas => {this.canvas = canvas;}}
-              size={this.state.canvasSize}
+            background={background}
+            attractor={this.state.attractor}
+            isRunning={this.state.isRunning}
+            quality={quality}
+            ref={canvas => {
+              this.canvas = canvas;
+            }}
+            size={this.state.canvasSize}
           />
           <div className="app__meta-controls">
             <button
@@ -96,7 +105,8 @@ class App extends Component {
                 'app__meta-control--pause': this.state.isRunning,
                 'app__meta-control--play': !this.state.isRunning,
               })}
-              onClick={() => this.setState({ isRunning: !this.state.isRunning })}
+              onClick={() =>
+                this.setState({ isRunning: !this.state.isRunning })}
               title={this.state.isRunning ? 'Pause' : 'Play'}
             />
           </div>
@@ -111,39 +121,39 @@ class App extends Component {
             transitionEnterTimeout={200}
             transitionLeaveTimeout={200}
           >
-            {(this.state.isGeneratingDownloadLink || this.state.downloadUrl) && (
+            {(this.state.isGeneratingDownloadLink || this.state.downloadUrl) &&
               <div
                 className="app__download-mask"
-                onClick={() => this.state.downloadUrl && this.onDownloadLinkClick()}
+                onClick={() =>
+                  this.state.downloadUrl && this.onDownloadLinkClick()}
               >
-                {this.state.isGeneratingDownloadLink ? (
-                  <div className="app__download-progress">generating download link...</div>
-                ) : (
-                  <a
-                    className="btn btn--large"
-                    download="chaos-game.png"
-                    href={this.state.downloadUrl}
-                  >
-                    {isTouchDevice() ? 'tap' : 'click'} here to download
-                  </a>
-                )}
-              </div>
-            )}
+                {this.state.isGeneratingDownloadLink
+                  ? <div className="app__download-progress">
+                      generating download link...
+                    </div>
+                  : <a
+                      className="btn btn--large"
+                      download="chaos-game.png"
+                      href={this.state.downloadUrl}
+                    >
+                      {isTouchDevice() ? 'tap' : 'click'} here to download
+                    </a>}
+              </div>}
           </CSSTransitionGroup>
         </div>
         <div className="app__controls">
           <Controls
-              controls={this.state.controls}
-              fixedNumTransforms={!!game.numTransforms}
-              onChange={this.onControlChange}
-              onRandomizeAll={this.onRandomizeAll}
-            />
+            controls={this.state.controls}
+            fixedNumTransforms={!!game.numTransforms}
+            onChange={this.onControlChange}
+            onRandomizeAll={this.onRandomizeAll}
+          />
         </div>
       </div>
     );
   }
 
-  onControlChange(controlType, newValue){
+  onControlChange(controlType, newValue) {
     const controlUpdate = {
       ...this.state.controls,
       [controlType]: newValue,
@@ -168,9 +178,11 @@ class App extends Component {
   }
 
   onRandomizeAll() {
-    this.updateStateWithNewControls(getRandomControlValues({
-      ...this.state.controls,
-    }));
+    this.updateStateWithNewControls(
+      getRandomControlValues({
+        ...this.state.controls,
+      }),
+    );
   }
 
   updateStateWithNewControls(controls) {
@@ -180,42 +192,48 @@ class App extends Component {
     const targets = getTargets(controls);
     const attractor = game.createAttractor(targets, controls);
 
-    this.setState({
-      attractor,
-      controls,
-      downloadUrl: null,
-      isRunning: true,
-      targets,
-    }, () => {
-      // Clear the canvas once we know it's properties have been updated.
-      this.canvas.clear();
-    });
+    this.setState(
+      {
+        attractor,
+        controls,
+        downloadUrl: null,
+        isRunning: true,
+        targets,
+      },
+      () => {
+        // Clear the canvas once we know it's properties have been updated.
+        this.canvas.clear();
+      },
+    );
   }
 
-  onDownloadButtonClick(){
-    this.setState({
-      isRunning: false,
-      isGeneratingDownloadLink: true,
-    }, () => {
-      Promise.all([
-        this.canvas.toBlob(),
-        getDelayPromise(2 * 1000),
-      ]).then(([blob]) => {
-        this.setState({
-          downloadUrl: window.URL.createObjectURL(blob),
-          isGeneratingDownloadLink: false,
+  onDownloadButtonClick() {
+    this.setState(
+      {
+        isRunning: false,
+        isGeneratingDownloadLink: true,
+      },
+      () => {
+        Promise.all([
+          this.canvas.toBlob(),
+          getDelayPromise(2 * 1000),
+        ]).then(([blob]) => {
+          this.setState({
+            downloadUrl: window.URL.createObjectURL(blob),
+            isGeneratingDownloadLink: false,
+          });
         });
-      });
-    });
+      },
+    );
   }
 
-  onDownloadLinkClick(){
+  onDownloadLinkClick() {
     this.setState({
       downloadUrl: null,
     });
   }
 
-  onResize(){
+  onResize() {
     const rect = this.canvasContainer.getBoundingClientRect();
     this.setState({
       canvasSize: Math.min(rect.width, rect.height),

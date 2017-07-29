@@ -18,26 +18,35 @@ import './transform-controls.css';
 const PARAM_VALUES = CONTROLS[CONTROL_TYPES.TRANSFORMS].paramsValues;
 
 const ICONS = {
-  [TRANSFORM_PARAMS.SCALE]: (percent) => {
+  [TRANSFORM_PARAMS.SCALE]: percent => {
     const minPercent = 0.1;
     const dotRadius = 8;
     const lineSpace = dotRadius + 3;
 
-    const lowerDot = vec2.fromValues(dotRadius, 100 - (dotRadius * 2));
-    const upperDot = vec2.fromValues(100 - (dotRadius * 2), dotRadius);
+    const lowerDot = vec2.fromValues(dotRadius, 100 - dotRadius * 2);
+    const upperDot = vec2.fromValues(100 - dotRadius * 2, dotRadius);
 
-    const lineStart = vec2.add(vec2.create(), lowerDot, vec2.fromValues(lineSpace, -lineSpace));
-    const lineEnd = vec2.add(vec2.create(), upperDot, vec2.fromValues(-lineSpace, lineSpace));
+    const lineStart = vec2.add(
+      vec2.create(),
+      lowerDot,
+      vec2.fromValues(lineSpace, -lineSpace),
+    );
+    const lineEnd = vec2.add(
+      vec2.create(),
+      upperDot,
+      vec2.fromValues(-lineSpace, lineSpace),
+    );
 
-    const realLineEnd = vec2.lerp(vec2.create(), lineStart, lineEnd, Math.max(percent, minPercent));
+    const realLineEnd = vec2.lerp(
+      vec2.create(),
+      lineStart,
+      lineEnd,
+      Math.max(percent, minPercent),
+    );
 
-    const polygonPoints = [
-      [-16, 0],
-      [3, -3],
-      [0, 16]
-    ].map(([x, y]) => (
-      `${x + realLineEnd[0]},${y + realLineEnd[1]}`
-    )).join(' ');
+    const polygonPoints = [[-16, 0], [3, -3], [0, 16]]
+      .map(([x, y]) => `${x + realLineEnd[0]},${y + realLineEnd[1]}`)
+      .join(' ');
 
     return (
       <svg viewBox="0 0 100 100" className="transform-controls__icon">
@@ -62,12 +71,12 @@ const ICONS = {
         />
         <polygon points={polygonPoints} />
 
-        <circle cx={upperDot[0]} cy={upperDot[1]} r={dotRadius}/>
+        <circle cx={upperDot[0]} cy={upperDot[1]} r={dotRadius} />
       </svg>
     );
   },
 
-  [TRANSFORM_PARAMS.ROTATION]: (percent) => {
+  [TRANSFORM_PARAMS.ROTATION]: percent => {
     const angle = -65 * (0.5 - percent);
 
     const lineLength = 70;
@@ -100,20 +109,24 @@ const ICONS = {
             y2={100 - offset}
             strokeLinecap="butt"
           />
-          <polygon points={`50,${offset - 5} 62,${offset + 13 - 5} 37,${offset + 13 - 5}`} />
+          <polygon
+            points={`50,${offset - 5} 62,${offset + 13 - 5} 37,${offset +
+              13 -
+              5}`}
+          />
         </g>
       </svg>
     );
   },
 
-  [TRANSFORM_PARAMS.PROBABILITY]: (percent) => {
+  [TRANSFORM_PARAMS.PROBABILITY]: percent => {
     const dots = [
       [20.1525, 26.4814],
       [45.7556, 86.7558],
       [65.6184, 62.4926],
       [14.1637, 34.6129],
       [33.3041, 11.4611],
-      [47.2978, 67.7960],
+      [47.2978, 67.796],
       [88.9868, 34.3786],
       [57.6612, 43.5731],
       [72.8979, 69.3827],
@@ -121,7 +134,7 @@ const ICONS = {
       [85.9362, 52.1418],
       [56.8483, 78.1798],
       [79.1065, 57.2672],
-      [60.5099, 36.6380],
+      [60.5099, 36.638],
       [18.7678, 69.8381],
       [35.0694, 23.9793],
       [76.3759, 40.6025],
@@ -135,19 +148,19 @@ const ICONS = {
       [45.3946, 23.3957],
       [49.2679, 48.1388],
       [31.6338, 66.9612],
-      [47.5020, 35.2095],
+      [47.502, 35.2095],
       [60.7389, 10.4314],
-      [69.0000, 26.7836],
-      [66.8664, 52.1270],
+      [69.0, 26.7836],
+      [66.8664, 52.127],
       [83.1163, 25.8275],
-      [23.9200, 39.8100],
+      [23.92, 39.81],
       [70.8222, 18.2126],
-      [37.9984, 82.8780],
+      [37.9984, 82.878],
       [67.1557, 88.3364],
       [13.8373, 57.8267],
       [46.9526, 60.5694],
       [87.0496, 41.5546],
-      [70.0150, 43.6439],
+      [70.015, 43.6439],
       [25.2557, 82.6913],
     ]
       .filter((coords, index, allCoords) => index < percent * allCoords.length)
@@ -156,9 +169,7 @@ const ICONS = {
         cx,
         cy,
       }))
-      .map(attrs => (
-        <circle r="8" {...attrs} />
-      ));
+      .map(attrs => <circle r="8" {...attrs} />);
 
     return (
       <svg viewBox="0 0 100 100" className="transform-controls__icon">
@@ -168,10 +179,11 @@ const ICONS = {
   },
 };
 
-const createRandomTransform = () => PARAM_VALUES.reduce((update, option) => {
-  update[option.key] = _.random(option.minValue, option.maxValue);
-  return update;
-}, {});
+const createRandomTransform = () =>
+  PARAM_VALUES.reduce((update, option) => {
+    update[option.key] = _.random(option.minValue, option.maxValue);
+    return update;
+  }, {});
 
 class TransformControl extends Component {
   constructor(props) {
@@ -182,7 +194,7 @@ class TransformControl extends Component {
     };
   }
 
-  render(){
+  render() {
     const {
       actualProbability,
       color,
@@ -196,15 +208,16 @@ class TransformControl extends Component {
 
     const probability = Math.floor(actualProbability * 10000) / 100;
 
-    const colorEl = color !== null && color !== undefined && (
+    const colorEl =
+      color !== null &&
+      color !== undefined &&
       <button
         className={classNames('transform-controls__transform-color', {
           'transform-controls__transform-color--light': isLightColor(color),
         })}
-        style={{backgroundColor: getActualColor(color)}}
-        onClick={() => this.setState({isColorPickerOpen: true})}
-      />
-    );
+        style={{ backgroundColor: getActualColor(color) }}
+        onClick={() => this.setState({ isColorPickerOpen: true })}
+      />;
 
     return (
       <div className="transform-controls__transform">
@@ -226,54 +239,58 @@ class TransformControl extends Component {
               className="transform-controls__transform-button transform-controls__transform-button--shuffle"
               onClick={() => onChange(createRandomTransform())}
             />
-            {onRemove && (
+            {onRemove &&
               <button
                 className="transform-controls__transform-button transform-controls__transform-button--trash"
                 onClick={onRemove}
-              />
-            )}
+              />}
           </div>
         </h4>
 
-        {
-          PARAM_VALUES
-            .filter(({key}) => !(hideProbability && key === TRANSFORM_PARAMS.PROBABILITY))
-            .map(option => (
-            <div
-              key={option.key}
-              className="transform-controls__transform-range"
-              title={option.formatValue(transform[option.key])}
-            >
-              <Range
-                icon={ICONS[option.key]((transform[option.key] - option.minValue) /
-                  (option.maxValue - option.minValue))}
-                value={transform[option.key]}
-                minValue={option.minValue}
-                maxValue={option.maxValue}
-                onChange={value => onChange(Object.assign({}, transform, {
-                  [option.key]: value,
-                }))}
-              />
-            </div>
-          ))
-        }
+        {PARAM_VALUES.filter(
+          ({ key }) =>
+            !(hideProbability && key === TRANSFORM_PARAMS.PROBABILITY),
+        ).map(option =>
+          <div
+            key={option.key}
+            className="transform-controls__transform-range"
+            title={option.formatValue(transform[option.key])}
+          >
+            <Range
+              icon={ICONS[option.key](
+                (transform[option.key] - option.minValue) /
+                  (option.maxValue - option.minValue),
+              )}
+              value={transform[option.key]}
+              minValue={option.minValue}
+              maxValue={option.maxValue}
+              onChange={value =>
+                onChange(
+                  Object.assign({}, transform, {
+                    [option.key]: value,
+                  }),
+                )}
+            />
+          </div>,
+        )}
 
-        {color && (
+        {color &&
           <ColorPicker
             colors={colors}
             color={color}
             open={this.state.isColorPickerOpen}
             onChange={this.props.onColorChange}
-            onClose={() => this.setState({isColorPickerOpen: false})}
-          />
-        )}
+            onClose={() => this.setState({ isColorPickerOpen: false })}
+          />}
       </div>
     );
   }
 }
 
 export default ({ controls, fixedNumTransforms, onChange }) => {
-  const colors = controls[CONTROL_TYPES.COLORING_MODE] ? null : controls[CONTROL_TYPES.COLORS];
+  const colors = controls[CONTROL_TYPES.COLORING_MODE]
+    ? null
+    : controls[CONTROL_TYPES.COLORS];
   const transforms = controls[CONTROL_TYPES.TRANSFORMS];
 
   const updateTransform = (index, updatedTransform) => {
@@ -285,71 +302,78 @@ export default ({ controls, fixedNumTransforms, onChange }) => {
   const updateColors = (index, newColor) => {
     const newColors = colors.slice();
     newColors[index] = newColor;
-    onChange(CONTROL_TYPES.COLORS, newColors)
+    onChange(CONTROL_TYPES.COLORS, newColors);
   };
 
-  const totalProbability = transforms.reduce((acc, transform) =>
-    acc + transform[TRANSFORM_PARAMS.PROBABILITY], 0);
+  const totalProbability = transforms.reduce(
+    (acc, transform) => acc + transform[TRANSFORM_PARAMS.PROBABILITY],
+    0,
+  );
 
   return (
     <div className="transform-controls">
-      {
-        transforms.map((transform, index) => (
-          <TransformControl
-            key={`transform-${index}`}
-            colors={colors}
-            color={colors && colors[index]}
-            onColorChange={newColor => updateColors(index, newColor)}
-            actualProbability={transform[TRANSFORM_PARAMS.PROBABILITY] / totalProbability}
-            transform={transform}
-            transformIndex={index}
-            hideProbability={transforms.length === 1}
-            onChange={updatedTransform => updateTransform(index, updatedTransform)}
-            onRemove={transforms.length > 1 && !fixedNumTransforms && (() =>
-              onChange(
-                CONTROL_TYPES.TRANSFORMS,
-                [...transforms.slice(0, index), ...transforms.slice(index +1)]
-              )
-            )}
-          />
-        ))
-      }
+      {transforms.map((transform, index) =>
+        <TransformControl
+          key={`transform-${index}`}
+          colors={colors}
+          color={colors && colors[index]}
+          onColorChange={newColor => updateColors(index, newColor)}
+          actualProbability={
+            transform[TRANSFORM_PARAMS.PROBABILITY] / totalProbability
+          }
+          transform={transform}
+          transformIndex={index}
+          hideProbability={transforms.length === 1}
+          onChange={updatedTransform =>
+            updateTransform(index, updatedTransform)}
+          onRemove={
+            transforms.length > 1 &&
+            !fixedNumTransforms &&
+            (() =>
+              onChange(CONTROL_TYPES.TRANSFORMS, [
+                ...transforms.slice(0, index),
+                ...transforms.slice(index + 1),
+              ]))
+          }
+        />,
+      )}
 
       <div className="transform-controls__buttons">
         <button
           className="btn btn--inline"
-          onClick={() => (
+          onClick={() =>
             onChange(
               CONTROL_TYPES.TRANSFORMS,
-              transforms.map(() => CONTROLS[CONTROL_TYPES.TRANSFORMS].createTransform())
-            )
-          )}
+              transforms.map(() =>
+                CONTROLS[CONTROL_TYPES.TRANSFORMS].createTransform(),
+              ),
+            )}
         >
           reset all
         </button>
 
         <button
           className="btn btn--inline"
-          onClick={() => (
-            onChange(CONTROL_TYPES.TRANSFORMS, transforms.map(() => createRandomTransform()))
-          )}
+          onClick={() =>
+            onChange(
+              CONTROL_TYPES.TRANSFORMS,
+              transforms.map(() => createRandomTransform()),
+            )}
         >
           randomize all
         </button>
 
-        {!fixedNumTransforms && (
+        {!fixedNumTransforms &&
           <button
             className="btn btn--inline"
-            onClick={() => (
-              onChange(
-                CONTROL_TYPES.TRANSFORMS,
-                [...transforms, CONTROLS[CONTROL_TYPES.TRANSFORMS].createTransform()]
-              )
-            )}
+            onClick={() =>
+              onChange(CONTROL_TYPES.TRANSFORMS, [
+                ...transforms,
+                CONTROLS[CONTROL_TYPES.TRANSFORMS].createTransform(),
+              ])}
           >
             add transform
-          </button>
-        )}
+          </button>}
       </div>
     </div>
   );

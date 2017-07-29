@@ -13,19 +13,21 @@ export default class ColorPicker extends Component {
     this.onBodyClick = this.onBodyClick.bind(this);
   }
 
-  componentDidMount(){
+  componentDidMount() {
     document.body.addEventListener('click', this.onBodyClick);
   }
 
-  componentWillUnmount(){
+  componentWillUnmount() {
     document.body.removeEventListener('click', this.onBodyClick);
   }
 
-  render(){
+  render() {
     const props = this.props;
     const hueIndex = 4;
-    const color = props.color === null || props.color === undefined ?
-      COLOR_INDEXES[0][hueIndex] : props.color;
+    const color =
+      props.color === null || props.color === undefined
+        ? COLOR_INDEXES[0][hueIndex]
+        : props.color;
 
     const shades = COLOR_INDEXES.find(shadeList => shadeList.includes(color));
     const shadeIndex = shades.indexOf(color);
@@ -48,48 +50,44 @@ export default class ColorPicker extends Component {
       <div className={classes}>
         <div className="color-picker__lists">
           <div className="color-picker__list color-picker__list--hues">
-            {hues.map(hue => (
+            {hues.map(hue =>
               <button
                 key={`hue-${hue}`}
-                className={
-                  classNames('color-picker__button color-picker__button--hue', {
+                className={classNames(
+                  'color-picker__button color-picker__button--hue',
+                  {
                     'color-picker__button--dark-text': isLightColor(hue),
                     'color-picker__button--selected': hue === selectedHue,
-                  })
-                }
-                style={{background: getActualColor(hue)}}
+                  },
+                )}
+                style={{ background: getActualColor(hue) }}
                 onClick={() => this.props.onChange(hue)}
-              />
-            ))}
+              />,
+            )}
           </div>
 
           <div className="color-picker__list color-picker__list--shades">
-            {shades.map((shade, index) => (
+            {shades.map((shade, index) =>
               <button
                 key={`shade-${index}`}
-                className={
-                  classNames('color-picker__button color-picker__button--shade', {
+                className={classNames(
+                  'color-picker__button color-picker__button--shade',
+                  {
                     'color-picker__button--dark-text': isLightColor(shade),
                     'color-picker__button--selected': shade === color,
-                  })
-                }
-                style={{background: getActualColor(shade)}}
+                  },
+                )}
+                style={{ background: getActualColor(shade) }}
                 onClick={() => this.props.onChange(shade)}
-              />
-            ))}
+              />,
+            )}
           </div>
         </div>
         <div className="color-picker__controls">
-          <button
-            className="btn btn--inline"
-            onClick={selectRandomColor}
-          >
+          <button className="btn btn--inline" onClick={selectRandomColor}>
             select random
           </button>
-          <button
-            className="btn btn--inline"
-            onClick={props.onClose}
-          >
+          <button className="btn btn--inline" onClick={props.onClose}>
             close
           </button>
         </div>
@@ -98,7 +96,10 @@ export default class ColorPicker extends Component {
   }
 
   onBodyClick(evt) {
-    if (!evt.target.matches('.color-picker, .color-picker *') && this.props.open){
+    if (
+      !evt.target.matches('.color-picker, .color-picker *') &&
+      this.props.open
+    ) {
       this.props.onClose();
     }
   }

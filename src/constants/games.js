@@ -1,5 +1,5 @@
 import convert from 'color-convert';
-import {vec2, mat2} from 'gl-matrix';
+import { vec2, mat2 } from 'gl-matrix';
 import _ from 'lodash';
 
 import {
@@ -14,7 +14,7 @@ import { getActualColor } from '../utils/color-utils';
 const memoize = fn => {
   const createNewMap = () => new Map();
   const getOrCreate = (map, key, creator) => {
-    if (map.has(key)){
+    if (map.has(key)) {
       return map.get(key);
     } else {
       const val = creator();
@@ -26,7 +26,7 @@ const memoize = fn => {
   const receivers = new Map();
   const symbol = Symbol();
 
-  return function(...args){
+  return function(...args) {
     let current = args.reduce((curr, arg) => {
       return getOrCreate(curr, arg, createNewMap);
     }, getOrCreate(receivers, this, createNewMap));
@@ -38,14 +38,16 @@ const memoize = fn => {
 const generateExclusionTargetLookup = (targets, exclusions) => {
   const exclusionSet = new Set(exclusions);
 
-  return new Map(targets.map((target, targetIndex) => {
-    const possibleValues = [
-      ...targets.slice(targetIndex),
-      ...targets.slice(0, targetIndex),
-    ].filter((nop, index) => !exclusionSet.has(index));
+  return new Map(
+    targets.map((target, targetIndex) => {
+      const possibleValues = [
+        ...targets.slice(targetIndex),
+        ...targets.slice(0, targetIndex),
+      ].filter((nop, index) => !exclusionSet.has(index));
 
-    return [target, possibleValues];
-  }));
+      return [target, possibleValues];
+    }),
+  );
 };
 
 const createTargetSelectorWithHistory = (historySize, targetSelector) => {
@@ -60,14 +62,21 @@ const createTargetSelectorWithHistory = (historySize, targetSelector) => {
   };
 };
 
-const createSharedTransformSelector = (transforms) => {
+const createSharedTransformSelector = transforms => {
   const totalProbability = transforms.reduce(
-      (acc, transform) => acc + transform[TRANSFORM_PARAMS.PROBABILITY], 0);
+    (acc, transform) => acc + transform[TRANSFORM_PARAMS.PROBABILITY],
+    0,
+  );
 
   const transformPool = transforms.reduce((pool, transform) => {
-    _.times(Math.floor(100 * transform[TRANSFORM_PARAMS.PROBABILITY] / totalProbability), () => {
-      pool.push(transform);
-    });
+    _.times(
+      Math.floor(
+        100 * transform[TRANSFORM_PARAMS.PROBABILITY] / totalProbability,
+      ),
+      () => {
+        pool.push(transform);
+      },
+    );
 
     return pool;
   }, []);
@@ -75,24 +84,30 @@ const createSharedTransformSelector = (transforms) => {
   return () => _.sample(transformPool);
 };
 
-const createColorSelector = ({targets, transforms, colors, coloringMode = null} = {}) => {
+const createColorSelector = (
+  { targets, transforms, colors, coloringMode = null } = {},
+) => {
   const actualColors = colors.map(getActualColor);
   let selector;
 
-  if (coloringMode === null || coloringMode === COLORING_MODES.BY_TRANSFORM){
+  if (coloringMode === null || coloringMode === COLORING_MODES.BY_TRANSFORM) {
     const colorLookup = transforms.reduce((map, transform, index) => {
-        map.set(transform, actualColors[index]);
-        return map;
-      }, new Map());
+      map.set(transform, actualColors[index]);
+      return map;
+    }, new Map());
     selector = (target, transform) => colorLookup.get(transform);
-  } else if (coloringMode === COLORING_MODES.GRADIENT){
-    const parsedColors = colors.map(color => convert.hex.rgb(getActualColor(color)));
-    const componentMatrixes = _.times(3, componentIndex => mat2.fromValues(
-      parsedColors[0][componentIndex],
-      parsedColors[3][componentIndex],
-      parsedColors[1][componentIndex],
-      parsedColors[2][componentIndex],
-    ));
+  } else if (coloringMode === COLORING_MODES.GRADIENT) {
+    const parsedColors = colors.map(color =>
+      convert.hex.rgb(getActualColor(color)),
+    );
+    const componentMatrixes = _.times(3, componentIndex =>
+      mat2.fromValues(
+        parsedColors[0][componentIndex],
+        parsedColors[3][componentIndex],
+        parsedColors[1][componentIndex],
+        parsedColors[2][componentIndex],
+      ),
+    );
 
     const interpolate = ([x, y], componentIndex) => {
       const clampedX = _.clamp(x, 0, 1);
@@ -106,14 +121,16 @@ const createColorSelector = ({targets, transforms, colors, coloringMode = null} 
     };
 
     selector = (target, transform, point) => {
-      const components = _.times(3, componentIndex => interpolate(point, componentIndex));
+      const components = _.times(3, componentIndex =>
+        interpolate(point, componentIndex),
+      );
       return `#${convert.rgb.hex(components)}`;
     };
   } else {
     const colorLookup = targets.reduce((map, target, index) => {
-        map.set(target, actualColors[index]);
-        return map;
-      }, new Map());
+      map.set(target, actualColors[index]);
+      return map;
+    }, new Map());
     selector = target => colorLookup.get(target);
   }
 
@@ -121,17 +138,23 @@ const createColorSelector = ({targets, transforms, colors, coloringMode = null} 
 };
 
 const attractorFactory = ({
-      colorSelector,
-      targetSelector,
-      transforms,
-      transformSelector,
-    }) => {
+  colorSelector,
+  targetSelector,
+  transforms,
+  transformSelector,
+}) => {
   const transformMatrixLookup = transforms.reduce((lookup, transform) => {
     const scaleMatrix = mat2.fromScaling(
       mat2.create(),
-      vec2.fromValues(transform[TRANSFORM_PARAMS.SCALE], transform[TRANSFORM_PARAMS.SCALE]),
+      vec2.fromValues(
+        transform[TRANSFORM_PARAMS.SCALE],
+        transform[TRANSFORM_PARAMS.SCALE],
+      ),
     );
-    const rotationMatrix = mat2.fromRotation(mat2.create(), transform[TRANSFORM_PARAMS.ROTATION]);
+    const rotationMatrix = mat2.fromRotation(
+      mat2.create(),
+      transform[TRANSFORM_PARAMS.ROTATION],
+    );
     const transformMatrix = mat2.multiply(
       mat2.create(),
       scaleMatrix,
@@ -146,8 +169,11 @@ const attractorFactory = ({
   let currentPoint = vec2.fromValues(Math.random(), Math.random());
   const moveCurrentPoint = (target, transformMatrix) => {
     const delta = vec2.subtract(vec2.create(), target, currentPoint);
-    const currentTemp = vec2.transformMat2(vec2.create(), delta,
-        transformMatrix);
+    const currentTemp = vec2.transformMat2(
+      vec2.create(),
+      delta,
+      transformMatrix,
+    );
 
     currentPoint = vec2.add(vec2.create(), currentTemp, currentPoint);
 
@@ -171,7 +197,7 @@ const attractorFactory = ({
 
   // Prime the attractor so that we don't see any random points lingering
   // around outside of the main fractal.
-  for (var i = 0; i < 100; i++){
+  for (var i = 0; i < 100; i++) {
     getNextPoint();
   }
 
@@ -182,24 +208,28 @@ const attractorFactory = ({
 
 export default {
   [GAME_TYPES.HISTORY_EXCLUSION]: {
-    description: 'Using the number of targets specified by the Target History control, choose the next target based the intersection of the exclusion rules. See the “Exclusions” control below for more details.',
+    description:
+      'Using the number of targets specified by the Target History control, choose the next target based the intersection of the exclusion rules. See the “Exclusions” control below for more details.',
 
-    additionalControls: [
-      CONTROL_TYPES.HISTORY,
-    ],
+    additionalControls: [CONTROL_TYPES.HISTORY],
 
-    createAttractor(targets, controls){
+    createAttractor(targets, controls) {
       const {
         [CONTROL_TYPES.COLORING_MODE]: coloringMode,
         [CONTROL_TYPES.COLORS]: colors,
         [CONTROL_TYPES.EXCLUSIONS]: exclusions,
-        [CONTROL_TYPES.TRANSFORMS]: transforms
+        [CONTROL_TYPES.TRANSFORMS]: transforms,
       } = controls;
 
       const getIntersection = (a, b) => new Set([...a].filter(x => b.has(x)));
 
-      const historySize = CONTROLS[CONTROL_TYPES.HISTORY].extractValueFrom(controls);
-      const possibleTargetLookup = generateExclusionTargetLookup(targets, exclusions);
+      const historySize = CONTROLS[CONTROL_TYPES.HISTORY].extractValueFrom(
+        controls,
+      );
+      const possibleTargetLookup = generateExclusionTargetLookup(
+        targets,
+        exclusions,
+      );
 
       const getPossibleTargets = memoize((n, ...previousTargets) => {
         // If the previous target was undefined it means that there are no
@@ -207,19 +237,18 @@ export default {
         if (previousTargets.length && !previousTargets[0]) return [];
 
         return [
-          ...(
-            previousTargets
-              .map(target => new Set(possibleTargetLookup.get(target)))
-              .reduce(getIntersection, new Set(targets))
-          )
+          ...previousTargets
+            .map(target => new Set(possibleTargetLookup.get(target)))
+            .reduce(getIntersection, new Set(targets)),
         ];
       });
 
       const targetSelector = createTargetSelectorWithHistory(
         historySize,
-        previousTargets => _.sample(
-          getPossibleTargets(previousTargets.length, ...previousTargets)
-        )
+        previousTargets =>
+          _.sample(
+            getPossibleTargets(previousTargets.length, ...previousTargets),
+          ),
       );
 
       const transformSelector = createSharedTransformSelector(transforms);
@@ -239,34 +268,41 @@ export default {
   },
 
   [GAME_TYPES.HISTORY_EXCLUSION_2]: {
-    description: 'Similar to the “History Exclusion” variation, however the exclusion rules are only applied if the previously chosen two targets were the same. See the “Exclusions” control below for more details.',
+    description:
+      'Similar to the “History Exclusion” variation, however the exclusion rules are only applied if the previously chosen two targets were the same. See the “Exclusions” control below for more details.',
 
     additionalControls: [],
 
-    createAttractor(targets, controls){
+    createAttractor(targets, controls) {
       const {
         [CONTROL_TYPES.COLORING_MODE]: coloringMode,
         [CONTROL_TYPES.COLORS]: colors,
         [CONTROL_TYPES.EXCLUSIONS]: exclusions,
-        [CONTROL_TYPES.TRANSFORMS]: transforms
+        [CONTROL_TYPES.TRANSFORMS]: transforms,
       } = controls;
 
-      const possibleTargetLookup = generateExclusionTargetLookup(targets, exclusions);
+      const possibleTargetLookup = generateExclusionTargetLookup(
+        targets,
+        exclusions,
+      );
 
-      const targetSelector = createTargetSelectorWithHistory(2,
-        (previousTargets) => {
+      const targetSelector = createTargetSelectorWithHistory(
+        2,
+        previousTargets => {
           // If the previous target was undefined it means that there are no
           // other choices.
           if (previousTargets.length && !previousTargets[0]) return;
 
           const uniquePreviousTargets = new Set(previousTargets);
 
-          let possibleTargets = uniquePreviousTargets.size === 1 ?
-            possibleTargetLookup.get(previousTargets[0]) :
-            targets;
+          let possibleTargets =
+            uniquePreviousTargets.size === 1
+              ? possibleTargetLookup.get(previousTargets[0])
+              : targets;
 
           return _.sample(possibleTargets);
-        });
+        },
+      );
 
       const transformSelector = createSharedTransformSelector(transforms);
 
@@ -285,17 +321,17 @@ export default {
   },
 
   [GAME_TYPES.TARGET_TRANSFORMS]: {
-    description: 'Instead of choosing a transformation randomly, associate a transform with each target.',
+    description:
+      'Instead of choosing a transformation randomly, associate a transform with each target.',
 
-    numTransforms: controls => CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(controls),
+    numTransforms: controls =>
+      CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(controls),
 
     disableTargetColoringMode: true,
 
-    additionalControls: [
-      CONTROL_TYPES.HISTORY,
-    ],
+    additionalControls: [CONTROL_TYPES.HISTORY],
 
-    createAttractor(targets, controls){
+    createAttractor(targets, controls) {
       const {
         [CONTROL_TYPES.COLORING_MODE]: coloringMode,
         [CONTROL_TYPES.COLORS]: colors,
@@ -310,14 +346,26 @@ export default {
 
       const getIntersection = (a, b) => new Set([...a].filter(x => b.has(x)));
 
-      const historySize = CONTROLS[CONTROL_TYPES.HISTORY].extractValueFrom(controls);
-      const possibleTargetLookup = generateExclusionTargetLookup(targets, exclusions);
+      const historySize = CONTROLS[CONTROL_TYPES.HISTORY].extractValueFrom(
+        controls,
+      );
+      const possibleTargetLookup = generateExclusionTargetLookup(
+        targets,
+        exclusions,
+      );
 
       const totalProbability = transforms.reduce(
-        (acc, transform) => acc + transform[TRANSFORM_PARAMS.PROBABILITY], 0);
+        (acc, transform) => acc + transform[TRANSFORM_PARAMS.PROBABILITY],
+        0,
+      );
       const targetPools = targets.reduce((map, target) => {
-        const probability = transformMap.get(target)[TRANSFORM_PARAMS.PROBABILITY];
-        const pool = _.times(Math.floor(100 * probability / totalProbability), () => target);
+        const probability = transformMap.get(target)[
+          TRANSFORM_PARAMS.PROBABILITY
+        ];
+        const pool = _.times(
+          Math.floor(100 * probability / totalProbability),
+          () => target,
+        );
         return map.set(target, pool);
       }, new Map());
 
@@ -332,20 +380,21 @@ export default {
             return getIntersection(intersection, possibleTargets);
           }, new Set(targets));
 
-        return [...possibleTargetSet].reduce((acc, target) => [
-          ...acc,
-          ...targetPools.get(target),
-        ], []);
+        return [...possibleTargetSet].reduce(
+          (acc, target) => [...acc, ...targetPools.get(target)],
+          [],
+        );
       });
 
       const targetSelector = createTargetSelectorWithHistory(
         historySize,
-        previousTargets => _.sample(
-          getPossibleTargets(previousTargets.length, ...previousTargets)
-        )
+        previousTargets =>
+          _.sample(
+            getPossibleTargets(previousTargets.length, ...previousTargets),
+          ),
       );
 
-      const transformSelector = (target) => {
+      const transformSelector = target => {
         return transformMap.get(target);
       };
 

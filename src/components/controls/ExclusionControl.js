@@ -10,7 +10,7 @@ import { createPolygon } from '../../utils/control-utils';
 import './exclusion-control.css';
 
 const getExclusionHelp = (exclusionsSet, historySize) => {
-  if (exclusionsSet.size){
+  if (exclusionsSet.size) {
     let excludedTargets = [...exclusionsSet].sort((a, b) => a - b);
     let str = 'The next chosen target cannot be ';
 
@@ -21,7 +21,10 @@ const getExclusionHelp = (exclusionsSet, historySize) => {
 
     if (excludedTargets.length) {
       str = `${str} ${listify(excludedTargets, { finalWord: 'or' })}
-        ${pluralize('place', excludedTargets[excludedTargets.length - 1])} away from`;
+        ${pluralize(
+          'place',
+          excludedTargets[excludedTargets.length - 1],
+        )} away from`;
     }
 
     const actualHistorySize = historySize || 2;
@@ -29,7 +32,9 @@ const getExclusionHelp = (exclusionsSet, historySize) => {
     return `${str} the ${actualHistorySize > 1 ? 'last' : 'previously'}
       ${actualHistorySize > 1 ? actualHistorySize : ''} chosen
       ${pluralize('target', historySize)}
-      ${typeof historySize !== 'number' ? '(provided both previous targets were the same)' : ''}.`;
+      ${typeof historySize !== 'number'
+        ? '(provided both previous targets were the same)'
+        : ''}.`;
   }
 
   return 'The next target will be chosen randomly.';
@@ -37,16 +42,20 @@ const getExclusionHelp = (exclusionsSet, historySize) => {
 
 export default ({ controls, onChange }) => {
   const exclusions = controls[CONTROL_TYPES.EXCLUSIONS];
-  const historySize = CONTROLS[CONTROL_TYPES.HISTORY].extractValueFrom(controls);
-  const numTargets = CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(controls);
+  const historySize = CONTROLS[CONTROL_TYPES.HISTORY].extractValueFrom(
+    controls,
+  );
+  const numTargets = CONTROLS[CONTROL_TYPES.NUM_TARGETS].extractValueFrom(
+    controls,
+  );
 
   const exclusionsSet = new Set(exclusions);
   const points = createPolygon(numTargets);
 
-  const onToggle = (index) => {
+  const onToggle = index => {
     const updatedExclusions = new Set(exclusions);
 
-    if (updatedExclusions.has(index)){
+    if (updatedExclusions.has(index)) {
       updatedExclusions.delete(index);
     } else {
       updatedExclusions.add(index);
@@ -55,43 +64,38 @@ export default ({ controls, onChange }) => {
     onChange(CONTROL_TYPES.EXCLUSIONS, [...updatedExclusions]);
   };
 
-  const onShuffle = () => onChange(
-    CONTROL_TYPES.EXCLUSIONS,
-    [
-      ...(new Set(_.sampleSize(_.range(1, numTargets - 1), _.random(1, numTargets - 2)))),
-    ],
-  );
+  const onShuffle = () =>
+    onChange(CONTROL_TYPES.EXCLUSIONS, [
+      ...new Set(
+        _.sampleSize(_.range(1, numTargets - 1), _.random(1, numTargets - 2)),
+      ),
+    ]);
 
   const angleLerp = 360 / numTargets;
-  let triangleAngles = _.times(numTargets - 1,
-    index => ((angleLerp * (index + 1)) - 18));
+  let triangleAngles = _.times(
+    numTargets - 1,
+    index => angleLerp * (index + 1) - 18,
+  );
 
-  if (numTargets === 4){
+  if (numTargets === 4) {
     triangleAngles = triangleAngles.map(angle => angle - 45);
   }
 
   return (
     <div className="exclusion-control">
-      <svg className="exclusion-control__points"
-        viewBox="-0.15 -0.15 1.3 1.3"
-      >
+      <svg className="exclusion-control__points" viewBox="-0.15 -0.15 1.3 1.3">
         <defs>
           <mask id="points">
-            <circle
-              cx="0.5"
-              cy="0.5"
-              r="1"
-              fill="white"
-            />
-            {points.map((point, index) => (
+            <circle cx="0.5" cy="0.5" r="1" fill="white" />
+            {points.map((point, index) =>
               <circle
                 key={`mask-${point[0]}-${point[1]}`}
                 cx={point[0]}
                 cy={point[1]}
                 r="0.13"
                 fill="black"
-              />
-            ))}
+              />,
+            )}
           </mask>
         </defs>
         <path
@@ -100,14 +104,12 @@ export default ({ controls, onChange }) => {
           d={`M${points[points.length - 1][0]} ${points[points.length - 1][1]}
             A 0.5 0.5 1 1 ${points[0][0]} ${points[0][1]}`}
         />
-        {points.map((point, index) => (
+        {points.map((point, index) =>
           <g
-            className={
-              classNames('exclusion-control__point', {
-                'exclusion-control__point--excluded': exclusionsSet.has(index),
-                'exclusion-control__point--first': index === 0,
-              })
-            }
+            className={classNames('exclusion-control__point', {
+              'exclusion-control__point--excluded': exclusionsSet.has(index),
+              'exclusion-control__point--first': index === 0,
+            })}
             key={point}
             transform={`translate(${point[0]}, ${point[1]})`}
             onClick={() => onToggle(index)}
@@ -122,13 +124,13 @@ export default ({ controls, onChange }) => {
               className="exclusion-control__point-cross"
               transform="rotate(45)"
             >
-              <rect x="-0.06" y="-0.01" width="0.12" height="0.02"/>
-              <rect x="-0.01" y="-0.06" width="0.02" height="0.12"/>
+              <rect x="-0.06" y="-0.01" width="0.12" height="0.02" />
+              <rect x="-0.01" y="-0.06" width="0.02" height="0.12" />
             </g>
-          </g>
-        ))}
+          </g>,
+        )}
 
-        {triangleAngles.map(angle => (
+        {triangleAngles.map(angle =>
           <g
             key={angle}
             transform={`translate(0, -0.5) rotate(${angle} 0.5 1)`}
@@ -140,11 +142,13 @@ export default ({ controls, onChange }) => {
                 points="0,0 0.045,0.0225 0,0.045"
               />
             </g>
-          </g>
-        ))}
+          </g>,
+        )}
       </svg>
 
-      <p className="exclusion-control__help">{getExclusionHelp(exclusionsSet, historySize)}</p>
+      <p className="exclusion-control__help">
+        {getExclusionHelp(exclusionsSet, historySize)}
+      </p>
 
       <button className="btn btn--block-center" onClick={onShuffle}>
         randomize exclusions

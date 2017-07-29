@@ -32,12 +32,7 @@ class Canvas extends Component {
 
     const size = this.props.size * CANVAS_SCALE;
 
-    this._context.fillRect(
-      -size,
-      -size,
-      size * 3,
-      size * 3,
-    );
+    this._context.fillRect(-size, -size, size * 3, size * 3);
   }
 
   resizeCanvas() {
@@ -47,43 +42,55 @@ class Canvas extends Component {
     this._canvas.style.height = `${this.props.size}px`;
 
     const offset = this.props.size * CANVAS_SCALE * (1 - DRAWING_SCALE) / 2;
-    this._context.setTransform(DRAWING_SCALE, 0, 0, DRAWING_SCALE, offset, offset);
+    this._context.setTransform(
+      DRAWING_SCALE,
+      0,
+      0,
+      DRAWING_SCALE,
+      offset,
+      offset,
+    );
 
     this.clear();
   }
 
   render() {
     return (
-      <canvas className="canvas" ref={canvas => {this._canvas = canvas;}} />
+      <canvas
+        className="canvas"
+        ref={canvas => {
+          this._canvas = canvas;
+        }}
+      />
     );
   }
 
-  toBlob(){
+  toBlob() {
     return new Promise(resolve => {
-      this._canvas.toBlob((blob) => {
+      this._canvas.toBlob(blob => {
         resolve(blob);
       });
     });
   }
 
-  start(){
+  start() {
     cancelAnimationFrame(this._animationId);
     const update = () => {
       // Draw as many points as possible in 50 milliseconds.
       const start = performance.now();
-      while (performance.now() - start < 40){
+      while (performance.now() - start < 40) {
         this.draw();
       }
 
-      if(this.props.isRunning){
+      if (this.props.isRunning) {
         this._animationId = requestAnimationFrame(update);
       }
     };
     update();
   }
 
-  draw(){
-    const {color, point} = this.props.attractor.getNextPoint();
+  draw() {
+    const { color, point } = this.props.attractor.getNextPoint();
     if (!point) return;
 
     const [x, y] = point;
@@ -93,7 +100,7 @@ class Canvas extends Component {
       x * this.props.size * CANVAS_SCALE,
       y * this.props.size * CANVAS_SCALE,
       pointSize,
-      pointSize
+      pointSize,
     );
   }
 }

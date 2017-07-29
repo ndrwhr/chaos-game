@@ -31,7 +31,8 @@ export default class Range extends Component {
   }
 
   render() {
-    const barWidth = (this.props.value - this.props.minValue) /
+    const barWidth =
+      (this.props.value - this.props.minValue) /
       (this.props.maxValue - this.props.minValue);
 
     return (
@@ -43,7 +44,9 @@ export default class Range extends Component {
           className={classNames('range__slider-container', {
             'range__slider-container--active': this.state.isDragging,
           })}
-          ref={(el) => {this.sliderContainerEl = el;}}
+          ref={el => {
+            this.sliderContainerEl = el;
+          }}
           onMouseDown={this.onDragStart}
         >
           <div
@@ -75,8 +78,14 @@ export default class Range extends Component {
 
     const containerRect = this.sliderContainerEl.getBoundingClientRect();
     const position = _.clamp(
-      (getClientX(evt) - containerRect.left) / (containerRect.right - containerRect.left), 0, 1);
-    const newValue = ((this.props.maxValue - this.props.minValue) * position) + this.props.minValue;
+      (getClientX(evt) - containerRect.left) /
+        (containerRect.right - containerRect.left),
+      0,
+      1,
+    );
+    const newValue =
+      (this.props.maxValue - this.props.minValue) * position +
+      this.props.minValue;
 
     this.props.onChange(newValue);
   }

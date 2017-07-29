@@ -15,7 +15,7 @@
     "spell_check": true,
     "translate_tabs_to_spaces": true,
     "trim_trailing_white_space_on_save": true,
-    "rulers": [100],
+    "rulers": [80],
     "draw_white_space": "all"
   }
 }

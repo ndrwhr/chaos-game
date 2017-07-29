@@ -56,11 +56,15 @@ const CONTROL_TYPES_SERIALIZATIONS = {
   [CONTROL_TYPES.TRANSFORMS]: 't',
 };
 
-export const SERIALIZATIONS_TO_CONTROL_TYPES = Object.keys(CONTROL_TYPES_SERIALIZATIONS)
-  .reduce((obj, key) => ({
+export const SERIALIZATIONS_TO_CONTROL_TYPES = Object.keys(
+  CONTROL_TYPES_SERIALIZATIONS,
+).reduce(
+  (obj, key) => ({
     ...obj,
     [CONTROL_TYPES_SERIALIZATIONS[key]]: key,
-  }), {});
+  }),
+  {},
+);
 
 export const createTransform = () => ({
   [TRANSFORM_PARAMS.SCALE]: 0.5,
@@ -96,9 +100,11 @@ export const PRESETS = [
   'c=49_47_46_29&cm=2&e=8_6_5_1&h=0&n=3&t=s0.653r0p0.0509_s0.4004r0p0.0615_s0.7664r0p0.3479&v=0',
 ];
 
-const composeControl = (...decorators) => (
-  params => decorators.reduce((updatedParams, decorator) => decorator(updatedParams), params)
-);
+const composeControl = (...decorators) => params =>
+  decorators.reduce(
+    (updatedParams, decorator) => decorator(updatedParams),
+    params,
+  );
 
 const withIntSerializer = () => params => ({
   ...params,
@@ -109,28 +115,36 @@ const withIntSerializer = () => params => ({
 
   deserialize: value => {
     const parsedValue = parseInt(value, 10);
-    return isNaN(parsedValue) ? {} : {
-      [params.type]: parsedValue,
-    };
+    return isNaN(parsedValue)
+      ? {}
+      : {
+          [params.type]: parsedValue,
+        };
   },
 });
 
-const withArraySerializer = ({
-  valueSerializer = value => `${value}`,
-  valueParser = value => parseInt(value, 10),
-  valueSanitizer = value => !isNaN(value),
-} = {}) => params => ({
+const withArraySerializer = (
+  {
+    valueSerializer = value => `${value}`,
+    valueParser = value => parseInt(value, 10),
+    valueSanitizer = value => !isNaN(value),
+  } = {},
+) => params => ({
   ...params,
 
   serialize: values => ({
-    [CONTROL_TYPES_SERIALIZATIONS[params.type]]: values.map(valueSerializer).join('_'),
+    [CONTROL_TYPES_SERIALIZATIONS[params.type]]: values
+      .map(valueSerializer)
+      .join('_'),
   }),
 
   deserialize: valuesString => {
     const values = valuesString.split('_');
-    return Array.isArray(values) ? {
-      [params.type]: values.map(valueParser).filter(valueSanitizer),
-    } : {};
+    return Array.isArray(values)
+      ? {
+          [params.type]: values.map(valueParser).filter(valueSanitizer),
+        }
+      : {};
   },
 });
 
@@ -141,7 +155,7 @@ const withOptions = options => params => ({
 
   extractValueFrom: controls => {
     const index = controls[params.type];
-    return (index !== null && index !== undefined) ? options[index].value : null;
+    return index !== null && index !== undefined ? options[index].value : null;
   },
 
   random: () => _.random(0, options.length - 1),
@@ -177,12 +191,14 @@ export const CONTROLS = {
       {
         name: 'Color via targets',
         value: COLORING_MODES.BY_TARGET,
-        description: 'Use the controls above to change the color assigned to each target.',
+        description:
+          'Use the controls above to change the color assigned to each target.',
       },
       {
         name: '4 Corner Gradient',
         value: COLORING_MODES.GRADIENT,
-        description: 'Use the controls above to change the color of each corner of the gradient.',
+        description:
+          'Use the controls above to change the color of each corner of the gradient.',
       },
     ]),
   )({
@@ -195,22 +211,24 @@ export const CONTROLS = {
     defaultValue: () => 0,
   }),
 
-  [CONTROL_TYPES.COLORS]: composeControl(
-    withArraySerializer(),
-  )({
+  [CONTROL_TYPES.COLORS]: composeControl(withArraySerializer())({
     type: CONTROL_TYPES.COLORS,
 
-    defaultValue: (existingColors = [], expectedNumColors, sortByHue =  false) => {
+    defaultValue: (
+      existingColors = [],
+      expectedNumColors,
+      sortByHue = false,
+    ) => {
       const colors = existingColors.slice(0, expectedNumColors);
-      while (colors.length < expectedNumColors){
+      while (colors.length < expectedNumColors) {
         colors.push(getNextColor(colors));
       }
 
-      if (sortByHue){
+      if (sortByHue) {
         colors.sort((a, b) => {
-            const [aH,,aL] = colorConvert.hex.hsl(getActualColor(a));
-            const [bH,,bL] = colorConvert.hex.hsl(getActualColor(b));
-            return (bH - aH) || (aL-bL);
+          const [aH, , aL] = colorConvert.hex.hsl(getActualColor(a));
+          const [bH, , bL] = colorConvert.hex.hsl(getActualColor(b));
+          return bH - aH || aL - bL;
         });
       }
 
@@ -218,14 +236,14 @@ export const CONTROLS = {
     },
   }),
 
-  [CONTROL_TYPES.EXCLUSIONS]: composeControl(
-    withArraySerializer(),
-  )({
+  [CONTROL_TYPES.EXCLUSIONS]: composeControl(withArraySerializer())({
     type: CONTROL_TYPES.EXCLUSIONS,
 
-    random: numTargets => ([
-      ...(new Set(_.sampleSize(_.range(1, numTargets - 1), _.random(1, numTargets - 2)))),
-    ]),
+    random: numTargets => [
+      ...new Set(
+        _.sampleSize(_.range(1, numTargets - 1), _.random(1, numTargets - 2)),
+      ),
+    ],
 
     defaultValue: () => [1, 4],
   }),
@@ -254,10 +272,12 @@ export const CONTROLS = {
 
   [CONTROL_TYPES.HISTORY]: composeControl(
     withIntSerializer(),
-    withOptions(_.range(1, 4).map(i => ({
-      name: i,
-      value: i,
-    }))),
+    withOptions(
+      _.range(1, 4).map(i => ({
+        name: i,
+        value: i,
+      })),
+    ),
   )({
     type: CONTROL_TYPES.HISTORY,
 
@@ -291,10 +311,12 @@ export const CONTROLS = {
 
   [CONTROL_TYPES.NUM_TARGETS]: composeControl(
     withIntSerializer(),
-    withOptions(_.range(3,11).map(i => ({
-      name: i,
-      value: i,
-    }))),
+    withOptions(
+      _.range(3, 11).map(i => ({
+        name: i,
+        value: i,
+      })),
+    ),
   )({
     type: CONTROL_TYPES.NUM_TARGETS,
 
@@ -320,11 +342,10 @@ export const CONTROLS = {
 
   [CONTROL_TYPES.TRANSFORMS]: composeControl(
     withArraySerializer({
-      valueSerializer: transform => (
-        Object.keys(transform).map(key => (
-          `${key}${Math.floor(transform[key] * 10000) / 10000}`)
-        ).join('')
-      ),
+      valueSerializer: transform =>
+        Object.keys(transform)
+          .map(key => `${key}${Math.floor(transform[key] * 10000) / 10000}`)
+          .join(''),
 
       valueParser: valueString => {
         const transform = {};
@@ -346,7 +367,7 @@ export const CONTROLS = {
       },
 
       valueSanitizer: value => !!value,
-    })
+    }),
   )({
     type: CONTROL_TYPES.TRANSFORMS,
 
@@ -356,8 +377,10 @@ export const CONTROLS = {
         key: TRANSFORM_PARAMS.SCALE,
         minValue: 0.1,
         maxValue: 0.9,
-        formatValue: (value) => {
-          return `Move about ${Math.round(value * 100)}% of the way towards the next target.`;
+        formatValue: value => {
+          return `Move about ${Math.round(
+            value * 100,
+          )}% of the way towards the next target.`;
         },
       },
       {
@@ -365,8 +388,8 @@ export const CONTROLS = {
         key: TRANSFORM_PARAMS.ROTATION,
         minValue: -Math.PI / 10,
         maxValue: Math.PI / 10,
-        formatValue(value){
-          const degrees = (180 / Math.PI) * value;
+        formatValue(value) {
+          const degrees = 180 / Math.PI * value;
           const absDegrees = Math.abs(degrees);
           const formattedDeg = Math.round(absDegrees * 10) / 10;
 
@@ -383,7 +406,7 @@ export const CONTROLS = {
         key: TRANSFORM_PARAMS.PROBABILITY,
         minValue: 0.001,
         maxValue: 1,
-        formatValue(value){
+        formatValue(value) {
           return `Probability ${value}.`;
         },
       },
@@ -393,18 +416,21 @@ export const CONTROLS = {
 
     randomTransform: () => {
       const control = CONTROLS[CONTROL_TYPES.TRANSFORMS];
-      return control.paramsValues.reduce((acc, params) => ({
-        ...acc,
-        [params.key]: _.random(params.minValue, params.maxValue, true),
-      }), {});
+      return control.paramsValues.reduce(
+        (acc, params) => ({
+          ...acc,
+          [params.key]: _.random(params.minValue, params.maxValue, true),
+        }),
+        {},
+      );
     },
 
-    defaultValue: () => ([
-      createTransform()
-    ]),
+    defaultValue: () => [createTransform()],
   }),
 };
 
-export const SERIALIZABLE_CONTROLS = new Set(Object.keys(CONTROLS).filter(controlType => (
-  !!CONTROLS[controlType].serialize
-)));
+export const SERIALIZABLE_CONTROLS = new Set(
+  Object.keys(CONTROLS).filter(
+    controlType => !!CONTROLS[controlType].serialize,
+  ),
+);

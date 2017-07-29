@@ -1,3 +1,4 @@
+// prettier-ignore
 export const COLORS = [
   ['#fff9c4','#fff59d','#fff176','#ffee58','#ffeb3b','#fdd835','#fbc02d','#f9a825','#f57f17'],
   ['#ffecb3','#ffe082','#ffd54f','#ffca28','#ffc107','#ffb300','#ffa000','#ff8f00','#ff6f00'],
@@ -16,6 +17,7 @@ export const COLORS = [
   ['#cfd8dc','#b0bec5','#90a4ae','#78909c','#607d8b','#546e7a','#455a64','#37474f','#263238'],
 ];
 
+// prettier-ignore
 export const LIGHT_COLORS_SET = new Set([
   '#ffcdd2','#ef9a9a','#e57373','#f8bbd0','#f48fb1','#e1bee7','#ce93d8','#d1c4e9','#b39ddb',
   '#c5cae9','#9fa8da','#bbdefb','#90caf9','#64b5f6','#42a5f5','#b3e5fc','#81d4fa','#4fc3f7',
@@ -27,6 +29,6 @@ export const LIGHT_COLORS_SET = new Set([
   '#ff9800','#fb8c00','#f57c00','#cfd8dc','#b0bec5','#90a4ae',
 ]);
 
-export const COLOR_INDEXES = COLORS.map((shades, rowIndex) => (
-  shades.map((shade, colIndex) => (rowIndex * COLORS[0].length) + colIndex)
-));
+export const COLOR_INDEXES = COLORS.map((shades, rowIndex) =>
+  shades.map((shade, colIndex) => rowIndex * COLORS[0].length + colIndex),
+);
