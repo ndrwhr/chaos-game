@@ -87,7 +87,7 @@
   background-image: url('./img/check-mark-black.svg');
 }
 
-.color-picker__button:not(.color-picker__button--selected):hover::after {
+.color-picker__button--hover:not(.color-picker__button--selected)::after {
   opacity: 0.5;
   transform: scale(1);
 }

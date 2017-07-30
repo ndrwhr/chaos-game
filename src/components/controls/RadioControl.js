@@ -1,39 +1,41 @@
-import classNames from 'classnames';
 import React from 'react';
+
+import Button from './Button';
 
 import './radio-control.css';
 
 const renderButtonStyle = props =>
   <div className="radio-control">
     {props.options.map(({ name, value }) =>
-      <button
+      <Button
         key={value}
-        className={classNames('btn btn--inline', {
-          'btn--active': props.selectedValue === value,
-        })}
-        onClick={() => props.onChange(value)}
+        modifiers={{
+          inline: true,
+          selected: props.selectedValue === value,
+        }}
+        onPress={() => props.onChange(value)}
       >
         {name}
-      </button>,
+      </Button>,
     )}
   </div>;
 
 const renderRadioStyle = props =>
   <ul className="radio-control radio-control--list">
     {props.options.map(({ name, value }) =>
-      <li className="radio-control-item" key={value}>
-        <label className="radio-control__item-label">
-          <input
-            className="radio-control__radio-input"
-            type="radio"
-            checked={props.selectedValue === value}
-            onChange={() => props.onChange(value)}
-          />
-          <div className="radio-control__fake-radio" />
-          <span className="radio-control__item-name">
+      <li className="radio-control__item" key={value}>
+        <Button
+          baseClassName="radio-control__radio"
+          modifiers={{
+            selected: props.selectedValue === value,
+          }}
+          onPress={() => props.onChange(value)}
+        >
+          <div className="radio-control__radio-dot" />
+          <div className="radio-control__radio-name">
             {name}
-          </span>
-        </label>
+          </div>
+        </Button>
       </li>,
     )}
   </ul>;

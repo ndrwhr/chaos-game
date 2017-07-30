@@ -250,10 +250,11 @@ export function getRandomControlValues(previousValues = {}) {
   return controls;
 }
 
-export function saveControlValues(controls) {
+// Debounce updating the query string to prevent mobile safar locking up.
+export const saveControlValues = _.debounce((controls) => {
   const paramsString = toQueryString(controls);
   window.history.replaceState({}, document.title, `?${paramsString}`);
-}
+}, 500);
 
 export function readSavedControlValues() {
   const searchString =

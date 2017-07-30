@@ -2,6 +2,8 @@
 :root {
   --sidebar-width: 400px;
 
+  --preset-control-height: 30px;
+
   --padding-full: 10px;
   --padding-half: 5px;
   --padding-double: 20px;
@@ -9,10 +11,12 @@
   --color-white: rgba(255, 255, 255, 1);
   --color-white-a95: rgba(255, 255, 255, 0.95);
   --color-white-a50: rgba(255, 255, 255, 0.5);
+  --color-white-a30: rgba(255, 255, 255, 0.3);
   --color-white-a20: rgba(255, 255, 255, 0.2);
 
   --color-black: rgba(38, 50, 56, 1);
   --color-black-a95: rgba(38, 50, 56, 0.95);
   --color-black-a50: rgba(38, 50, 56, 0.5);
+  --color-black-a30: rgba(38, 50, 56, 0.3);
   --color-black-a20: rgba(38, 50, 56, 0.2);
 }

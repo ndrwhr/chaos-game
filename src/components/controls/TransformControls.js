@@ -1,15 +1,15 @@
-import classNames from 'classnames';
 import { vec2 } from 'gl-matrix';
 import _ from 'lodash';
 import React, { Component } from 'react';
 
-import { getActualColor, isLightColor } from '../../utils/color-utils';
+import { getActualColor } from '../../utils/color-utils';
 import {
   CONTROL_TYPES,
   CONTROLS,
   createTransform,
   TRANSFORM_PARAMS,
 } from '../../constants/controls';
+import Button from './Button';
 import ColorPicker from './ColorPicker';
 import Range from './Range';
 
@@ -211,12 +211,10 @@ class TransformControl extends Component {
     const colorEl =
       color !== null &&
       color !== undefined &&
-      <button
-        className={classNames('transform-controls__transform-color', {
-          'transform-controls__transform-color--light': isLightColor(color),
-        })}
+      <Button
+        baseClassName="transform-controls__transform-color"
         style={{ backgroundColor: getActualColor(color) }}
-        onClick={() => this.setState({ isColorPickerOpen: true })}
+        onPress={() => this.setState({ isColorPickerOpen: true })}
       />;
 
     return (
@@ -231,18 +229,21 @@ class TransformControl extends Component {
           </span>
           <div className="transform-controls__transform-buttons">
             {colorEl}
-            <button
-              className="transform-controls__transform-button transform-controls__transform-button--reset"
-              onClick={() => onChange(createTransform())}
+            <Button
+              baseClassName="transform-controls__transform-button"
+              modifiers={{ reset: true }}
+              onPress={() => onChange(createTransform())}
             />
-            <button
-              className="transform-controls__transform-button transform-controls__transform-button--shuffle"
-              onClick={() => onChange(createRandomTransform())}
+            <Button
+              baseClassName="transform-controls__transform-button"
+              modifiers={{ shuffle: true }}
+              onPress={() => onChange(createRandomTransform())}
             />
             {onRemove &&
-              <button
-                className="transform-controls__transform-button transform-controls__transform-button--trash"
-                onClick={onRemove}
+              <Button
+                baseClassName="transform-controls__transform-button"
+                modifiers={{ trash: true }}
+                onPress={onRemove}
               />}
           </div>
         </h4>
@@ -339,9 +340,12 @@ export default ({ controls, fixedNumTransforms, onChange }) => {
       )}
 
       <div className="transform-controls__buttons">
-        <button
-          className="btn btn--inline"
-          onClick={() =>
+        <Button
+          modifiers={{
+            inline: true,
+            reset: true,
+          }}
+          onPress={() =>
             onChange(
               CONTROL_TYPES.TRANSFORMS,
               transforms.map(() =>
@@ -349,31 +353,37 @@ export default ({ controls, fixedNumTransforms, onChange }) => {
               ),
             )}
         >
-          reset all
-        </button>
+          all
+        </Button>
 
-        <button
-          className="btn btn--inline"
-          onClick={() =>
+        <Button
+          modifiers={{
+            inline: true,
+            shuffle: true,
+          }}
+          onPress={() =>
             onChange(
               CONTROL_TYPES.TRANSFORMS,
               transforms.map(() => createRandomTransform()),
             )}
         >
-          randomize all
-        </button>
+          all
+        </Button>
 
         {!fixedNumTransforms &&
-          <button
-            className="btn btn--inline"
-            onClick={() =>
+          <Button
+            modifiers={{
+              inline: true,
+              add: true,
+            }}
+            onPress={() =>
               onChange(CONTROL_TYPES.TRANSFORMS, [
                 ...transforms,
                 CONTROLS[CONTROL_TYPES.TRANSFORMS].createTransform(),
               ])}
           >
-            add transform
-          </button>}
+            transform
+          </Button>}
       </div>
     </div>
   );

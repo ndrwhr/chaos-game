@@ -1,9 +1,5 @@
 @import '../../variables.css';
 
-:root {
-  --preset-control-height: 30px;
-}
-
 .preset-control {
   display: flex;
   height: var(--preset-control-height);
@@ -72,33 +68,4 @@
 
 .app--dark .preset-control--active .preset-control__select-arrow {
   border-color: var(--color-black);
-}
-
-.preset-control__button {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: var(--preset-control-height);
-  height: var(--preset-control-height);
-}
-
-.preset-control__button::after {
-  content: '';
-  height: 10px;
-  width: 10px;
-  border-right: 1px solid var(--color-black);
-  border-bottom: 1px solid var(--color-black);
-}
-
-.preset-control__button--previous::after {
-  transform: translateX(3px) rotate(135deg);
-}
-
-.preset-control__button--next::after {
-  transform: translateX(-3px) rotate(-45deg);
-}
-
-.app--dark .preset-control__button::after {
-  border-color: var(--color-white);
 }

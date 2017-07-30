@@ -3,6 +3,7 @@ import React from 'react';
 
 import Games from '../../constants/games';
 import { CONTROL_TYPES, CONTROLS } from '../../constants/controls';
+import Button from './Button';
 import ColorControls from './ColorControls';
 import ExclusionControl from './ExclusionControl';
 import PresetControl from './PresetControl';
@@ -21,14 +22,11 @@ const Control = ({ title, description, children }) =>
   <div className="controls__control">
     <h3 className="controls__control-title">
       {title}
-      {description &&
-        <div className="controls__control-help">
-          <div className="controls__control-help-icon" />
-          <div className="controls__control-help-text">
-            {description}
-          </div>
-        </div>}
     </h3>
+    {description &&
+      <p className="controls__description">
+        {description}
+      </p>}
     <div className="controls__control-children">
       {children}
     </div>
@@ -131,9 +129,9 @@ const Controls = ({
           {game.description}
         </p>
 
-        <button className="btn btn--block-center" onClick={onRandomizeAll}>
+        <Button modifiers={{ blockCenter: true }} onPress={onRandomizeAll}>
           randomize all controls
-        </button>
+        </Button>
       </Control>
 
       <Control title="Number of Targets">

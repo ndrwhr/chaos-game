@@ -1,11 +1,12 @@
 import listify from 'listify';
 import _ from 'lodash';
-import classNames from 'classnames';
 import pluralize from 'pluralize';
 import React from 'react';
 
 import { CONTROL_TYPES, CONTROLS } from '../../constants/controls';
 import { createPolygon } from '../../utils/control-utils';
+import Button from './Button';
+import Tappable from './Tappable';
 
 import './exclusion-control.css';
 
@@ -105,29 +106,31 @@ export default ({ controls, onChange }) => {
             A 0.5 0.5 1 1 ${points[0][0]} ${points[0][1]}`}
         />
         {points.map((point, index) =>
-          <g
-            className={classNames('exclusion-control__point', {
-              'exclusion-control__point--excluded': exclusionsSet.has(index),
-              'exclusion-control__point--first': index === 0,
-            })}
+          <Tappable
             key={point}
-            transform={`translate(${point[0]}, ${point[1]})`}
-            onClick={() => onToggle(index)}
+            baseClassName="exclusion-control__point"
+            modifiers={{
+              selected: exclusionsSet.has(index),
+              first: index === 0,
+            }}
+            onPress={() => onToggle(index)}
           >
-            <circle
-              className="exclusion-control__point-background"
-              cx="0"
-              cy="0"
-              r="0.09"
-            />
-            <g
-              className="exclusion-control__point-cross"
-              transform="rotate(45)"
-            >
-              <rect x="-0.06" y="-0.01" width="0.12" height="0.02" />
-              <rect x="-0.01" y="-0.06" width="0.02" height="0.12" />
+            <g transform={`translate(${point[0]}, ${point[1]})`}>
+              <circle
+                className="exclusion-control__point-background"
+                cx="0"
+                cy="0"
+                r="0.09"
+              />
+              <g
+                className="exclusion-control__point-cross"
+                transform="rotate(45)"
+              >
+                <rect x="-0.06" y="-0.01" width="0.12" height="0.02" />
+                <rect x="-0.01" y="-0.06" width="0.02" height="0.12" />
+              </g>
             </g>
-          </g>,
+          </Tappable>,
         )}
 
         {triangleAngles.map(angle =>
@@ -150,9 +153,9 @@ export default ({ controls, onChange }) => {
         {getExclusionHelp(exclusionsSet, historySize)}
       </p>
 
-      <button className="btn btn--block-center" onClick={onShuffle}>
+      <Button modifiers={{ blockCenter: true }} onPress={onShuffle}>
         randomize exclusions
-      </button>
+      </Button>
     </div>
   );
 };

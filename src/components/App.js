@@ -11,6 +11,7 @@ import {
   SERIALIZABLE_CONTROLS,
 } from '../constants/controls';
 import Games from '../constants/games';
+import Button from './controls/Button';
 import {
   createPolygon,
   getControlValues,
@@ -94,18 +95,19 @@ class App extends Component {
             size={this.state.canvasSize}
           />
           <div className="app__meta-controls">
-            <button
-              className="app__meta-control app__meta-control--download"
-              onClick={() => this.onDownloadButtonClick()}
-              download="chaos-game.jpeg"
+            <Button
+              baseClassName="app__meta-control"
+              modifiers={{ download: true }}
+              onPress={() => this.onDownloadButtonClick()}
               title="Download"
             />
-            <button
-              className={classNames('app__meta-control', {
-                'app__meta-control--pause': this.state.isRunning,
-                'app__meta-control--play': !this.state.isRunning,
-              })}
-              onClick={() =>
+            <Button
+              baseClassName="app__meta-control"
+              modifiers={{
+                pause: this.state.isRunning,
+                play: !this.state.isRunning,
+              }}
+              onPress={() =>
                 this.setState({ isRunning: !this.state.isRunning })}
               title={this.state.isRunning ? 'Pause' : 'Play'}
             />

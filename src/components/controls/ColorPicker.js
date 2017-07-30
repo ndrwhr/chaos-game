@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 
 import { COLOR_INDEXES } from '../../constants/colors';
 import { getActualColor, isLightColor } from '../../utils/color-utils';
+import Button from './Button';
 
 import './color-picker.css';
 
@@ -51,45 +52,43 @@ export default class ColorPicker extends Component {
         <div className="color-picker__lists">
           <div className="color-picker__list color-picker__list--hues">
             {hues.map(hue =>
-              <button
+              <Button
                 key={`hue-${hue}`}
-                className={classNames(
-                  'color-picker__button color-picker__button--hue',
-                  {
-                    'color-picker__button--dark-text': isLightColor(hue),
-                    'color-picker__button--selected': hue === selectedHue,
-                  },
-                )}
+                baseClassName="color-picker__button"
+                modifiers={{
+                  hue: true,
+                  darkText: isLightColor(hue),
+                  selected: hue === selectedHue,
+                }}
                 style={{ background: getActualColor(hue) }}
-                onClick={() => this.props.onChange(hue)}
+                onPress={() => this.props.onChange(hue)}
               />,
             )}
           </div>
 
           <div className="color-picker__list color-picker__list--shades">
             {shades.map((shade, index) =>
-              <button
+              <Button
                 key={`shade-${index}`}
-                className={classNames(
-                  'color-picker__button color-picker__button--shade',
-                  {
-                    'color-picker__button--dark-text': isLightColor(shade),
-                    'color-picker__button--selected': shade === color,
-                  },
-                )}
+                baseClassName="color-picker__button"
+                modifiers={{
+                  shade: true,
+                  darkText: isLightColor(shade),
+                  selected: shade === color,
+                }}
                 style={{ background: getActualColor(shade) }}
-                onClick={() => this.props.onChange(shade)}
+                onPress={() => this.props.onChange(shade)}
               />,
             )}
           </div>
         </div>
         <div className="color-picker__controls">
-          <button className="btn btn--inline" onClick={selectRandomColor}>
+          <Button modifiers={{ inline: true }} onPress={selectRandomColor}>
             select random
-          </button>
-          <button className="btn btn--inline" onClick={props.onClose}>
+          </Button>
+          <Button modifiers={{ inline: true }} onPress={props.onClose}>
             close
-          </button>
+          </Button>
         </div>
       </div>
     );

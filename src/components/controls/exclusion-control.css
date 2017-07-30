@@ -38,19 +38,19 @@
   fill: var(--color-black);
 }
 
-.exclusion-control__point:not(.exclusion-control__point--excluded):hover {
+.exclusion-control__point--hover:not(.exclusion-control__point--selected) {
   fill: var(--color-black-a20);
 }
 
-.app--dark .exclusion-control__point:not(.exclusion-control__point--excluded):hover {
+.app--dark .exclusion-control__point--hover:not(.exclusion-control__point--selected) {
   fill: var(--color-white-a20);
 }
 
-.exclusion-control__point--excluded {
+.exclusion-control__point--selected {
   fill: var(--color-black);
 }
 
-.app--dark .exclusion-control__point--excluded {
+.app--dark .exclusion-control__point--selected {
   fill: var(--color-white);
 }
 

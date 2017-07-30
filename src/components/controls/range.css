@@ -4,6 +4,7 @@
   display: flex;
   width: 100%;
   align-items: center;
+  user-select: none;
 }
 
 .range__slider-container {
@@ -27,11 +28,14 @@
   width: 100%;
   background: var(--color-black);
   pointer-events: none;
+  transform: scaleX(0);
+  transform-origin: top left;
+}
+
+.range:not(.range--dragging) .range__slider-bar {
   transition:
     background-color 500ms,
     transform 200ms;
-  transform: scaleX(0);
-  transform-origin: top left;
 }
 
 .app--dark .range__slider-bar {

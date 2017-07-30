@@ -5,6 +5,9 @@ import React, { Component } from 'react';
 import './range.css';
 
 const getClientX = evt => {
+  if (evt.touches && evt.touches[0]) {
+    return evt.touches[0].clientX;
+  }
   return evt.clientX;
 };
 
@@ -26,8 +29,10 @@ export default class Range extends Component {
   }
 
   cleanupEvents() {
-    window.removeEventListener('mousemove', this.onDrag);
-    window.removeEventListener('mouseup', this.onDragEnd);
+    window.removeEventListener('touchmove', this.onDrag, true);
+    window.removeEventListener('touchend', this.onDragEnd, true);
+    window.removeEventListener('mousemove', this.onDrag, true);
+    window.removeEventListener('mouseup', this.onDragEnd, true);
   }
 
   render() {
@@ -36,17 +41,21 @@ export default class Range extends Component {
       (this.props.maxValue - this.props.minValue);
 
     return (
-      <div className="range" title={this.props.title}>
+      <div
+        className={classNames('range', {
+          'range--dragging': this.state.isDragging,
+        })}
+        title={this.props.title}
+      >
         <div className={`range__icon range__icon--${this.props.title}`}>
           {this.props.icon}
         </div>
         <div
-          className={classNames('range__slider-container', {
-            'range__slider-container--active': this.state.isDragging,
-          })}
+          className="range__slider-container"
           ref={el => {
             this.sliderContainerEl = el;
           }}
+          onTouchStart={this.onDragStart}
           onMouseDown={this.onDragStart}
         >
           <div
@@ -63,8 +72,10 @@ export default class Range extends Component {
   onDragStart(evt) {
     document.activeElement.blur();
 
-    window.addEventListener('mousemove', this.onDrag);
-    window.addEventListener('mouseup', this.onDragEnd);
+    window.addEventListener('touchmove', this.onDrag, true);
+    window.addEventListener('touchend', this.onDragEnd, true);
+    window.addEventListener('mousemove', this.onDrag, true);
+    window.addEventListener('mouseup', this.onDragEnd, true);
 
     this.onDrag(evt);
 
@@ -74,7 +85,7 @@ export default class Range extends Component {
   }
 
   onDrag(evt) {
-    evt.preventDefault();
+    evt.stopPropagation();
 
     const containerRect = this.sliderContainerEl.getBoundingClientRect();
     const position = _.clamp(

@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import React from 'react';
 
 import { CONTROL_TYPES, CONTROLS } from '../../constants/controls';
+import Button from './Button';
 
 import './preset-control.css';
 
@@ -11,10 +12,10 @@ export default ({ selectedValue, onChange }) =>
       'preset-control--active': selectedValue,
     })}
   >
-    <button
-      className="btn btn--icon preset-control__button preset-control__button--previous"
+    <Button
+      modifiers={{ arrowLeft: true }}
       disabled={selectedValue === 0 || selectedValue === 1}
-      onClick={() => onChange(selectedValue - 1)}
+      onPress={() => onChange(selectedValue - 1)}
     />
 
     <div className="preset-control__select-wrapper">
@@ -38,11 +39,11 @@ export default ({ selectedValue, onChange }) =>
       <div className="preset-control__select-arrow" />
     </div>
 
-    <button
-      className="btn btn--icon preset-control__button preset-control__button--next"
+    <Button
+      modifiers={{ arrowRight: true }}
       disabled={
         selectedValue === CONTROLS[CONTROL_TYPES.PRESET].options.length - 1
       }
-      onClick={() => onChange(selectedValue + 1)}
+      onPress={() => onChange(selectedValue + 1)}
     />
   </div>;

@@ -1,0 +1,137 @@
+@import '../../variables.css';
+
+.btn {
+  position: relative;
+  font-family: inherit;
+  color: inherit;
+  outline: none;
+  border: none;
+  padding: 5px 10px;
+  padding-right: 8px;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--color-black);
+  user-select: none;
+  text-decoration: none;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.btn--icon {
+  padding: 0;
+}
+
+.app--dark .btn {
+  border-color: var(--color-white);
+}
+
+.btn--hover:not(.btn--selected):not(:disabled) {
+  background: var(--color-black-a20);
+}
+
+.app--dark .btn--hover:not(.btn--selected):not(:disabled) {
+  background: var(--color-white-a20);
+}
+
+.btn--selected {
+  background: var(--color-black);
+  border-color: var(--color-black);
+  color: var(--color-white);
+}
+
+.app--dark .btn--selected {
+  background: var(--color-white);
+  border-color: var(--color-white);
+  color: var(--color-black);
+}
+
+.btn--inline:not(:last-child) {
+  margin-right: 10px;
+}
+
+.btn--block-center {
+  display: block;
+  margin: 0 auto;
+}
+
+.btn--large {
+  font-size: 15px;
+  font-weight: 300;
+}
+
+.btn--add,
+.btn--reset,
+.btn--shuffle {
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn--add::before,
+.btn--reset::before,
+.btn--shuffle::before {
+  display: inline-block;
+  content: '';
+  height: 12px;
+  width: 12px;
+  margin-right: 5px;
+}
+
+.btn--reset::before {
+  background-image: url('./img/reset-black.svg');
+}
+
+.app--dark .btn--reset::before {
+  background-image: url('./img/reset-white.svg');
+}
+
+.btn--shuffle::before {
+  background-image: url('./img/shuffle-black.svg');
+}
+
+.app--dark .btn--shuffle::before {
+  background-image: url('./img/shuffle-white.svg');
+}
+
+.btn--add::before {
+  background-image: url('./img/plus-black.svg');
+}
+
+.app--dark .btn--add::before {
+  background-image: url('./img/plus-white.svg');
+}
+
+.btn--arrow-left,
+.btn--arrow-right {
+  width: var(--preset-control-height);
+  height: var(--preset-control-height);
+}
+
+.btn--arrow-left::after,
+.btn--arrow-right::after {
+  position: absolute;
+  content: '';
+  height: 10px;
+  width: 10px;
+  top: 50%;
+  border-right: 1px solid var(--color-black);
+  border-bottom: 1px solid var(--color-black);
+}
+
+.btn--arrow-left::after {
+  left: calc(50% + 3px);
+  transform: translate(-50%, -50%) rotate(135deg);
+}
+
+.btn--arrow-right::after {
+  left: calc(50% - 3px);
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.app--dark .btn--arrow-left::after,
+.app--dark .btn--arrow-right::after {
+  border-color: var(--color-white);
+}

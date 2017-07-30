@@ -66,7 +66,7 @@
   transition: opacity 100ms;
 }
 
-.app__meta-control:hover {
+.app__meta-control--hover {
   opacity: 1;
 }
 
@@ -167,69 +167,4 @@
   100% {
     transform: scaleX(1);
   }
-}
-
-.btn {
-  font-family: inherit;
-  color: inherit;
-  outline: none;
-  border: none;
-  padding: 5px 10px;
-  padding-right: 8px;
-  letter-spacing: 0.2em;
-  cursor: pointer;
-  background: transparent;
-  border: 1px solid var(--color-black);
-  transition:
-    200ms background,
-    200ms border;
-  user-select: none;
-  text-decoration: none;
-}
-
-.btn:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-.btn--icon {
-  padding: 0;
-}
-
-.app--dark .btn {
-  border-color: var(--color-white);
-}
-
-.btn:not(.btn--active):not(:disabled):hover {
-  background: var(--color-black-a20);
-}
-
-.app--dark .btn:not(.btn--active):not(:disabled):hover {
-  background: var(--color-white-a20);
-}
-
-.btn--active {
-  background: var(--color-black);
-  border-color: var(--color-black);
-  color: var(--color-white);
-}
-
-.app--dark .btn--active {
-  background: var(--color-white);
-  border-color: var(--color-white);
-  color: var(--color-black);
-}
-
-.btn--inline:not(:last-child) {
-  margin-right: 10px;
-}
-
-.btn--block-center {
-  display: block;
-  margin: 0 auto;
-}
-
-.btn--large {
-  font-size: 15px;
-  font-weight: 300;
 }

@@ -9,6 +9,7 @@ import {
   CONTROLS,
 } from '../../constants/controls';
 import Games from '../../constants/games';
+import Button from './Button';
 import ColorPicker from './ColorPicker';
 import RadioControl from './RadioControl';
 
@@ -116,9 +117,11 @@ export default ({ controls, onChange }) => {
         {selectedOption.description}
       </p>
 
-      <button
-        className="btn btn--block-center"
-        onClick={() =>
+      <Button
+        modifiers={{
+          blockCenter: true,
+        }}
+        onPress={() =>
           onChange(
             'colors',
             CONTROLS[CONTROL_TYPES.COLORS].defaultValue(
@@ -129,7 +132,7 @@ export default ({ controls, onChange }) => {
           )}
       >
         randomize colors
-      </button>
+      </Button>
     </div>
   );
 };
