@@ -66,18 +66,19 @@
 .btn--add,
 .btn--reset,
 .btn--shuffle {
-  display: inline-flex;
-  align-items: center;
+  padding-left: 27px;
 }
 
 .btn--add::before,
 .btn--reset::before,
 .btn--shuffle::before {
-  display: inline-block;
+  position: absolute;
+  top: 50%;
+  left: 10px;
   content: '';
   height: 12px;
   width: 12px;
-  margin-right: 5px;
+  transform: translateY(-50%);
 }
 
 .btn--reset::before {

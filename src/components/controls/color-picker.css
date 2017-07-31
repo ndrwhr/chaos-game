@@ -3,16 +3,25 @@
 :root {
   --hue-button-width: 50px;
   --shade-button-width: 200px;
+
+  /* These variables are used in the manual calculations below to determine
+  the height of the color picker buttons. Ideally this could be accomplished
+  with flex-direction: column, but safari doesn't like that. */
+  --picker-height: 500px;
+  --num-hues: 15;
+  --num-shades: 9;
+  --picker-button-spacing: 5px;
+
+  --hue-button-height: 29px; /* = (500 - ((15 - 1) * 5)) / 15 */
+  --shade-button-height: 56px; /* = 500 / 9 */
 }
 
 .color-picker {
   position: absolute;
   top: 50%;
   left: 50%;
-  height: 540px;
   background: var(--color-white);
-  display: flex;
-  flex-direction: column;
+
   padding: 10px;
   box-shadow: 0 1px 35px 0 rgba(0, 0, 0, 0.3);
   opacity: 0;
@@ -38,9 +47,8 @@
 }
 
 .color-picker__list {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+  height: var(--picker-height);
+  font-size: 0;
 }
 
 .color-picker__list--hues {
@@ -52,21 +60,18 @@
 }
 
 .color-picker__button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: relative;
+  display: inline-block;
   border: none;
-  flex: 1;
   cursor: pointer;
   outline: none;
   transition: background 300ms;
 }
 
-.color-picker__button--hue:not(:last-child) {
-  margin-bottom: 5px;
-}
-
 .color-picker__button::after {
+  position: absolute;
+  top: calc(50% - 15px);
+  left: calc(50% - 15px);
   display: block;
   content: '';
   height: 30px;
@@ -98,11 +103,17 @@
 }
 
 .color-picker__button--hue {
-  width: 50px;
+  height: var(--hue-button-height);
+  width: var(--hue-button-width);
+}
+
+.color-picker__button--hue:not(:last-child) {
+  margin-bottom: var(--picker-button-spacing);
 }
 
 .color-picker__button--shade {
-  width: 200px;
+  height: var(--shade-button-height);
+  width: var(--shade-button-width);
 }
 
 .color-picker__shade-button--selected::after {
