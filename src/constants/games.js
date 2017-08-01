@@ -209,7 +209,7 @@ const attractorFactory = ({
 export default {
   [GAME_TYPES.HISTORY_EXCLUSION]: {
     description:
-      'Using the number of targets specified by the Target History control, choose the next target based the intersection of the exclusion rules. See the “Exclusions” control below for more details.',
+      'Using the number of targets specified by the Target History control, choose the next target based on the intersection of the exclusion rules. See the “Exclusions” control below for more details.',
 
     additionalControls: [CONTROL_TYPES.HISTORY],
 
@@ -269,7 +269,7 @@ export default {
 
   [GAME_TYPES.HISTORY_EXCLUSION_2]: {
     description:
-      'Similar to the “History Exclusion” variation, however the exclusion rules are only applied if the previously chosen two targets were the same. See the “Exclusions” control below for more details.',
+      'Similar to the “History Exclusion” variation, however the exclusion rules are only applied if the previously two chosen targets were the same. See the “Exclusions” control below for more details.',
 
     additionalControls: [],
 

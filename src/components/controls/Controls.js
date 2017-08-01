@@ -65,10 +65,9 @@ const Controls = ({
             target="_blank"
             rel="noopener noreferrer"
           >
-            this video
+            this video by Numberphile
           </a>{' '}
-          by Numberphile on YouTube (it's what inspired me to make this
-          experiment).
+          on YouTube (it's what inspired me to make this experiment).
         </p>
 
         <p className="controls__description">
@@ -116,7 +115,6 @@ const Controls = ({
 
       <Control
         title="Variation"
-        description="Change the core rules of the chaos game."
       >
         <RadioControl
           selectedValue={controls[CONTROL_TYPES.GAME]}
