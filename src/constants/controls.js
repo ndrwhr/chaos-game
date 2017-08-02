@@ -306,7 +306,7 @@ export const CONTROLS = {
   )({
     type: CONTROL_TYPES.QUALITY,
 
-    defaultValue: () => 0,
+    defaultValue: () => 2,
   }),
 
   [CONTROL_TYPES.NUM_TARGETS]: composeControl(
