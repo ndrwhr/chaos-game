@@ -232,6 +232,7 @@ class App extends Component {
   onDownloadLinkClick() {
     this.setState({
       downloadUrl: null,
+      isRunning: true,
     });
   }
 
