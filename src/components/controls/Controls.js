@@ -113,9 +113,7 @@ const Controls = ({
 
       <div className="controls__divider" />
 
-      <Control
-        title="Variation"
-      >
+      <Control title="Variation">
         <RadioControl
           selectedValue={controls[CONTROL_TYPES.GAME]}
           options={mapControlOptionsToRadioOptions(
