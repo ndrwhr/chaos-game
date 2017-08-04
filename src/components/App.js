@@ -1,9 +1,6 @@
 import classNames from 'classnames';
 import React, { Component } from 'react';
-import { CSSTransitionGroup } from 'react-transition-group';
 
-import Canvas from './Canvas';
-import Controls from './controls/Controls';
 import {
   BACKGROUND_TYPES,
   CONTROL_TYPES,
@@ -11,7 +8,6 @@ import {
   SERIALIZABLE_CONTROLS,
 } from '../constants/controls';
 import Games from '../constants/games';
-import Button from './controls/Button';
 import {
   createPolygon,
   getControlValues,
@@ -19,7 +15,10 @@ import {
   readSavedControlValues,
   saveControlValues,
 } from '../utils/control-utils';
-import { isTouchDevice } from '../utils/browser-utils';
+import Canvas from './Canvas';
+import Controls from './controls/Controls';
+import Button from './controls/Button';
+import DownloadModal, { DOWNLOAD_MODAL_STEPS } from './DownloadModal';
 
 import './app.css';
 
@@ -45,6 +44,7 @@ class App extends Component {
       attractor,
       canvasSize: 0,
       controls,
+      downloadModalStep: null,
       downloadUrl: null,
       isRunning: true,
       isGeneratingDownloadLink: false,
@@ -98,7 +98,11 @@ class App extends Component {
             <Button
               baseClassName="app__meta-control"
               modifiers={{ download: true }}
-              onPress={() => this.onDownloadButtonClick()}
+              onPress={() =>
+                this.setState({
+                  isRunning: false,
+                  downloadModalStep: DOWNLOAD_MODAL_STEPS.INITIAL,
+                })}
               title="Download"
             />
             <Button
@@ -113,35 +117,34 @@ class App extends Component {
             />
           </div>
 
-          <CSSTransitionGroup
-            transitionName={{
-              leave: 'app__download-mask--leave',
-              leaveActive: 'app__download-mask--leave-active',
-              enter: 'app__download-mask--enter',
-              enterActive: 'app__download-mask--enter-active',
+          <DownloadModal
+            downloadUrl={this.state.downloadUrl}
+            step={this.state.downloadModalStep}
+            onAspectratioSelect={aspectRation => {
+              this.setState(
+                {
+                  downloadModalStep: DOWNLOAD_MODAL_STEPS.GENERATING,
+                },
+                () => {
+                  Promise.all([
+                    this.canvas.toBlob(aspectRation),
+                    getDelayPromise(2 * 1000),
+                  ]).then(([blob]) => {
+                    this.setState({
+                      downloadUrl: window.URL.createObjectURL(blob),
+                      downloadModalStep: DOWNLOAD_MODAL_STEPS.READY,
+                    });
+                  });
+                },
+              );
             }}
-            transitionEnterTimeout={200}
-            transitionLeaveTimeout={200}
-          >
-            {(this.state.isGeneratingDownloadLink || this.state.downloadUrl) &&
-              <div
-                className="app__download-mask"
-                onClick={() =>
-                  this.state.downloadUrl && this.onDownloadLinkClick()}
-              >
-                {this.state.isGeneratingDownloadLink
-                  ? <div className="app__download-progress">
-                      generating download link...
-                    </div>
-                  : <a
-                      className="btn btn--large"
-                      download="chaos-game.png"
-                      href={this.state.downloadUrl}
-                    >
-                      {isTouchDevice() ? 'tap' : 'click'} here to download
-                    </a>}
-              </div>}
-          </CSSTransitionGroup>
+            onClose={() =>
+              this.setState({
+                downloadModalStep: null,
+                downloadUrl: null,
+                isRunning: true,
+              })}
+          />
         </div>
         <div className="app__controls">
           <Controls
@@ -207,33 +210,6 @@ class App extends Component {
         this.canvas.clear();
       },
     );
-  }
-
-  onDownloadButtonClick() {
-    this.setState(
-      {
-        isRunning: false,
-        isGeneratingDownloadLink: true,
-      },
-      () => {
-        Promise.all([
-          this.canvas.toBlob(),
-          getDelayPromise(2 * 1000),
-        ]).then(([blob]) => {
-          this.setState({
-            downloadUrl: window.URL.createObjectURL(blob),
-            isGeneratingDownloadLink: false,
-          });
-        });
-      },
-    );
-  }
-
-  onDownloadLinkClick() {
-    this.setState({
-      downloadUrl: null,
-      isRunning: true,
-    });
   }
 
   onResize() {

@@ -12,7 +12,6 @@
     "query-string": "^4.3.4",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
-    "react-transition-group": "^1.2.0",
     "to-slug-case": "^1.0.0"
   },
   "devDependencies": {

@@ -65,11 +65,28 @@ class Canvas extends Component {
     );
   }
 
-  toBlob() {
+  toBlob(aspectRatio) {
     return new Promise(resolve => {
-      this._canvas.toBlob(blob => {
-        resolve(blob);
-      });
+      const actualSize = this.props.size * CANVAS_SCALE;
+      const width = aspectRatio < 1 ? actualSize : actualSize * aspectRatio;
+      const height = aspectRatio < 1 ? actualSize / aspectRatio : actualSize;
+
+      const canvas = document.createElement('canvas');
+      canvas.height = height;
+      canvas.width = width;
+
+      const context = canvas.getContext('2d');
+      context.fillStyle = BACKGROUND_COLORS[this.props.background];
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(
+        this._canvas,
+        (canvas.width - actualSize) / 2,
+        (canvas.height - actualSize) / 2,
+        actualSize,
+        actualSize,
+      );
+
+      canvas.toBlob(blob => resolve(blob));
     });
   }
 
