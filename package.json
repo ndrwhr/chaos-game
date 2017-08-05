@@ -22,8 +22,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
-    "prettier": "prettier --single-quote --trailing-comma all --write \"src/**/*.js\""
+    "prettier": "prettier --single-quote --trailing-comma all --write \"src/**/*.js\"",
+    "make": "./scripts/make.sh"
   }
 }
