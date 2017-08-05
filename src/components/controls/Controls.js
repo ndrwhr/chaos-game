@@ -176,8 +176,15 @@ const Controls = ({
         />
       </Control>
 
+      <div className="controls__divider" />
+
+      <div className="controls__social">
+        <iframe allowTransparency="true" frameBorder="0" scrolling="no" src="http://platform.twitter.com/widgets/tweet_button.html?count=horizontal&amp;id=twitter-widget-0&amp;lang=en&amp;original_referer=http%3A%2F%2Fandrew.wang-hoyer.com%2Fexperiments%2Fchaos-game%2F&amp;size=m&amp;text=Make%20beautiful%20fractals%20with%20%40ndrwhr's%20Chaos%20Game&amp;url=http%3A%2F%2Fandrew.wang-hoyer.com%2Fexperiments%2Fchaos-game%2F" className="twitter-share-button twitter-count-horizontal" style={{width: '92px', height: '20px'}} title="Twitter Tweet Button" data-twttr-rendered="true"></iframe>
+        <iframe src="http://www.facebook.com/plugins/like.php?href=http://andrew.wang-hoyer.com/experiments/chaos-game/&amp;layout=button_count&amp;show_faces=false&amp;width=90&amp;action=like&amp;colorscheme=light&amp;height=21" scrolling="no" frameBorder="0" style={{border: 'none', overflow: 'hidden', width: '90px', height: '21px'}} allowTransparency="true"></iframe>
+      </div>
+
       <p className="controls__attribution">
-        Built with ❤️ by <a href="/">Andrew Wang-Hoyer</a>
+        Built by <a href="/">Andrew Wang-Hoyer</a>
       </p>
     </div>
   );

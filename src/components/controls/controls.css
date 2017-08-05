@@ -63,6 +63,12 @@
   border-color: var(--color-white);
 }
 
+.controls__social {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
 .controls__attribution {
   font-size: 13px;
   text-align: center;
